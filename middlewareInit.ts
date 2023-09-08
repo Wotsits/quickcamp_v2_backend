@@ -1,20 +1,14 @@
 
 import {Express} from 'express'
 import cors from 'cors';
-import cookieSession from 'cookie-session'
+import cookieParser from 'cookie-parser'
 
-export function middlewareInit(app: Express, express: any, jwtSecret: string ) {
+export function middlewareInit(app: Express, express: any) {
     app.use(cors());
     // parse requests of content-type - application/json
     app.use(express.json())
     // parse requests of content-type - application/x-www-form-urlencoded
     app.use(express.urlencoded({ extended: true }));
-    app.use(
-      cookieSession({
-        name: "bezkoder-session",
-        keys: [jwtSecret],
-        httpOnly: true,
-      })
-    );
+    app.use(cookieParser());
 }
 

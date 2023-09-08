@@ -25,13 +25,13 @@ const {PORT: port, JWTSECRET: jwtSecret} = process.env;
 // -----------------
 
 if (!jwtSecret) throw new Error("JWTSecret undefined in env.  Define listening port as JWTSECRET={jwtsecret} in .env")
-middlewareInit(app, express, jwtSecret);
+middlewareInit(app, express);
 
 // ----------------
 // ROUTES
 // ----------------
 
-routesInit(app, prisma)
+routesInit(app, prisma, jwtSecret)
 
 // ----------------
 // LISTEN

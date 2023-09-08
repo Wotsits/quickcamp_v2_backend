@@ -4,8 +4,11 @@ import { getOneById } from "./dataFetchers/getOneById.js";
 import { PrismaClient } from "@prisma/client";
 import { isPasswordOk } from "./utilities/userManagement/helpers.js";
 import bcrypt from "bcryptjs";
+import jwt from 'jsonwebtoken';
+import { jwtMaxAge } from "./settings.js";
 
-export function routesInit(app: Express, prisma: PrismaClient) {
+
+export function routesInit(app: Express, prisma: PrismaClient, jwtSecret: string) {
   app.get("/", (req: Request, res: Response) => {
     res.json({ message: "Express + TypeScript Server" });
   });
@@ -99,9 +102,23 @@ export function routesInit(app: Express, prisma: PrismaClient) {
         // comparing given password with hashed password
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) res.status(400).json({ message: "Login not succesful" });
+        const token = jwt.sign(
+          {
+            email: email,
+            role: user.role
+          },
+          jwtSecret,
+          {
+            expiresIn: jwtMaxAge
+          }
+        )
+        res.cookie("jwt", token, {
+          httpOnly: true,
+          maxAge: jwtMaxAge * 1000, // in ms
+        });
         res.status(200).json({
           message: "Login successful",
-          user,
+          user: user.id,
         });
       }
     } catch (error) {
