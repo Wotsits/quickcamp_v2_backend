@@ -1,8 +1,9 @@
 import {Express, Request, Response} from 'express'
 import { getAll } from './dataFetchers/getAll.js';
-import { getOne } from './dataFetchers/getOne.js';
+import { getOneById } from './dataFetchers/getOneById.js';
+import { PrismaClient } from '@prisma/client';
 
-export function routesInit(app: Express) {
+export function routesInit(app: Express, prisma: PrismaClient) {
 
   app.get("/", (req: Request, res: Response) => {
     res.json({ message: "Express + TypeScript Server" });
@@ -10,31 +11,31 @@ export function routesInit(app: Express) {
 
   // TENANTS
 
-  app.get("/tenants", (req: Request, res: Response) => {
+  app.get("/tenants", async (req: Request, res: Response) => {
     // return all tenants here, paginated.
-    const data = getAll('Tenants');
+    const data = await getAll('tenant', prisma)
     res.json(data)
   });
 
-  app.get("/tenants/:id", (req: Request, res: Response) => {
+  app.get("/tenants/:id", async (req: Request, res: Response) => {
     // return tenant by id here.
     const id = parseInt(req.params.id);
-    const data = getOne('Tenants', id);
+    const data = await getOneById('tenant', id, prisma)
     res.json(data)
   });
 
   // SITES
 
-  app.get("/sites", (req: Request, res: Response) => {
+  app.get("/sites", async (req: Request, res: Response) => {
     // return all sites here, paginated.
-    const data = getAll('Sites');
+    const data = await getAll('site', prisma);
     res.json(data)
   });
 
-  app.get("/sites/:id", (req: Request, res: Response) => {
+  app.get("/sites/:id", async (req: Request, res: Response) => {
     // return site by id here.
     const id = parseInt(req.params.id);
-    const data = getOne('Sites', id);
+    const data = getOneById('site', id, prisma);
     res.json(data)
   });
 
@@ -42,118 +43,118 @@ export function routesInit(app: Express) {
 
   // UNITTYPES
 
-  app.get("/unit-types", (req: Request, res: Response) => {
+  app.get("/unit-types", async (req: Request, res: Response) => {
     // return all unit-types here, paginated.
-    const data = getAll('UnitTypes');
+    const data = getAll('unitType', prisma);
     res.json(data)
   });
 
-  app.get("/unit-types/:siteId", (req: Request, res: Response) => {
+  app.get("/unit-types/:siteId", async (req: Request, res: Response) => {
     // return unit-types by site id here, paginated.
   });
 
-  app.get("/unit-types/:id", (req: Request, res: Response) => {
+  app.get("/unit-types/:id", async (req: Request, res: Response) => {
     // return unit-type by id here.
     const id = parseInt(req.params.id);
-    const data = getOne('UnitTypes', id);
+    const data = getOneById('unitType', id, prisma);
     res.json(data)
   });
 
   // UNITS
 
-  app.get("/units", (req: Request, res: Response) => {
+  app.get("/units", async (req: Request, res: Response) => {
     // return all units here, paginated.
-    const data = getAll('Units');
+    const data = getAll('unit', prisma);
     res.json(data)
   });
 
-  app.get("/units/:unitTypeId", (req: Request, res: Response) => {
+  app.get("/units/:unitTypeId", async (req: Request, res: Response) => {
     // return units by unitTypeId here, paginated.
   });
 
-  app.get("/units/:id", (req: Request, res: Response) => {
+  app.get("/units/:id", async (req: Request, res: Response) => {
     // return unit by id here.
     const id = parseInt(req.params.id);
-    const data = getOne('Units', id);
+    const data = getOneById('unit', id, prisma);
     res.json(data)
   });
 
   // GUESTS
 
-  app.get("/guests", (req: Request, res: Response) => {
+  app.get("/guests", async (req: Request, res: Response) => {
     // return all guests here, paginated.
-    const data = getAll('Guests');
+    const data = getAll('guest', prisma);
     res.json(data)
   });
 
-  app.get("/guests/:id", (req: Request, res: Response) => {
+  app.get("/guests/:id", async (req: Request, res: Response) => {
     // return guest by id here.
     const id = parseInt(req.params.id);
-    const data = getOne('Guests', id);
+    const data = getOneById('guest', id, prisma);
     res.json(data)
   });
 
   // VEHICLES
 
-  app.get("/vehicles", (req: Request, res: Response) => {
+  app.get("/vehicles", async (req: Request, res: Response) => {
     // return all vehicles here, paginated.
-    const data = getAll('Vehicles');
+    const data = getAll('vehicle', prisma);
     res.json(data)
   });
 
-  app.get("/vehicles/:id", (req: Request, res: Response) => {
+  app.get("/vehicles/:id", async (req: Request, res: Response) => {
     // return vehicle by id here.
     const id = parseInt(req.params.id);
-    const data = getOne('Vehicles', id);
+    const data = getOneById('vehicle', id, prisma);
     res.json(data)
   });
 
   // PETS
 
-  app.get("/pets", (req: Request, res: Response) => {
+  app.get("/pets", async (req: Request, res: Response) => {
     // return all pets here, paginated.
-    const data = getAll('Pets');
+    const data = getAll('pet', prisma);
     res.json(data)
   });
 
-  app.get("/pets/:id", (req: Request, res: Response) => {
+  app.get("/pets/:id", async (req: Request, res: Response) => {
     // return pet by id here.
     const id = parseInt(req.params.id);
-    const data = getOne('Pets', id);
+    const data = getOneById('pet', id, prisma);
     res.json(data)
   });
 
   // BOOKINGS
 
-  app.get("/bookings", (req: Request, res: Response) => {
+  app.get("/bookings", async (req: Request, res: Response) => {
     // return all bookings here, paginated.
-    const data = getAll('Bookings');
+    const data = getAll('booking', prisma);
     res.json(data)
   });
 
-  app.get("/bookings/:id", (req: Request, res: Response) => {
+  app.get("/bookings/:id", async (req: Request, res: Response) => {
     // return booking by id here.
     const id = parseInt(req.params.id);
-    const data = getOne('Bookings', id);
+    const data = getOneById('booking', id, prisma);
     res.json(data)
   });
 
   // PAYMENTS
 
-  app.get("/payment", (req: Request, res: Response) => {
+  app.get("/payment", async (req: Request, res: Response) => {
     // return all payments here, paginated.
-    const data = getAll('Payments');
+    const data = getAll('payment', prisma);
     res.json(data)
   });
 
-  app.get("/payment/:id", (req: Request, res: Response) => {
+  app.get("/payment/:id", async (req: Request, res: Response) => {
     // return payments by id here.
     const id = parseInt(req.params.id);
-    const data = getOne('Payments', id);
+    const data = getOneById('payment', id, prisma);
     res.json(data)
   });
 
-  app.get("/payment/:bookingId", (req: Request, res: Response) => {
+  app.get("/payment/:bookingId", async (req: Request, res: Response) => {
     // return payments by bookingId here, paginated.
   });
 }

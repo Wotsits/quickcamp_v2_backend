@@ -1,6 +1,5 @@
-import fs from 'fs'
+import { PrismaClient } from '@prisma/client'
 
-export function getAll(type: string) {
-    const data = fs.readFileSync(`data/tbl${type}.json`, 'utf8')
-    return JSON.parse(data)
+export async function getAll(type: keyof PrismaClient, prisma: PrismaClient) {
+    return await (prisma[type] as any).findMany()
 }

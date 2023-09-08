@@ -2,6 +2,7 @@ import express, { Request, Response } from 'express';
 import dotenv from 'dotenv';
 import { middlewareInit } from './middlewareInit.js';
 import { routesInit } from './routes.js';
+import { PrismaClient } from '@prisma/client';
 
 // -----------------
 // APP SETUP
@@ -9,6 +10,9 @@ import { routesInit } from './routes.js';
 
 dotenv.config();
 const app = express();
+
+// Instantiate Prisma instance
+const prisma = new PrismaClient({ log: ['query', 'info', 'warn', 'error'] })
 
 // -----------------
 // ENV VARS
@@ -27,7 +31,7 @@ middlewareInit(app, express, jwtSecret);
 // ROUTES
 // ----------------
 
-routesInit(app)
+routesInit(app, prisma)
 
 // ----------------
 // LISTEN
