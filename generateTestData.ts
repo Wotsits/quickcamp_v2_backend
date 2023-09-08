@@ -1,6 +1,11 @@
 import { faker } from '@faker-js/faker';
-import { Booking, BookingGuestMap, BookingPetMap, BookingVehicleMap, Guest, Payment, Pet, Site, Tenant, Unit, UnitType, User, Vehicle } from './types';
+import { Booking, Calendar, BookingGuestMap, BookingPetMap, BookingVehicleMap, Guest, Payment, Pet, Site, Tenant, Unit, UnitType, User, Vehicle } from './types';
 import FileSystem from "fs";
+import { PrismaClient } from '@prisma/client'
+
+// Instantiate Prisma instance
+
+const prisma = new PrismaClient()
 
 // -------------
 // HELPERS
@@ -25,7 +30,7 @@ function generateSequentialDates(): Date[] {
 // Main
 // --------------
 
-function main() {
+async function main() {
 
     // settings 
     const tenantNo = 1;
@@ -66,7 +71,9 @@ function main() {
             const newUser = {
                 email: "user" + i + "@" + tenant.name + ".com",
                 password: "password",
-                tenantId: tenant.id
+                tenantId: tenant.id,
+                name: faker.person.firstName() + ' ' + faker.person.lastName(),
+                role: "ADMIN"
             }
             users.push(newUser)
         }
@@ -109,14 +116,14 @@ function main() {
     })
 
     // build calendarTable
-    const calendarTable: {date: Date, unitId: number, bookingId: number | null}[] = []
+    const calendarTable: Calendar[] = []
     const dates = generateSequentialDates()
     units.forEach(({id}) => {
         dates.forEach(date => {
             calendarTable.push({
+                id: date.toString() + "-" + id.toString(),
                 date,
                 unitId: id,
-                bookingId: null
             })
         })
     })
@@ -168,7 +175,7 @@ function main() {
         const randomGuestId = Math.floor(Math.random()*guests.length)
         const randomUnitIndex = Math.floor(Math.random()*units.length)
         const randomUnitId = units[randomUnitIndex].id
-        const unitsAvailableDates = calendarTable.filter(entry => entry.unitId === randomUnitId && entry.bookingId === null)
+        const unitsAvailableDates = calendarTable.filter(entry => entry.unitId === randomUnitId && !entry.bookingId)
         const randomAvailableIndex = Math.floor(Math.random() * unitsAvailableDates.length)
         const randomAvailableDate = unitsAvailableDates[randomAvailableIndex]
 
@@ -268,15 +275,86 @@ function main() {
         })
     })
 
-    // WRITE TO FILE
-    const fileNames = ["tblTenants", "tblSites", "tblUsers", "tblUnitTypes", "tblUnits", "tblCalendarTable", "tblGuests", "tblVehicles", "tblPets", "tblBookings", "tblBookingGuestMap", "tblBookingVehicleMap", "tblBookingPetMap", "tblPayments"]
-    const files = [tenants, sites, users, unitTypes, units, calendarTable, guests, vehicles, pets, bookings, bookingGuestMap, bookingVehicleMap, bookingPetMap, payments]
-    fileNames.forEach((fileName, index) => {
-        FileSystem.writeFile(`data/${fileName}.json`, JSON.stringify(files[index]), (error) => {
-            if (error) throw error;
-        });
-    })    
- 
+    // WRITE TO DB
+    const types = [vehicles, pets, bookings, bookingGuestMap, bookingVehicleMap, bookingPetMap, payments]
+    for await (let tenant of tenants) {
+        await prisma.tenant.create({
+            data: tenant,
+        })
+    }
+    for await (let site of sites) {
+        await prisma.site.create({
+            data: site,
+        })
+    }
+    for await (let user of users) {
+        await prisma.user.create({
+            data: user,
+        })
+    }
+    for await (let unitType of unitTypes) {
+        await prisma.unitType.create({
+            data: unitType,
+        })
+    }
+    for await (let unit of units) {
+        await prisma.unit.create({
+            data: unit,
+        })
+    }
+    for await (let guest of guests) {
+        await prisma.guest.create({
+            data: guest,
+        })
+    }
+    for await (let vehicle of vehicles) {
+        await prisma.vehicle.create({
+            data: vehicle,
+        })
+    }
+    for await (let pet of pets) {
+        await prisma.pet.create({
+            data: pet,
+        })
+    }
+    for await (let booking of bookings) {
+        await prisma.booking.create({
+            data: booking,
+        })
+    }
+    for await (let calendarEntry of calendarTable) {
+        await prisma.calendar.create({
+            data: calendarEntry,
+        })
+    }
+    for await (let bookingGuestMapObj of bookingGuestMap) {
+        await prisma.bookingGuestMap.create({
+            data: bookingGuestMapObj,
+        })
+    }
+    for await (let bookingPetMapObj of bookingPetMap) {
+        await prisma.bookingPetMap.create({
+            data: bookingPetMapObj,
+        })
+    }
+    for await (let bookingVehicleMapObj of bookingVehicleMap) {
+        await prisma.bookingVehicleMap.create({
+            data: bookingVehicleMapObj,
+        })
+    }
+    for await (let payment of payments) {
+        await prisma.payment.create({
+            data: payment,
+        })
+    }
+    console.log("Woohoo!  Test data has been generated.  Have at it!")
 }
 
-main();
+main().then(async () => {
+    await prisma.$disconnect()
+  })
+  .catch(async (e) => {
+    console.error(e)
+    await prisma.$disconnect()
+    process.exit(1)
+  });

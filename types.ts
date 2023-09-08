@@ -12,7 +12,9 @@ export type Site = {
 export type User = {
     email: string,
     password: string,
-    tenantId: number
+    tenantId: number,
+    name: string,
+    role: string
 }
 
 export type UnitType = {
@@ -57,6 +59,13 @@ export type Booking = {
     unitId: number, 
     totalFee: number,
     leadGuestId: number,
+}
+
+export type Calendar = {
+    id: string,
+    date: Date,
+    unitId: number,
+    bookingId?: number
 }
 
 export type BookingGuestMap = {
