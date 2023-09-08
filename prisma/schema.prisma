@@ -1,0 +1,143 @@
+// This is your Prisma schema file         
+// learn more about it in the docs https//pris.ly/d/prisma-schema
+
+generator client {
+  provider  =     "prisma-client-js"
+}
+
+datasource db {
+  provider  =     "sqlite"
+  url       =     env("DATABASE_URL")
+}
+
+model Tenant {
+  id              Int       @id @default(autoincrement())
+  name            String    @unique
+  users           User[]
+  sites           Site[]
+}
+
+model Site {
+  id              Int       @id @default(autoincrement())
+  name            String  
+  tenant          Tenant    @relation(fields: [tenantId], references: [id])
+  tenantId        Int
+  unitTypes       UnitType[]
+}
+
+model User {
+  id              Int       @id @default(autoincrement())
+  email           String    @unique
+  name            String  
+  password        String
+  role            String
+  tenant          Tenant    @relation(fields: [tenantId], references: [id])
+  tenantId        Int
+}
+
+model UnitType {
+    id            Int       @id @default(autoincrement())
+    name          String  
+    site          Site      @relation(fields:[siteId], references: [id])       
+    siteId        Int
+    units         Unit[]
+}
+
+model Unit {
+    id            Int       @id @default(autoincrement())
+    name          String   
+    unitType      UnitType  @relation(fields:[unitTypeId], references: [id])      
+    unitTypeId    Int
+    bookings      Booking[]
+    calendarEntries  Calendar[]
+}
+
+model Guest {
+    id            Int       @id @default(autoincrement())
+    firstName     String         
+    lastName      String         
+    address1      String         
+    address2      String         
+    townCity      String         
+    postcode      String         
+    tel           String         
+    email         String         
+    password      String
+    bookingsAsLead      Booking[]
+    bookingsAsOccupant  BookingGuestMap[]
+}
+
+model Vehicle {
+    id            Int       @id @default(autoincrement())
+    vehReg        String
+    bookings      BookingVehicleMap[]
+}
+
+model Pet {
+    id            Int       @id @default(autoincrement())
+    name          String
+    bookings      BookingPetMap[]
+}
+
+model Booking {
+    id            Int       @id @default(autoincrement())
+    start         DateTime         
+    end           DateTime 
+    unit          Unit      @relation(fields: [unitId], references: [id])      
+    unitId        Int          
+    totalFee      Float  
+    leadGuest     Guest     @relation(fields: [leadGuestId], references: [id])
+    leadGuestId   Int
+    payments      Payment[]
+    guests        BookingGuestMap[]
+    pets          BookingPetMap[]   
+    vehicles      BookingVehicleMap[]     
+    calendarEntries  Calendar[]
+}
+
+model Calendar {
+  id              String    @id
+  date            DateTime  
+  unit            Unit      @relation(fields: [unitId], references:[id])
+  unitId          Int       
+  booking         Booking?  @relation(fields: [bookingId], references: [id])
+  bookingId       Int?       
+}
+
+model BookingGuestMap {
+    id            Int       @id @default(autoincrement())
+    booking       Booking   @relation(fields:[bookingId], references: [id])     
+    bookingId     Int   
+    guest         Guest     @relation(fields:[guestId], references: [id])
+    guestId       Int         
+    start         DateTime         
+    end           DateTime
+}
+
+model BookingVehicleMap {
+    id            Int       @id @default(autoincrement())
+    booking       Booking   @relation(fields:[bookingId], references: [id])     
+    bookingId     Int
+    vehicle       Vehicle   @relation(fields:[vehicleId], references: [id])
+    vehicleId     Int         
+    start         DateTime         
+    end           DateTime
+}
+
+model BookingPetMap {
+    id            Int       @id @default(autoincrement())
+    booking       Booking   @relation(fields:[bookingId], references: [id])     
+    bookingId     Int
+    pet           Pet       @relation(fields:[petId], references: [id])
+    petId         Int         
+    start         DateTime         
+    end           DateTime
+}
+
+model Payment {
+    id            Int       @id @default(autoincrement())
+    createdAt     DateTime    
+    booking       Booking   @relation(fields:[bookingId], references: [id])     
+    bookingId     Int         
+    amount        Float
+}

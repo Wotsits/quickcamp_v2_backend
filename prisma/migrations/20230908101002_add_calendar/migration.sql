@@ -1,0 +1,8 @@
+-- CreateTable
+CREATE TABLE "Calendar" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "unitId" INTEGER NOT NULL,
+    "bookingId" INTEGER NOT NULL,
+    CONSTRAINT "Calendar_unitId_fkey" FOREIGN KEY ("unitId") REFERENCES "Unit" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT "Calendar_bookingId_fkey" FOREIGN KEY ("bookingId") REFERENCES "Booking" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+);
