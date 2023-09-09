@@ -1,7 +1,7 @@
 import express, { Request, Response } from "express";
 import dotenv from "dotenv";
 import { middlewareInit } from "./middlewareInit.js";
-import { routesInit } from "./routes.js";
+import { routesInit } from "./routes/index.js";
 import { PrismaClient } from "@prisma/client";
 
 // -----------------
