@@ -72,7 +72,7 @@ export function routesInit(
 
   app.get(urls.UNITS, async (req: Request, res: Response) => {
     // return all units here, paginated.
-    const data = getAll(entityTypes.UNIT, prisma);
+    const data = await getAll(entityTypes.UNIT, prisma);
     res.json(data);
   });
 
@@ -83,7 +83,7 @@ export function routesInit(
   app.get(`${urls.UNITS}/:id`, async (req: Request, res: Response) => {
     // return unit by id here.
     const id = parseInt(req.params.id);
-    const data = getOneById(entityTypes.UNIT, id, prisma);
+    const data = await getOneById(entityTypes.UNIT, id, prisma);
     res.json(data);
   });
 
@@ -91,14 +91,14 @@ export function routesInit(
 
   app.get(urls.GUESTS, async (req: Request, res: Response) => {
     // return all guests here, paginated.
-    const data = getAll(entityTypes.GUEST, prisma);
+    const data = await getAll(entityTypes.GUEST, prisma);
     res.json(data);
   });
 
   app.get(`${urls.GUESTS}/:id`, async (req: Request, res: Response) => {
     // return guest by id here.
     const id = parseInt(req.params.id);
-    const data = getOneById(entityTypes.GUEST, id, prisma);
+    const data = await getOneById(entityTypes.GUEST, id, prisma);
     res.json(data);
   });
 
@@ -106,14 +106,14 @@ export function routesInit(
 
   app.get(urls.VEHICLES, async (req: Request, res: Response) => {
     // return all vehicles here, paginated.
-    const data = getAll(entityTypes.VEHICLE, prisma);
+    const data = await getAll(entityTypes.VEHICLE, prisma);
     res.json(data);
   });
 
   app.get(`${urls.VEHICLES}/:id`, async (req: Request, res: Response) => {
     // return vehicle by id here.
     const id = parseInt(req.params.id);
-    const data = getOneById(entityTypes.VEHICLE, id, prisma);
+    const data = await getOneById(entityTypes.VEHICLE, id, prisma);
     res.json(data);
   });
 
@@ -121,14 +121,14 @@ export function routesInit(
 
   app.get(urls.PETS, async (req: Request, res: Response) => {
     // return all pets here, paginated.
-    const data = getAll(entityTypes.PET, prisma);
+    const data = await getAll(entityTypes.PET, prisma);
     res.json(data);
   });
 
   app.get(`${urls.PETS}/:id`, async (req: Request, res: Response) => {
     // return pet by id here.
     const id = parseInt(req.params.id);
-    const data = getOneById(entityTypes.PET, id, prisma);
+    const data = await getOneById(entityTypes.PET, id, prisma);
     res.json(data);
   });
 
@@ -136,14 +136,14 @@ export function routesInit(
 
   app.get(urls.BOOKINGS, async (req: Request, res: Response) => {
     // return all bookings here, paginated.
-    const data = getAll(entityTypes.BOOKING, prisma);
+    const data = await getAll(entityTypes.BOOKING, prisma);
     res.json(data);
   });
 
   app.get(`${urls.BOOKINGS}/:id`, async (req: Request, res: Response) => {
     // return booking by id here.
     const id = parseInt(req.params.id);
-    const data = getOneById(entityTypes.BOOKING, id, prisma);
+    const data = await getOneById(entityTypes.BOOKING, id, prisma);
     res.json(data);
   });
 
@@ -151,14 +151,14 @@ export function routesInit(
 
   app.get(urls.PAYMENTS, async (req: Request, res: Response) => {
     // return all payments here, paginated.
-    const data = getAll(entityTypes.PAYMENT, prisma);
+    const data = await getAll(entityTypes.PAYMENT, prisma);
     res.json(data);
   });
 
   app.get(`${urls.PAYMENTS}/:id`, async (req: Request, res: Response) => {
     // return payments by id here.
     const id = parseInt(req.params.id);
-    const data = getOneById(entityTypes.PAYMENT, id, prisma);
+    const data = await getOneById(entityTypes.PAYMENT, id, prisma);
     res.json(data);
   });
 

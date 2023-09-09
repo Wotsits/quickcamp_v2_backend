@@ -1,9 +1,9 @@
 import { PrismaClient } from "@prisma/client";
 import { Express, Request, Response, NextFunction } from "express";
-import { isPasswordOk } from "../utilities/userManagement/helpers";
 import bcrypt from "bcryptjs";
 import jwt from 'jsonwebtoken';
 import { jwtMaxAge } from "../settings.js";
+import { isPasswordOk } from "../utilities/userManagement/helpers.js";
 
 export function registerLoginRoute(app: Express, prisma: PrismaClient, jwtSecret: string) {
       app.post("/login", async (req: Request, res: Response, next: NextFunction) => {
