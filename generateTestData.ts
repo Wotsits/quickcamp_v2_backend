@@ -69,11 +69,13 @@ async function main() {
     tenants.forEach(tenant => {
         for (let i = 0; i < siteNo; i++) {
             const newUser = {
-                email: "user" + i + "@" + tenant.name + ".com",
+                username: "user" + i + "-" + tenant.name,
                 password: "password",
                 tenantId: tenant.id,
                 name: faker.person.firstName() + ' ' + faker.person.lastName(),
-                role: "ADMIN"
+                role: "ADMIN",
+                email: "user" + i + "@" + tenant.name + ".com",
+
             }
             users.push(newUser)
         }

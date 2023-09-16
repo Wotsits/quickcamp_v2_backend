@@ -10,11 +10,12 @@ export type Site = {
 }
 
 export type User = {
-    email: string,
+    username: string,
     password: string,
     tenantId: number,
     name: string,
     role: string
+    email: string
 }
 
 export type UnitType = {

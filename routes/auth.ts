@@ -7,17 +7,17 @@ import { isPasswordOk } from "../utilities/userManagement/helpers.js";
 
 export function registerLoginRoute(app: Express, prisma: PrismaClient, jwtSecret: string) {
       app.post("/login", async (req: Request, res: Response, next: NextFunction) => {
-        const { email, password } = req.body;
+        const { username, password } = req.body;
         // Check if username and password is provided
-        if (!email || !password) {
+        if (!username || !password) {
           return res.status(400).json({
-            message: "Email or Password not present",
+            message: "Username or password not present",
           });
         }
         try {
           const user = await prisma.user.findUnique({
             where: {
-              email,
+              username,
             },
           });
           if (!user) {
@@ -31,8 +31,9 @@ export function registerLoginRoute(app: Express, prisma: PrismaClient, jwtSecret
             if (!isMatch) res.status(400).json({ message: "Login not succesful" });
             const token = jwt.sign(
               {
-                email: email,
-                role: user.role
+                username: username,
+                role: user.role,
+                tenant: user.tenantId
               },
               jwtSecret,
               {
@@ -59,7 +60,7 @@ export function registerLoginRoute(app: Express, prisma: PrismaClient, jwtSecret
 
 export function registerRegisterRoute(app: Express, prisma: PrismaClient, jwtSecret: string) {
     app.post("/register", async (req: Request, res: Response, next: NextFunction) => {
-        const { email, name, password, role } = req.body;
+        const { username, name, password, role, email } = req.body;
         // TODO: how do I get the tenant making the new user?
         if (!isPasswordOk(password)) {
           return res
@@ -71,11 +72,12 @@ export function registerRegisterRoute(app: Express, prisma: PrismaClient, jwtSec
           await prisma.user
             .create({
               data: {
-                email,
+                username,
                 name,
                 password: hash,
                 role,
                 tenantId: 0, // TODO replace this with the tenantId when you've figured out how to get it.
+                email
               },
             })
             .then((user) =>

@@ -27,12 +27,13 @@ model Site {
 
 model User {
   id              Int       @id @default(autoincrement())
-  email           String    @unique
+  username        String    @unique
   name            String  
   password        String
   role            String
   tenant          Tenant    @relation(fields: [tenantId], references: [id])
   tenantId        Int
+  email           String
 }
 
 model UnitType {
