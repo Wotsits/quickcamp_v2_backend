@@ -5,6 +5,16 @@ import jwt from "jsonwebtoken";
 import { jwtMaxAge } from "../settings.js";
 import { isPasswordOk } from "../utilities/userManagement/helpers.js";
 
+const messages = {
+  NO_USERNAME_OR_PASSWORD: "Username or password not present",
+  LOGIN_NOT_SUCCESSFUL:
+    "Login not successful. Credentials did not match a registered user.",
+    CREDENTIALS_DID_NOT_MATCH: "Credentials did not match.",
+  AN_ERROR_OCCURRED: "An error occurred",
+  LOGIN_SUCCESSFUL: "Login successful",
+};
+}
+
 export function registerLoginRoute(
   app: Express,
   prisma: PrismaClient,
@@ -17,7 +27,7 @@ export function registerLoginRoute(
       // Check if username and password is provided
       if (!username || !password) {
         return res.status(400).json({
-          message: "Username or password not present",
+          message: messages.NO_USERNAME_OR_PASSWORD,
         });
       }
       try {
@@ -28,14 +38,21 @@ export function registerLoginRoute(
         });
         if (!user) {
           return res.status(401).json({
-            message: "Login not  successful. Credentials did not match a registered user.",
-            error: "Credentials did not match.",
+            message:
+              messages.LOGIN_NOT_SUCCESSFUL,
+            error: messages.CREDENTIALS_DID_NOT_MATCH,
           });
         } else {
           // comparing given password with hashed password
           const isMatch = await bcrypt.compare(password, user.password);
           if (!isMatch)
-            return res.status(400).json({ message: "Login not succesful." });
+            return res
+              .status(401)
+              .json({
+                message:
+                  messages.LOGIN_NOT_SUCCESSFUL,
+                error: messages.CREDENTIALS_DID_NOT_MATCH,
+              });
           const token = jwt.sign(
             {
               username: username,
@@ -54,13 +71,13 @@ export function registerLoginRoute(
             })
             .status(200)
             .json({
-              message: "Login successful",
+              message: messages.LOGIN_SUCCESSFUL,
               user: user.id,
             });
         }
       } catch (error) {
         return res.status(400).json({
-          message: "An error occurred",
+          message: messages.AN_ERROR_OCCURRED,
           error: error,
         });
       }
