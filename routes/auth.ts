@@ -13,7 +13,6 @@ const messages = {
   AN_ERROR_OCCURRED: "An error occurred",
   LOGIN_SUCCESSFUL: "Login successful",
 };
-}
 
 export function registerLoginRoute(
   app: Express,
