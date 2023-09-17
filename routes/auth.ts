@@ -86,8 +86,7 @@ export function registerLoginRoute(
 
 export function registerRegisterRoute(
   app: Express,
-  prisma: PrismaClient,
-  jwtSecret: string
+  prisma: PrismaClient
 ) {
   app.post(
     "/register",

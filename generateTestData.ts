@@ -2,6 +2,7 @@ import { faker } from '@faker-js/faker';
 import { Booking, Calendar, BookingGuestMap, BookingPetMap, BookingVehicleMap, Guest, Payment, Pet, Site, Tenant, Unit, UnitType, User, Vehicle } from './types';
 import FileSystem from "fs";
 import { PrismaClient } from '@prisma/client'
+import bcrypt from "bcryptjs";
 
 // Instantiate Prisma instance
 
@@ -68,16 +69,17 @@ async function main() {
     const users: User[] = [];
     tenants.forEach(tenant => {
         for (let i = 0; i < siteNo; i++) {
-            const newUser = {
-                username: "user" + i + "-" + tenant.name,
-                password: "password",
-                tenantId: tenant.id,
-                name: faker.person.firstName() + ' ' + faker.person.lastName(),
-                role: "ADMIN",
-                email: "user" + i + "@" + tenant.name + ".com",
-
-            }
-            users.push(newUser)
+            bcrypt.hash("password", 10).then((hash) => {
+                const newUser = {
+                    username: "user" + i + "-" + tenant.name,
+                    password: hash,
+                    tenantId: tenant.id,
+                    name: faker.person.firstName() + ' ' + faker.person.lastName(),
+                    role: "ADMIN",
+                    email: "user" + i + "@" + tenant.name + ".com",
+                }
+                users.push(newUser)
+            })   
         }
     })
 
