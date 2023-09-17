@@ -1,6 +1,5 @@
 import { faker } from '@faker-js/faker';
 import { Booking, Calendar, BookingGuestMap, BookingPetMap, BookingVehicleMap, Guest, Payment, Pet, Site, Tenant, Unit, UnitType, User, Vehicle } from './types';
-import FileSystem from "fs";
 import { PrismaClient } from '@prisma/client'
 import bcrypt from "bcryptjs";
 
