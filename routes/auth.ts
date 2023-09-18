@@ -20,23 +20,14 @@ const { JWTSECRET: jwtSecret, REFRESHTOKENSECRET: refreshTokenSecret } =
   process.env;
 
 function generateToken(
-  user: User | { username: string; tenant: string },
+  user: User | { username: string; tenantId: string },
   options?: any
 ) {
   if (!jwtSecret) throw new Error("JWTSecret not defined in env");
-  if ("tenantId" in user)
-    return jwt.sign(
-      {
-        username: user.username,
-        tenant: user.tenantId,
-      },
-      jwtSecret,
-      options
-    );
   return jwt.sign(
     {
       username: user.username,
-      tenant: user.tenant,
+      tenantId: user.tenantId,
     },
     jwtSecret,
     options
@@ -163,7 +154,7 @@ export function registerRegisterRoute(app: Express, prisma: PrismaClient) {
 export function registerTokenRoute(app: Express, prisma: PrismaClient) {
   app.post("/token", async (req: Request, res: Response) => {
     const refreshToken = req.body.token;
-    if (refreshToken == null) return res.sendStatus(401);
+    if (!refreshToken) return res.sendStatus(401);
     if (!refreshTokenSecret)
       throw new Error("RefreshTokenSecret not defined in env");
     const data = await prisma.token.findUnique({
@@ -176,7 +167,7 @@ export function registerTokenRoute(app: Express, prisma: PrismaClient) {
       if (err) return res.sendStatus(403);
       const accessToken = generateToken({
         username: user.username,
-        tenant: user.tenantId,
+        tenantId: user.tenantId,
       });
       res.json({ accessToken });
     });
@@ -186,7 +177,7 @@ export function registerTokenRoute(app: Express, prisma: PrismaClient) {
 export function registerLogoutRoute(app: Express, prisma: PrismaClient) {
   app.delete("/logout", async (req: Request, res: Response) => {
     const refreshToken = req.body.token;
-    if (refreshToken == null) return res.sendStatus(401);
+    if (!refreshToken) return res.sendStatus(401);
     if (!refreshTokenSecret)
       throw new Error("RefreshTokenSecret not defined in env");
     try {
