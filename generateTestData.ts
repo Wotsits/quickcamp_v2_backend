@@ -1,6 +1,5 @@
 import { faker } from '@faker-js/faker';
-import { Booking, Calendar, Guest, Payment, Role, Site, Tenant, Unit, UnitType, User, UserRoleMap } from './types';
-import { BookingGuest, BookingPet, BookingVehicle, PrismaClient } from '@prisma/client'
+import { Booking, BookingGuest, BookingPet, BookingVehicle, Calendar, LeadGuest, Payment, PrismaClient, Role, Site, Tenant, Unit, UnitType, User } from '@prisma/client'
 import bcrypt from "bcryptjs";
 
 // Instantiate Prisma instance
@@ -110,25 +109,14 @@ async function main() {
 
     // build Roles
     const roles: Role[] = [];
-    roles.push({
-        id: 1,
-        name: "ADMIN"
-    })
-    roles.push({
-        id: 2,
-        name: "BASIC"
-    })
-
-    // build RoleMap
-    const roleUserMap: UserRoleMap[] = [];
-    users.forEach((user, index) => {
-        roleUserMap.push({
-            id: index,
-            userId: user.id,
-            roleId: 1
+    users.forEach(user => {
+        roles.push({
+            id: 1,
+            role: "ADMIN",
+            userId: user.id
         })
     })
-
+    
 
     // build UnitTypes, 
     const unitTypes: UnitType[] = [];
@@ -175,12 +163,13 @@ async function main() {
                 id: date.toString() + "-" + id.toString(),
                 date,
                 unitId: id,
+                bookingId: null
             })
         })
     })
 
     // build guests
-    const guests: Guest[] = [];
+    const guests: LeadGuest[] = [];
     for (let i = 0; i < bookingNo; i++) {
         bcrypt.hash("password", 10).then((hash) => {
             const newGuest = {

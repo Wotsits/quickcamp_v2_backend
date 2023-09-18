@@ -2,8 +2,12 @@ import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 
+// ----------------
+
 dotenv.config();
 const { JWTSECRET: jwtSecret } = process.env;
+
+// ----------------
 
 const errorMessages = {
   JWTSECRET_NOT_DEFINED:
@@ -11,6 +15,8 @@ const errorMessages = {
   NOT_AUTHORIZED: "Not authorized",
   NOT_AUTHORIZED_TOKEN_NOT_AVAILABLE: "Not authorized, token not available",
 };
+
+// ----------------
 
 export function loggedIn(req: Request, res: Response, next: NextFunction) {
   if (!jwtSecret) throw new Error(errorMessages.JWTSECRET_NOT_DEFINED);
@@ -34,9 +40,12 @@ export function loggedIn(req: Request, res: Response, next: NextFunction) {
       return res.status(403).json({ message: errorMessages.NOT_AUTHORIZED });
     }
     req.user = decodedToken;
+    console.log(decodedToken)
     next();
   });
 }
+
+// ----------------
 
 export function adminAuth(req: Request, res: Response, next: NextFunction) {
   if (!jwtSecret) throw new Error(errorMessages.JWTSECRET_NOT_DEFINED);
@@ -61,6 +70,8 @@ export function adminAuth(req: Request, res: Response, next: NextFunction) {
       .json({ message: errorMessages.NOT_AUTHORIZED_TOKEN_NOT_AVAILABLE });
   }
 }
+
+// ----------------
 
 export function userAuth(req: Request, res: Response, next: NextFunction) {
   if (!jwtSecret) throw new Error(errorMessages.JWTSECRET_NOT_DEFINED);

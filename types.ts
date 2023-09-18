@@ -14,19 +14,16 @@ export type User = {
     username: string,
     password: string,
     tenantId: number,
+    tenant: Tenant,
     name: string,
     email: string
+    roles: Role[]
 }
 
 export type Role = {
     id: number,
-    name: string
-}
-
-export type UserRoleMap = {
-    id: number,
+    role: string,
     userId: number,
-    roleId: number
 }
 
 export type UnitType = {

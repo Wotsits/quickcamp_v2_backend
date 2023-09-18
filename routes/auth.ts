@@ -1,10 +1,19 @@
 import dotenv from "dotenv";
-import { PrismaClient, User } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 import { Express, Request, Response, NextFunction } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { jwtMaxAge } from "../settings.js";
 import { isPasswordOk } from "../utilities/userManagement/helpers.js";
+import { User } from "../types.js";
+
+// ----------------
+
+dotenv.config();
+const { JWTSECRET: jwtSecret, REFRESHTOKENSECRET: refreshTokenSecret } =
+  process.env;
+
+// ----------------
 
 const messages = {
   NO_USERNAME_OR_PASSWORD: "Username or password not present",
@@ -15,24 +24,28 @@ const messages = {
   LOGIN_SUCCESSFUL: "Login successful",
 };
 
-dotenv.config();
-const { JWTSECRET: jwtSecret, REFRESHTOKENSECRET: refreshTokenSecret } =
-  process.env;
+// ----------------
+// HELPER FUNCTIONS
+// ----------------
 
 function generateToken(
-  user: User | { username: string; tenantId: string },
+  user:  User,
   options?: any
 ) {
-  if (!jwtSecret) throw new Error("JWTSecret not defined in env");
+  if (!jwtSecret) throw new Error("JWTSecret undefined in env.  Define JWTSecret as JWTSECRET={jwtsecret} in .env");
   return jwt.sign(
     {
+      id: user.id,
       username: user.username,
       tenantId: user.tenantId,
+      roles: user.roles
     },
     jwtSecret,
     options
   );
 }
+
+// ----------------
 
 export function registerLoginRoute(app: Express, prisma: PrismaClient) {
   app.post(
@@ -57,6 +70,7 @@ export function registerLoginRoute(app: Express, prisma: PrismaClient) {
           },
           include: {
             tenant: true,
+            roles: true,
           },
         });
 
@@ -92,6 +106,7 @@ export function registerLoginRoute(app: Express, prisma: PrismaClient) {
           token,
           refreshToken,
         });
+
       } catch (error) {
         return res.status(400).json({
           message: messages.AN_ERROR_OCCURRED,
@@ -106,7 +121,7 @@ export function registerRegisterRoute(app: Express, prisma: PrismaClient) {
   app.post(
     "/register",
     async (req: Request, res: Response, next: NextFunction) => {
-      const { username, name, password, roleId, email } = req.body;
+      const { username, name, password, role, email } = req.body;
       // TODO: how do I get the tenant making the new user?
       if (!isPasswordOk(password)) {
         return res
@@ -114,12 +129,6 @@ export function registerRegisterRoute(app: Express, prisma: PrismaClient) {
           .json({ message: "Password does not meet minimum requirements" });
       }
       try {
-        const role = await prisma.role.findUnique({
-          where: {
-            id: parseInt(roleId),
-          },
-        });
-        if (!role) return res.status(400).json({ message: "Role not found" });
         const hash = await bcrypt.hash(password, 10);
         const user = await prisma.user.create({
           data: {
@@ -128,18 +137,20 @@ export function registerRegisterRoute(app: Express, prisma: PrismaClient) {
             password: hash,
             tenantId: 0, // TODO replace this with the tenantId when you've figured out how to get it.
             email,
+            roles: {
+              create: {
+                role,
+              },
+            }
+          },
+          include: {
+            roles: true,
+            tenant: true,
           },
         });
-        await prisma.userRoleMap.create({
-          data: {
-            userId: user.id,
-            roleId: role?.id,
-          },
-        });
-        const userWithRole = {...user, role: [role.name]}
         return res.status(200).json({
           message: "User successfully created",
-          user: userWithRole,
+          user: user,
         });
       } catch (err) {
         res.status(401).json({
@@ -166,9 +177,11 @@ export function registerTokenRoute(app: Express, prisma: PrismaClient) {
     jwt.verify(refreshToken, refreshTokenSecret, (err: any, user: any) => {
       if (err) return res.sendStatus(403);
       const accessToken = generateToken({
+        id: user.id,
         username: user.username,
         tenantId: user.tenantId,
-      });
+        roles: user.roles
+      } as User);
       res.json({ accessToken });
     });
   });
