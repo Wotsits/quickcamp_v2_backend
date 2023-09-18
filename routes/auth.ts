@@ -6,6 +6,7 @@ import jwt from "jsonwebtoken";
 import { jwtMaxAge } from "../settings.js";
 import { isPasswordOk } from "../utilities/userManagement/helpers.js";
 import { User } from "../types.js";
+import { loggedIn } from "../utilities/userManagement/middleware.js";
 
 // ----------------
 
@@ -119,10 +120,10 @@ export function registerLoginRoute(app: Express, prisma: PrismaClient) {
 
 export function registerRegisterRoute(app: Express, prisma: PrismaClient) {
   app.post(
-    "/register",
+    "/register", loggedIn,
     async (req: Request, res: Response, next: NextFunction) => {
       const { username, name, password, role, email } = req.body;
-      // TODO: how do I get the tenant making the new user?
+      const tenantId = req.user!.tenantId;
       if (!isPasswordOk(password)) {
         return res
           .status(400)
@@ -135,7 +136,7 @@ export function registerRegisterRoute(app: Express, prisma: PrismaClient) {
             username,
             name,
             password: hash,
-            tenantId: 0, // TODO replace this with the tenantId when you've figured out how to get it.
+            tenantId: tenantId,
             email,
             roles: {
               create: {
