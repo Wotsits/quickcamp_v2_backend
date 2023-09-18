@@ -2,14 +2,13 @@ import { Express, Request, Response } from "express";
 import { getAll } from "../dataFetchers/getAll.js";
 import { getOneById } from "../dataFetchers/getOneById.js";
 import { Booking, PrismaClient } from "@prisma/client";
-import { registerLoginRoute, registerRegisterRoute } from "./auth.js";
+import { registerLoginRoute, registerLogoutRoute, registerRegisterRoute, registerTokenRoute } from "./auth.js";
 import { entityTypes, urls } from "../enums.js";
 import { loggedIn } from "../utilities/userManagement/middleware.js";
 
 export function routesInit(
   app: Express,
   prisma: PrismaClient,
-  jwtSecret: string
 ) {
   app.get("/", (req: Request, res: Response) => {
     res.json({ message: "Express + TypeScript Server" });
@@ -48,7 +47,9 @@ export function routesInit(
   // USERS
 
   registerRegisterRoute(app, prisma);
-  registerLoginRoute(app, prisma, jwtSecret);
+  registerLoginRoute(app, prisma);
+  registerTokenRoute(app, prisma);
+  registerLogoutRoute(app, prisma);
 
   // UNITTYPES
 
@@ -136,6 +137,65 @@ export function routesInit(
   // BOOKINGS
 
   app.get(urls.BOOKINGS, loggedIn, async (req: Request, res: Response) => {
+    const { start, end } = req.query;
+    if (start && end) {
+      // return bookings by date range here, paginated.
+      const data = await prisma.booking.findMany({
+        where: {
+          OR: [
+            {
+              AND: [
+                { 
+                  start: {
+                    gte: new Date(start.toString()),
+                  },
+                  end: {
+                    gte: new Date(end.toString()),
+                  }
+                },
+              ]
+            },
+            {
+              AND: [
+                {
+                  start: {
+                    lte: new Date(start.toString()),
+                  },
+                  end: {
+                    lte: new Date(end.toString()),
+                  }
+                }
+              ]
+            },
+            {
+              AND: [
+                {
+                  start: {
+                    lte: new Date(start.toString()),
+                  },
+                  end: {
+                    gte: new Date(end.toString()),
+                  }
+                }
+              ]
+            },
+            {
+              AND: [
+                {
+                  start: {
+                    gte: new Date(start.toString()),
+                  },
+                  end: {
+                    lte: new Date(end.toString()),
+                  }
+                }
+              ]
+            }
+          ]
+        },
+      });
+      return res.json(data);
+    }
     // return all bookings here, paginated.
     const data = await getAll(entityTypes.BOOKING, prisma);
     res.json(data);

@@ -19,9 +19,6 @@ export const entityTypes: { [key: string]: keyof PrismaClient } = {
   SITE: "site",
   UNITTYPE: "unitType",
   UNIT: "unit",
-  GUEST: "guest",
-  VEHICLE: "vehicle",
-  PET: "pet",
   BOOKING: "booking",
   PAYMENT: "payment",
 };

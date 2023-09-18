@@ -10,12 +10,23 @@ export type Site = {
 }
 
 export type User = {
+    id: number,
     username: string,
     password: string,
     tenantId: number,
     name: string,
-    role: string
     email: string
+}
+
+export type Role = {
+    id: number,
+    name: string
+}
+
+export type UserRoleMap = {
+    id: number,
+    userId: number,
+    roleId: number
 }
 
 export type UnitType = {
