@@ -2,14 +2,16 @@ import { Express, Request, Response } from "express";
 import { getAll } from "../dataFetchers/getAll.js";
 import { getOneById } from "../dataFetchers/getOneById.js";
 import { Booking, PrismaClient } from "@prisma/client";
-import { registerLoginRoute, registerLogoutRoute, registerRegisterRoute, registerTokenRoute } from "./auth.js";
+import {
+  registerLoginRoute,
+  registerLogoutRoute,
+  registerRegisterRoute,
+  registerTokenRoute,
+} from "./auth.js";
 import { entityTypes, urls } from "../enums.js";
 import { loggedIn } from "../utilities/userManagement/middleware.js";
 
-export function routesInit(
-  app: Express,
-  prisma: PrismaClient,
-) {
+export function routesInit(app: Express, prisma: PrismaClient) {
   app.get("/", (req: Request, res: Response) => {
     res.json({ message: "Express + TypeScript Server" });
   });
@@ -22,12 +24,16 @@ export function routesInit(
     res.json(data);
   });
 
-  app.get(`${urls.TENANTS}/:id`, loggedIn, async (req: Request, res: Response) => {
-    // return tenant by id here.
-    const id = parseInt(req.params.id);
-    const data = await getOneById(entityTypes.TENANT, id, prisma);
-    res.json(data);
-  });
+  app.get(
+    `${urls.TENANTS}/:id`,
+    loggedIn,
+    async (req: Request, res: Response) => {
+      // return tenant by id here.
+      const id = parseInt(req.params.id);
+      const data = await getOneById(entityTypes.TENANT, id, prisma);
+      res.json(data);
+    }
+  );
 
   // SITES
 
@@ -37,12 +43,16 @@ export function routesInit(
     res.json(data);
   });
 
-  app.get(`${urls.SITES}/:id`, loggedIn, async (req: Request, res: Response) => {
-    // return site by id here.
-    const id = parseInt(req.params.id);
-    const data = getOneById(entityTypes.SITE, id, prisma);
-    res.json(data);
-  });
+  app.get(
+    `${urls.SITES}/:id`,
+    loggedIn,
+    async (req: Request, res: Response) => {
+      // return site by id here.
+      const id = parseInt(req.params.id);
+      const data = getOneById(entityTypes.SITE, id, prisma);
+      res.json(data);
+    }
+  );
 
   // USERS
 
@@ -63,26 +73,34 @@ export function routesInit(
     res.json(data);
   });
 
-  app.get(`${urls.UNITTYPES}/:siteId`, loggedIn, async (req: Request, res: Response) => {
-    const { siteId } = req.params;
-    // return all unit-types here, paginated.
-    const data = await prisma.unitType.findMany({
-      where: {
-        siteId: parseInt(siteId),
-      },
-      include: {
-        units: true,
-      },
-    });
-    res.json(data);
-  });
+  app.get(
+    `${urls.UNITTYPES}/:siteId`,
+    loggedIn,
+    async (req: Request, res: Response) => {
+      const { siteId } = req.params;
+      // return all unit-types here, paginated.
+      const data = await prisma.unitType.findMany({
+        where: {
+          siteId: parseInt(siteId),
+        },
+        include: {
+          units: true,
+        },
+      });
+      res.json(data);
+    }
+  );
 
-  app.get(`${urls.UNITTYPES}/:id`, loggedIn, async (req: Request, res: Response) => {
-    // return unit-type by id here.
-    const id = parseInt(req.params.id);
-    const data = getOneById(entityTypes.UNITTYPE, id, prisma);
-    res.json(data);
-  });
+  app.get(
+    `${urls.UNITTYPES}/:id`,
+    loggedIn,
+    async (req: Request, res: Response) => {
+      // return unit-type by id here.
+      const id = parseInt(req.params.id);
+      const data = getOneById(entityTypes.UNITTYPE, id, prisma);
+      res.json(data);
+    }
+  );
 
   // UNITS
 
@@ -92,16 +110,24 @@ export function routesInit(
     res.json(data);
   });
 
-  app.get(`${urls.UNITS}/:unitTypeId`, loggedIn, async (req: Request, res: Response) => {
-    // return units by unitTypeId here, paginated.
-  });
+  app.get(
+    `${urls.UNITS}/:unitTypeId`,
+    loggedIn,
+    async (req: Request, res: Response) => {
+      // return units by unitTypeId here, paginated.
+    }
+  );
 
-  app.get(`${urls.UNITS}/:id`, loggedIn, async (req: Request, res: Response) => {
-    // return unit by id here.
-    const id = parseInt(req.params.id);
-    const data = await getOneById(entityTypes.UNIT, id, prisma);
-    res.json(data);
-  });
+  app.get(
+    `${urls.UNITS}/:id`,
+    loggedIn,
+    async (req: Request, res: Response) => {
+      // return unit by id here.
+      const id = parseInt(req.params.id);
+      const data = await getOneById(entityTypes.UNIT, id, prisma);
+      res.json(data);
+    }
+  );
 
   // GUESTS
 
@@ -111,12 +137,16 @@ export function routesInit(
     res.json(data);
   });
 
-  app.get(`${urls.GUESTS}/:id`, loggedIn, async (req: Request, res: Response) => {
-    // return guest by id here.
-    const id = parseInt(req.params.id);
-    const data = await getOneById(entityTypes.GUEST, id, prisma);
-    res.json(data);
-  });
+  app.get(
+    `${urls.GUESTS}/:id`,
+    loggedIn,
+    async (req: Request, res: Response) => {
+      // return guest by id here.
+      const id = parseInt(req.params.id);
+      const data = await getOneById(entityTypes.GUEST, id, prisma);
+      res.json(data);
+    }
+  );
 
   // VEHICLES
 
@@ -126,12 +156,16 @@ export function routesInit(
     res.json(data);
   });
 
-  app.get(`${urls.VEHICLES}/:id`, loggedIn, async (req: Request, res: Response) => {
-    // return vehicle by id here.
-    const id = parseInt(req.params.id);
-    const data = await getOneById(entityTypes.VEHICLE, id, prisma);
-    res.json(data);
-  });
+  app.get(
+    `${urls.VEHICLES}/:id`,
+    loggedIn,
+    async (req: Request, res: Response) => {
+      // return vehicle by id here.
+      const id = parseInt(req.params.id);
+      const data = await getOneById(entityTypes.VEHICLE, id, prisma);
+      res.json(data);
+    }
+  );
 
   // PETS
 
@@ -152,6 +186,9 @@ export function routesInit(
 
   app.get(urls.BOOKINGS, loggedIn, async (req: Request, res: Response) => {
     const { start, end, siteId } = req.query;
+
+    // --------------
+
     // check that user is allowed to access this siteId
     const site = await prisma.site.findUnique({
       where: {
@@ -177,6 +214,9 @@ export function routesInit(
         message: "Forbidden",
       });
     }
+
+    // --------------
+
     if (start && end && siteId) {
       // return bookings by date range here, paginated.
       const data = await prisma.booking.findMany({
@@ -186,62 +226,38 @@ export function routesInit(
               unit: {
                 unitType: {
                   siteId: parseInt(siteId as string),
-                }
-              }
+                },
+              },
             },
             {
               OR: [
                 {
+                  start: {
+                    gte: new Date(start as string),
+                    lt: new Date(end as string),
+                  },
+                },
+                {
+                  end: {
+                    gte: new Date(start as string),
+                    lt: new Date(end as string),
+                  },
+                },
+                {
                   AND: [
-                    { 
+                    {
                       start: {
-                        gte: new Date(start.toString()),
+                        lte: new Date(start as string),
                       },
                       end: {
-                        gte: new Date(end.toString()),
-                      }
+                        gt: new Date(end as string),
+                      },
                     },
-                  ]
+                  ],
                 },
-                {
-                  AND: [
-                    {
-                      start: {
-                        lte: new Date(start.toString()),
-                      },
-                      end: {
-                        lte: new Date(end.toString()),
-                      }
-                    }
-                  ]
-                },
-                {
-                  AND: [
-                    {
-                      start: {
-                        lte: new Date(start.toString()),
-                      },
-                      end: {
-                        gte: new Date(end.toString()),
-                      }
-                    }
-                  ]
-                },
-                {
-                  AND: [
-                    {
-                      start: {
-                        gte: new Date(start.toString()),
-                      },
-                      end: {
-                        lte: new Date(end.toString()),
-                      }
-                    }
-                  ]
-                }
-              ]
-            }
-          ]
+              ],
+            },
+          ],
         },
       });
       return res.json(data);
@@ -251,12 +267,16 @@ export function routesInit(
     res.json(data);
   });
 
-  app.get(`${urls.BOOKINGS}/:id`, loggedIn, async (req: Request, res: Response) => {
-    // return booking by id here.
-    const id = parseInt(req.params.id);
-    const data = await getOneById(entityTypes.BOOKING, id, prisma);
-    res.json(data);
-  });
+  app.get(
+    `${urls.BOOKINGS}/:id`,
+    loggedIn,
+    async (req: Request, res: Response) => {
+      // return booking by id here.
+      const id = parseInt(req.params.id);
+      const data = await getOneById(entityTypes.BOOKING, id, prisma);
+      res.json(data);
+    }
+  );
 
   // PAYMENTS
 
@@ -266,15 +286,20 @@ export function routesInit(
     res.json(data);
   });
 
-  app.get(`${urls.PAYMENTS}/:id`, loggedIn, async (req: Request, res: Response) => {
-    // return payments by id here.
-    const id = parseInt(req.params.id);
-    const data = await getOneById(entityTypes.PAYMENT, id, prisma);
-    res.json(data);
-  });
+  app.get(
+    `${urls.PAYMENTS}/:id`,
+    loggedIn,
+    async (req: Request, res: Response) => {
+      // return payments by id here.
+      const id = parseInt(req.params.id);
+      const data = await getOneById(entityTypes.PAYMENT, id, prisma);
+      res.json(data);
+    }
+  );
 
   app.get(
-    `${urls.PAYMENTS}/:bookingId`, loggedIn,
+    `${urls.PAYMENTS}/:bookingId`,
+    loggedIn,
     async (req: Request, res: Response) => {
       // return payments by bookingId here, paginated.
     }

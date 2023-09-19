@@ -59,10 +59,7 @@ async function main() {
     // settings 
     const tenantNo = 1;
     const siteNo = 2;
-
-    const petNo = 10;
-    const vehicleNo = 30;
-    const bookingNo = 20;
+    const bookingNo = 300;
 
     // build tenants
     const tenants: Tenant[] = [];
@@ -111,7 +108,7 @@ async function main() {
     const roles: Role[] = [];
     users.forEach(user => {
         roles.push({
-            id: 1,
+            id: user.id,
             role: "ADMIN",
             userId: user.id
         })
