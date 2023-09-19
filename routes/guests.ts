@@ -1,9 +1,9 @@
 import { PrismaClient } from "@prisma/client";
 import { Express, Request, Response } from "express";
-import { entityTypes, urls } from "../enums";
-import { loggedIn } from "../utilities/userManagement/middleware";
-import { getAll } from "../dataFetchers/getAll";
-import { getOneById } from "../dataFetchers/getOneById";
+import { entityTypes, urls } from "../enums.js";
+import { loggedIn } from "../utilities/userManagement/middleware.js";
+import { getAll } from "../dataFetchers/getAll.js";
+import { getOneById } from "../dataFetchers/getOneById.js";
 
 export function registerGuestRoutes(app: Express, prisma: PrismaClient) {
     app.get(urls.GUESTS, loggedIn, async (req: Request, res: Response) => {

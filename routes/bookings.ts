@@ -1,9 +1,9 @@
 import {Express, Request, Response} from 'express';
-import { entityTypes, urls } from '../enums';
-import { loggedIn } from '../utilities/userManagement/middleware';
-import { getAll } from '../dataFetchers/getAll';
+import { entityTypes, urls } from '../enums.js';
+import { loggedIn } from '../utilities/userManagement/middleware.js';
+import { getAll } from '../dataFetchers/getAll.js';
 import { PrismaClient } from '@prisma/client';
-import { getOneById } from '../dataFetchers/getOneById';
+import { getOneById } from '../dataFetchers/getOneById.js';
 
 export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
     app.get(urls.BOOKINGS, loggedIn, async (req: Request, res: Response) => {
@@ -81,6 +81,14 @@ export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
                 },
               ],
             },
+            include: {
+              unit: true,
+              leadGuest: true,
+              guests: true,
+              pets: true,
+              vehicles: true,
+              payments: true,
+            }
           });
           return res.json(data);
         }

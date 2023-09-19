@@ -1,9 +1,9 @@
 import { Express, Request, Response } from "express";
-import { getAll } from "../dataFetchers/getAll";
-import { entityTypes, urls } from "../enums";
-import { loggedIn } from "../utilities/userManagement/middleware";
-import { getOneById } from "../dataFetchers/getOneById";
+import { entityTypes, urls } from "../enums.js";
+import { loggedIn } from "../utilities/userManagement/middleware.js";
+import { getOneById } from "../dataFetchers/getOneById.js";
 import { PrismaClient } from "@prisma/client";
+import { getAll } from "../dataFetchers/getAll.js";
 
 export function registerTenantRoutes(app: Express, prisma: PrismaClient) {
     app.get(urls.TENANTS, loggedIn, async (req: Request, res: Response) => {

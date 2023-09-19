@@ -1,15 +1,11 @@
-import { Express, Request, Response } from "express";
-import { getAll } from "../dataFetchers/getAll.js";
-import { getOneById } from "../dataFetchers/getOneById.js";
-import { Booking, PrismaClient } from "@prisma/client";
+import { Express } from "express";
+import { PrismaClient } from "@prisma/client";
 import {
   registerLoginRoute,
   registerLogoutRoute,
   registerRegisterRoute,
   registerTokenRoute,
 } from "./auth.js";
-import { entityTypes, urls } from "../enums.js";
-import { loggedIn } from "../utilities/userManagement/middleware.js";
 import { registerTenantRoutes } from "./tenants.js";
 import { registerSiteRoutes } from "./sites.js";
 import { registerUnitTypeRoutes } from "./unitTypes.js";

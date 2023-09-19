@@ -1,8 +1,8 @@
 import { Express, Request, Response } from "express";
-import { getAll } from "../dataFetchers/getAll";
-import { getOneById } from "../dataFetchers/getOneById";
-import { entityTypes, urls } from "../enums";
-import { loggedIn } from "../utilities/userManagement/middleware";
+import { getAll } from "../dataFetchers/getAll.js";
+import { getOneById } from "../dataFetchers/getOneById.js";
+import { entityTypes, urls } from "../enums.js";
+import { loggedIn } from "../utilities/userManagement/middleware.js";
 import { PrismaClient } from "@prisma/client";
 
 export function registerUnitRoutes(app: Express, prisma: PrismaClient) {
