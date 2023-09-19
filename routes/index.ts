@@ -151,57 +151,68 @@ export function routesInit(
   // BOOKINGS
 
   app.get(urls.BOOKINGS, loggedIn, async (req: Request, res: Response) => {
-    const { start, end } = req.query;
-    if (start && end) {
+    const { start, end, siteId } = req.query;
+    if (start && end && siteId) {
       // return bookings by date range here, paginated.
       const data = await prisma.booking.findMany({
         where: {
-          OR: [
+          AND: [
             {
-              AND: [
-                { 
-                  start: {
-                    gte: new Date(start.toString()),
-                  },
-                  end: {
-                    gte: new Date(end.toString()),
-                  }
+              unit: {
+                unitType: {
+                  siteId: parseInt(siteId as string),
+                }
+              }
+            },
+            {
+              OR: [
+                {
+                  AND: [
+                    { 
+                      start: {
+                        gte: new Date(start.toString()),
+                      },
+                      end: {
+                        gte: new Date(end.toString()),
+                      }
+                    },
+                  ]
                 },
-              ]
-            },
-            {
-              AND: [
                 {
-                  start: {
-                    lte: new Date(start.toString()),
-                  },
-                  end: {
-                    lte: new Date(end.toString()),
-                  }
-                }
-              ]
-            },
-            {
-              AND: [
+                  AND: [
+                    {
+                      start: {
+                        lte: new Date(start.toString()),
+                      },
+                      end: {
+                        lte: new Date(end.toString()),
+                      }
+                    }
+                  ]
+                },
                 {
-                  start: {
-                    lte: new Date(start.toString()),
-                  },
-                  end: {
-                    gte: new Date(end.toString()),
-                  }
-                }
-              ]
-            },
-            {
-              AND: [
+                  AND: [
+                    {
+                      start: {
+                        lte: new Date(start.toString()),
+                      },
+                      end: {
+                        gte: new Date(end.toString()),
+                      }
+                    }
+                  ]
+                },
                 {
-                  start: {
-                    gte: new Date(start.toString()),
-                  },
-                  end: {
-                    lte: new Date(end.toString()),
-                  }
+                  AND: [
+                    {
+                      start: {
+                        gte: new Date(start.toString()),
+                      },
+                      end: {
+                        lte: new Date(end.toString()),
+                      }
+                    }
+                  ]
                 }
               ]
             }
