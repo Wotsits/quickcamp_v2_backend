@@ -152,6 +152,31 @@ export function routesInit(
 
   app.get(urls.BOOKINGS, loggedIn, async (req: Request, res: Response) => {
     const { start, end, siteId } = req.query;
+    // check that user is allowed to access this siteId
+    const site = await prisma.site.findUnique({
+      where: {
+        id: parseInt(siteId as string),
+      },
+      include: {
+        tenant: true,
+      },
+    });
+    if (!site) {
+      return res.status(404).json({
+        message: "Site not found",
+      });
+    }
+    const user = req.user;
+    if (!user) {
+      return res.status(401).json({
+        message: "Unauthorized",
+      });
+    }
+    if (user.tenantId !== site.tenantId) {
+      return res.status(403).json({
+        message: "Forbidden",
+      });
+    }
     if (start && end && siteId) {
       // return bookings by date range here, paginated.
       const data = await prisma.booking.findMany({
