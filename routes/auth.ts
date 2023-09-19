@@ -70,7 +70,11 @@ export function registerLoginRoute(app: Express, prisma: PrismaClient) {
             username,
           },
           include: {
-            tenant: true,
+            tenant: {
+              include: {
+                sites: true,
+              },
+            },
             roles: true,
           },
         });
@@ -104,6 +108,10 @@ export function registerLoginRoute(app: Express, prisma: PrismaClient) {
         return res.json({
           message: messages.LOGIN_SUCCESSFUL,
           username: user.username,
+          name: user.name,
+          tenantId: user.tenantId,
+          roles: user.roles,
+          sites: user.tenant.sites,
           token,
           refreshToken,
         });

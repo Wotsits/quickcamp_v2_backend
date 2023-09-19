@@ -55,12 +55,26 @@ export function routesInit(
 
   app.get(urls.UNITTYPES, loggedIn, async (req: Request, res: Response) => {
     // return all unit-types here, paginated.
-    const data = getAll(entityTypes.UNITTYPE, prisma);
+    const data = await prisma.unitType.findMany({
+      include: {
+        units: true,
+      },
+    });
     res.json(data);
   });
 
   app.get(`${urls.UNITTYPES}/:siteId`, loggedIn, async (req: Request, res: Response) => {
-    // return unit-types by site id here, paginated.
+    const { siteId } = req.params;
+    // return all unit-types here, paginated.
+    const data = await prisma.unitType.findMany({
+      where: {
+        siteId: parseInt(siteId),
+      },
+      include: {
+        units: true,
+      },
+    });
+    res.json(data);
   });
 
   app.get(`${urls.UNITTYPES}/:id`, loggedIn, async (req: Request, res: Response) => {
