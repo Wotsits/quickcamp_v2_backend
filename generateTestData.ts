@@ -87,22 +87,21 @@ async function main() {
     // build Users,
     const users: User[] = [];
     let userId = 1;
-    tenants.forEach(tenant => {
+    for await (let tenant of tenants){
         for (let i = 0; i < siteNo; i++) {
-            bcrypt.hash("password", 10).then((hash) => {
-                const newUser = {
-                    id: userId,
-                    username: "user" + i + "-" + tenant.name,
-                    password: hash,
-                    tenantId: tenant.id,
-                    name: faker.person.firstName() + ' ' + faker.person.lastName(),
-                    email: "user" + i + "@" + tenant.name + ".com",
-                }
-                users.push(newUser)
-                userId++
-            })   
+            const hash = await bcrypt.hash("password", 10)
+            const newUser = {
+                id: userId,
+                username: "user" + i + "-" + tenant.name,
+                password: hash,
+                tenantId: tenant.id,
+                name: faker.person.firstName() + ' ' + faker.person.lastName(),
+                email: "user" + i + "@" + tenant.name + ".com",
+            }
+            users.push(newUser)
+            userId++
         }
-    })
+    }
 
     // build Roles
     const roles: Role[] = [];
@@ -168,22 +167,21 @@ async function main() {
     // build guests
     const guests: LeadGuest[] = [];
     for (let i = 0; i < bookingNo; i++) {
-        bcrypt.hash("password", 10).then((hash) => {
-            const newGuest = {
-                id: i,
-                firstName: faker.person.firstName(),
-                lastName: faker.person.lastName(),
-                address1: faker.location.streetAddress(),
-                address2: "",
-                townCity: faker.location.city(),
-                postcode: faker.location.zipCode(),
-                tel: faker.phone.number(),
-                email: faker.internet.email(),
-                password: hash,
-                tenantId: 0
-            }
-            guests.push(newGuest)
-        })
+        const hash = await bcrypt.hash("password", 10)
+        const newGuest = {
+            id: i,
+            firstName: faker.person.firstName(),
+            lastName: faker.person.lastName(),
+            address1: faker.location.streetAddress(),
+            address2: "",
+            townCity: faker.location.city(),
+            postcode: faker.location.zipCode(),
+            tel: faker.phone.number(),
+            email: faker.internet.email(),
+            password: hash,
+            tenantId: 0
+        }
+        guests.push(newGuest)
     }
 
     // build Bookings, 
