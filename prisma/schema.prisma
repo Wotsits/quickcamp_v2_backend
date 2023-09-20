@@ -15,6 +15,7 @@ model Tenant {
   name            String    @unique
   users           User[]
   sites           Site[]
+  leadGuests      LeadGuest[]
 }
 
 model Site {
@@ -71,6 +72,8 @@ model LeadGuest {
     tel           String         
     email         String         
     password      String
+    tenant        Tenant    @relation(fields: [tenantId], references: [id])
+    tenantId      Int
     bookings      Booking[]
 }
 

@@ -7,8 +7,20 @@ import { getOneById } from "../dataFetchers/getOneById.js";
 
 export function registerGuestRoutes(app: Express, prisma: PrismaClient) {
     app.get(urls.GUESTS, loggedIn, async (req: Request, res: Response) => {
+      
+      if (!req.user) {
+        return res.status(401).json({
+          message: "Unauthorized",
+        });
+      }
+      
+      const { tenantId } = req.user;
         // return all guests here, paginated.
-        const data = await getAll(entityTypes.GUEST, prisma);
+        const data = await prisma.leadGuest.findMany({
+          where: {
+            tenantId: tenantId,
+          },
+        });
         res.json(data);
       });
     

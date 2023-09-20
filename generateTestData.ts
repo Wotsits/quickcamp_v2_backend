@@ -179,7 +179,8 @@ async function main() {
                 postcode: faker.location.zipCode(),
                 tel: faker.phone.number(),
                 email: faker.internet.email(),
-                password: hash
+                password: hash,
+                tenantId: 0
             }
             guests.push(newGuest)
         })
