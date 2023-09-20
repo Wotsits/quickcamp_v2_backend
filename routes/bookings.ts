@@ -98,13 +98,63 @@ export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
       });
     
       app.get(
-        `${urls.BOOKINGS}/:id`,
+        `${urls.BOOKING}`,
         loggedIn,
         async (req: Request, res: Response) => {
-          // return booking by id here.
-          const id = parseInt(req.params.id);
-          const data = await getOneById(entityTypes.BOOKING, id, prisma);
-          res.json(data);
+          // ensure we have the user on the request
+          const user = req.user;
+          if (!user) {
+            return res.status(401).json({
+              message: "Unauthorized",
+            });
+          }
+
+          // get the user's tenancy
+          const tenantId = user?.tenantId;
+
+          // get the booking
+          const data = await prisma.booking.findUnique({
+            where: {
+              id: parseInt(req.query.id as string),
+            },
+            include: {
+              unit: {
+                include: {
+                  unitType: {
+                    include: {
+                      site: {
+                        include: {
+                          tenant: true,
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+              leadGuest: true,
+              guests: true,
+              pets: true,
+              vehicles: true,
+              payments: true,
+            }
+          });
+          
+          // ensure the booking exists
+          if (!data) {
+            return res.status(404).json({
+              message: "Booking not found",
+            });
+          }
+
+          // ensure the user is allowed to access the booking
+          if (data.unit.unitType.site.tenantId !== tenantId) {
+            return res.status(403).json({
+              message: "Forbidden",
+            });
+          }
+
+          // return the booking
+          return res.json(data);
         }
       );
     }

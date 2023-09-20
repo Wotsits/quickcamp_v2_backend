@@ -106,7 +106,7 @@ model BookingGuest {
     id            Int       @id @default(autoincrement())
     booking       Booking   @relation(fields:[bookingId], references: [id])     
     bookingId     Int   
-    guestName     String
+    name          String
     age           Int
     start         DateTime         
     end           DateTime
@@ -127,7 +127,7 @@ model BookingPet {
     id            Int       @id @default(autoincrement())
     booking       Booking   @relation(fields:[bookingId], references: [id])     
     bookingId     Int
-    petName       String      
+    name          String      
     start         DateTime         
     end           DateTime
     checkedIn     Boolean

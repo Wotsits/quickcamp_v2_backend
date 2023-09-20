@@ -224,7 +224,7 @@ async function main() {
             const newMap = {
                 id: bookingId,
                 bookingId: booking.id,
-                guestName: faker.person.firstName() + " " + faker.person.lastName(),
+                name: faker.person.firstName() + " " + faker.person.lastName(),
                 age: Math.floor(Math.random()*100),
                 start: booking.start,
                 end: booking.end,
@@ -263,7 +263,7 @@ async function main() {
             const newMap = {
                 id: petId,
                 bookingId: booking.id,
-                petName: faker.person.firstName(),
+                name: faker.person.firstName(),
                 start: booking.start,
                 end: booking.end,
                 checkedIn: false

@@ -11,6 +11,7 @@ export const urls: { [key: string]: string } = {
   VEHICLES: "/vehicles",
   PETS: "/pets",
   BOOKINGS: "/bookings",
+  BOOKING: "/booking",
   PAYMENTS: "/payments",
 };
 
