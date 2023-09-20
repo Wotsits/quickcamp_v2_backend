@@ -229,7 +229,8 @@ async function main() {
                 guestName: faker.person.firstName() + " " + faker.person.lastName(),
                 age: Math.floor(Math.random()*100),
                 start: booking.start,
-                end: booking.end
+                end: booking.end,
+                checkedIn: false
             }
             bookingGuests.push(newMap)
             bookingId++
@@ -247,7 +248,8 @@ async function main() {
                 bookingId: booking.id,
                 vehicleReg: generateRandomUKRegistrationNumber(),
                 start: booking.start,
-                end: booking.end
+                end: booking.end,
+                checkedIn: false
             }
             bookingVehicles.push(newMap)
             vehicleId++
@@ -265,7 +267,8 @@ async function main() {
                 bookingId: booking.id,
                 petName: faker.person.firstName(),
                 start: booking.start,
-                end: booking.end
+                end: booking.end,
+                checkedIn: false
             }
             bookingPets.push(newMap)
             petId++

@@ -1,12 +1,15 @@
 export type Tenant = {
     id: number,
-    name: string
+    name: string,
+    sites?: Site[],
+    users?: User[],
 }
 
 export type Site = {
     id: number,
     name: string,
-    tenantId: number
+    tenantId: number,
+    tenant?: Tenant,
 }
 
 export type User = {
@@ -17,7 +20,7 @@ export type User = {
     tenant: Tenant,
     name: string,
     email: string
-    roles: Role[]
+    roles?: Role[]
 }
 
 export type Role = {
@@ -29,13 +32,15 @@ export type Role = {
 export type UnitType = {
     id: number,
     name: string,
-    siteId: number
+    siteId: number,
+    units?: Unit[]
 }
 
 export type Unit = {
     id: number,
     name: string,
-    unitTypeId: number
+    unitTypeId: number,
+    unitType?: UnitType
 }
 
 export type Guest = {
@@ -48,17 +53,9 @@ export type Guest = {
     postcode: string,
     tel: string,
     email: string,
-    password: string
-}
-
-export type Vehicle = {
-    id: number,
-    vehReg: string
-}
-
-export type Pet = {
-    id: number,
-    name: string
+    password: string,
+    tenantId: number,
+    tenant?: Tenant
 }
 
 export type Booking = {
@@ -68,6 +65,11 @@ export type Booking = {
     unitId: number, 
     totalFee: number,
     leadGuestId: number,
+    leadGuest: Guest,
+    guests?: BookingGuest[],
+    vehicles?: BookingVehicle[],
+    pets?: BookingPet[],
+    payments?: Payment[],
 }
 
 export type Calendar = {
@@ -77,33 +79,40 @@ export type Calendar = {
     bookingId?: number
 }
 
-export type BookingGuestMap = {
+export type BookingGuest = {
     id: number,
     bookingId: number,
-    guestId: number,
+    booking?: Booking,
+    name: string,
+    age: number,
     start: Date,
-    end: Date
+    end: Date,
+    checkedIn: boolean,
 }
 
-export type BookingVehicleMap = {
+export type BookingVehicle = {
     id: number,
     bookingId: number,
-    vehicleId: number,
+    booking?: Booking,
+    vehReg: string,
     start: Date,
-    end: Date
+    end: Date,
+    checkedIn: boolean,
 }
 
-export type BookingPetMap = {
+export type BookingPet = {
     id: number,
     bookingId: number,
-    petId: number,
+    booking?: Booking,
+    name: string,
     start: Date,
-    end: Date
+    checkedIn: boolean,
 }
 
 export type Payment = {
     id: number,
     createdAt: Date,
     bookingId: number,
+    booking?: Booking,
     amount: number
 }

@@ -110,6 +110,7 @@ model BookingGuest {
     age           Int
     start         DateTime         
     end           DateTime
+    checkedIn     Boolean
 }
 
 model BookingVehicle {
@@ -119,6 +120,7 @@ model BookingVehicle {
     vehicleReg    String
     start         DateTime
     end           DateTime
+    checkedIn     Boolean
 }
 
 model BookingPet {
@@ -128,6 +130,7 @@ model BookingPet {
     petName       String      
     start         DateTime         
     end           DateTime
+    checkedIn     Boolean
 }
 
 model Payment {
