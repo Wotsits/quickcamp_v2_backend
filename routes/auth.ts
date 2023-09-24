@@ -72,7 +72,12 @@ export function registerLoginRoute(app: Express, prisma: PrismaClient) {
           include: {
             tenant: {
               include: {
-                sites: true,
+                sites: {
+                  include: {
+                    guestTypes: true,
+                    equipmentTypes: true,
+                  },
+                },
               },
             },
             roles: true,

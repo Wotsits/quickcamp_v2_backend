@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker';
-import { Booking, BookingGuest, BookingPet, BookingVehicle, Calendar, LeadGuest, Payment, PrismaClient, Role, Site, Tenant, Unit, UnitType, User } from '@prisma/client'
+import { Booking, BookingGuest, BookingPet, BookingVehicle, Calendar, LeadGuest, Payment, PrismaClient, Role, Site, Tenant, Unit, UnitType, User, GuestType, EquipmentType } from '@prisma/client'
 import bcrypt from "bcryptjs";
 
 // Instantiate Prisma instance
@@ -121,6 +121,7 @@ async function main() {
             {
                 id: parseInt(site.id.toString()+index.toString()+"1"),
                 name: "Bronze",
+                description: "A bronze pitch is a small pitch for a tent or small campervan.  It is 6m x 6m in size.",
                 siteId: site.id
             },
         )
@@ -128,6 +129,7 @@ async function main() {
             {
                 id: parseInt(site.id.toString()+index.toString()+"2"),
                 name: "Silver",
+                description: "A silver pitch is a medium pitch for a tent or medium campervan.  It is 8m x 8m in size.",
                 siteId: site.id
             },
         )
@@ -135,6 +137,7 @@ async function main() {
             {
                 id: parseInt(site.id.toString()+index.toString()+"3"),
                 name: "Gold",
+                description: "A gold pitch is a large pitch for a tent or large campervan.  It is 10m x 10m in size.",
                 siteId: site.id
             },
         )
@@ -184,6 +187,88 @@ async function main() {
         guests.push(newGuest)
     }
 
+    // build GuestTypes
+
+    const guestTypes: GuestType[] = []
+    sites.forEach(site => {
+        guestTypes.push({
+            id: parseInt(site.id.toString() + "1"),
+            name: "Adult",
+            description: "A person aged 18 or over.",
+            icon: "adult",
+            siteId: site.id
+        })
+        guestTypes.push({
+            id: parseInt(site.id.toString() + "2"),
+            name: "Child",
+            description: "A person aged 5 to 17 years old.",
+            icon: "child",
+            siteId: site.id
+        })
+        guestTypes.push({
+            id: parseInt(site.id.toString() + "3"),
+            name: "Infant",
+            description: "A person aged 0 to 4 years old.",
+            icon: "infant",
+            siteId: site.id
+        })
+        guestTypes.push({
+            id: parseInt(site.id.toString() + "4"),
+            name: "Youth",
+            description: "A person aged 18 to 24 years old and travelling as part of an organsiated group such as Scouts or DofE.",
+            icon: "Youth",
+            siteId: site.id
+        })
+    })
+
+    // build EquipmentTypes
+    const equipmentTypes: EquipmentType[] = []
+    sites.forEach(site => {
+        equipmentTypes.push({
+            id: parseInt(site.id.toString() + "1"),
+            name: "Hiker Tent",
+            description: "A small tent for hikers accommodating a maximum of 2 people and a small amount of equipment",
+            icon: "HikerTent",
+            siteId: site.id
+        })
+        equipmentTypes.push({
+            id: parseInt(site.id.toString() + "2"),
+            name: "Medium Tent",
+            description: "A medium sized tent accommodating a maximum of 6 people.",
+            icon: "MediumTent",
+            siteId: site.id
+        })
+        equipmentTypes.push({
+            id: parseInt(site.id.toString() + "3"),
+            name: "Large Tent",
+            description: "A large tent accommodating a maximum of 10 people.",
+            icon: "LargeTent",
+            siteId: site.id
+        })
+        equipmentTypes.push({
+            id: parseInt(site.id.toString() + "4"),
+            name: "Caravan",
+            description: "A single-axle caravan measuring a maximum of 6.5m in length.",
+            icon: "Caravan",
+            siteId: site.id
+        })
+        equipmentTypes.push({
+            id: parseInt(site.id.toString() + "5"),
+            name: "Small Campervan",
+            description: "A small campervan measuring a maximum of 5.5m in length.",
+            icon: "SmallCampervan",
+            siteId: site.id
+        })
+        equipmentTypes.push({
+            id: parseInt(site.id.toString() + "6"),
+            name: "Large Campervan/Motorhome",
+            description: "A large campervan/motorhome measuring a maximum of 7m in length.",
+            icon: "LargeCampervan",
+            siteId: site.id
+        })
+    })
+
+
     // build Bookings, 
     const bookings: Booking[] = [];    
     let successfulBookingCount = 0;
@@ -220,12 +305,13 @@ async function main() {
     let bookingId = 1;
     bookings.forEach((booking, bookingIndex) => {
         const randomGuestNo = Math.ceil(Math.random()*6)
+        const guestType = Math.ceil(Math.random()*4)
         for (let i = 0; i < randomGuestNo; i++) {
             const newMap = {
                 id: bookingId,
                 bookingId: booking.id,
                 name: faker.person.firstName() + " " + faker.person.lastName(),
-                age: Math.floor(Math.random()*100),
+                guestTypeId: guestTypes[guestType].id,
                 start: booking.start,
                 end: booking.end,
                 checkedIn: false
@@ -313,6 +399,16 @@ async function main() {
     for await (let guest of guests) {
         await prisma.leadGuest.create({
             data: guest,
+        })
+    }
+    for await (let guestType of guestTypes) {
+        await prisma.guestType.create({
+            data: guestType,
+        })
+    }
+    for await (let equipmentType of equipmentTypes) {
+        await prisma.equipmentType.create({
+            data: equipmentType,
         })
     }
     for await (let booking of bookings) {

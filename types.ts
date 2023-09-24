@@ -10,6 +10,9 @@ export type Site = {
     name: string,
     tenantId: number,
     tenant?: Tenant,
+    unitTypes?: UnitType[],
+    equipmentTypes?: EquipmentType[],
+    guestTypes?: GuestType[],
 }
 
 export type User = {
@@ -56,6 +59,24 @@ export type Guest = {
     password: string,
     tenantId: number,
     tenant?: Tenant
+}
+
+export type GuestType = {
+    id: number,
+    name: string,
+    description: string,
+    siteId: number,
+    site?: Site,
+    guests?: Guest[]
+}
+
+export type EquipmentType = {
+    id: number,
+    name: string,
+    description: string,
+    icon: string,
+    siteId: number,
+    site?: Site,
 }
 
 export type Booking = {

@@ -24,6 +24,8 @@ model Site {
   tenant          Tenant    @relation(fields: [tenantId], references: [id])
   tenantId        Int
   unitTypes       UnitType[]
+  guestTypes      GuestType[]
+  equipmentTypes  EquipmentType[]
 }
 
 model User {
@@ -47,9 +49,11 @@ model Role {
 model UnitType {
     id            Int       @id @default(autoincrement())
     name          String  
+    description   String
     site          Site      @relation(fields:[siteId], references: [id])       
     siteId        Int
     units         Unit[]
+    equipmentTypes EquipmentType[]
 }
 
 model Unit {
@@ -75,6 +79,26 @@ model LeadGuest {
     tenant        Tenant    @relation(fields: [tenantId], references: [id])
     tenantId      Int
     bookings      Booking[]
+}
+
+model GuestType {
+  id              Int       @id @default(autoincrement())
+  name            String    
+  description     String
+  icon            String
+  siteId          Int 
+  site            Site      @relation(fields: [siteId], references: [id])
+  bookingGuests   BookingGuest[]
+}
+
+model EquipmentType {
+  id              Int       @id @default(autoincrement())
+  name            String    
+  description     String
+  icon            String
+  siteId          Int 
+  site            Site      @relation(fields: [siteId], references: [id])
+  unitTypes       UnitType[]
 }
 
 model Booking {
@@ -107,7 +131,8 @@ model BookingGuest {
     booking       Booking   @relation(fields:[bookingId], references: [id])     
     bookingId     Int   
     name          String
-    age           Int
+    guestType     GuestType @relation(fields: [guestTypeId], references: [id])
+    guestTypeId   Int
     start         DateTime         
     end           DateTime
     checkedIn     Boolean
