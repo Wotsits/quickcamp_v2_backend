@@ -22,7 +22,7 @@ export function registerExtraTypeRoutes(app: Express, prisma: PrismaClient) {
     }
     else siteId = null;
 
-    if (!siteId) {
+    if (siteId === null) {
         return res.status(400).json({
             message: "Bad request",
         });
