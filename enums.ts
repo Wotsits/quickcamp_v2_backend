@@ -13,6 +13,7 @@ export const urls: { [key: string]: string } = {
   BOOKINGS: "/bookings",
   BOOKING: "/booking",
   PAYMENTS: "/payments",
+  EXTRATYPES: "/extra-types",
 };
 
 export const entityTypes: { [key: string]: keyof PrismaClient } = {

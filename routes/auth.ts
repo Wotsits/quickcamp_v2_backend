@@ -39,7 +39,8 @@ function generateToken(
       id: user.id,
       username: user.username,
       tenantId: user.tenantId,
-      roles: user.roles
+      roles: user.roles,
+      sites: user.tenant.sites,
     },
     jwtSecret,
     options

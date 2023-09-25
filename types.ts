@@ -138,3 +138,16 @@ export type Payment = {
     booking?: Booking,
     amount: number
 }
+
+// ----------------- RESPONSES -----------------
+
+export type UserResponse = {
+    message: string;
+    name: string;
+    refreshToken: string;
+    roles: Role[];
+    sites: Site[];
+    tenantId: number;
+    token: string;
+    username: string;
+  };

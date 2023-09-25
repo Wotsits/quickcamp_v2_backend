@@ -53,7 +53,8 @@ model UnitType {
     site          Site      @relation(fields:[siteId], references: [id])       
     siteId        Int
     units         Unit[]
-    equipmentTypes EquipmentType[]
+    equipmentTypes  EquipmentType[]
+    extraTypes      ExtraType[]
 }
 
 model Unit {
@@ -98,6 +99,14 @@ model EquipmentType {
   icon            String
   siteId          Int 
   site            Site      @relation(fields: [siteId], references: [id])
+  unitTypes       UnitType[]
+}
+
+model ExtraType {
+  id              Int       @id @default(autoincrement())
+  name            String
+  description     String
+  icon            String
   unitTypes       UnitType[]
 }
 
