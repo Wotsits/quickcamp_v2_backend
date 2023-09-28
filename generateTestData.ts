@@ -428,9 +428,17 @@ async function main() {
       data: user,
     });
   }
+  for await (let equipmentType of equipmentTypes) {
+    await prisma.equipmentType.create({
+      data: equipmentType,
+    });
+  }
   for await (let unitType of unitTypes) {
+    const connectArr: {id: number}[] = equipmentTypes.map((equipmentType) => {
+      return { id: equipmentType.id };
+    })
     await prisma.unitType.create({
-      data: unitType,
+      data: {...unitType, equipmentTypes: { connect: connectArr } },
     });
   }
   for await (let unit of units) {
@@ -446,11 +454,6 @@ async function main() {
   for await (let guestType of guestTypes) {
     await prisma.guestType.create({
       data: guestType,
-    });
-  }
-  for await (let equipmentType of equipmentTypes) {
-    await prisma.equipmentType.create({
-      data: equipmentType,
     });
   }
   for await (let extra of extras) {
