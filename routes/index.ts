@@ -10,7 +10,7 @@ import { registerTenantRoutes } from "./tenants.js";
 import { registerSiteRoutes } from "./sites.js";
 import { registerUnitTypeRoutes } from "./unitTypes.js";
 import { registerUnitRoutes } from "./units.js";
-import { registerGuestRoutes } from "./guests.js";
+import { registerLeadGuestRoutes } from "./leadGuests.js";
 import { registerVehicleRoutes } from "./vehicles.js";
 import { registerPetRoutes } from "./pets.js";
 import { registerBookingRoutes } from "./bookings.js";
@@ -27,7 +27,7 @@ export function routesInit(app: Express, prisma: PrismaClient) {
   registerUnitTypeRoutes(app, prisma);
   registerUnitRoutes(app, prisma);
   registerExtraTypeRoutes(app, prisma);
-  registerGuestRoutes(app, prisma);
+  registerLeadGuestRoutes(app, prisma);
   registerVehicleRoutes(app, prisma);
   registerPetRoutes(app, prisma);
   registerBookingRoutes(app, prisma);

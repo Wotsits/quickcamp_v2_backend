@@ -46,14 +46,16 @@ export type Unit = {
     unitType?: UnitType
 }
 
-export type Guest = {
+export type LeadGuest = {
     id: number,
     firstName: string,
     lastName: string,
     address1: string,
     address2: string,
     townCity: string,
+    county: string,
     postcode: string,
+    country: string,
     tel: string,
     email: string,
     password: string,
@@ -67,7 +69,7 @@ export type GuestType = {
     description: string,
     siteId: number,
     site?: Site,
-    guests?: Guest[]
+    guests?: LeadGuest[]
 }
 
 export type EquipmentType = {
@@ -87,7 +89,7 @@ export type Booking = {
     unit?: Unit,
     totalFee: number,
     leadGuestId: number,
-    leadGuest: Guest,
+    leadGuest: LeadGuest,
     guests?: BookingGuest[],
     vehicles?: BookingVehicle[],
     pets?: BookingPet[],

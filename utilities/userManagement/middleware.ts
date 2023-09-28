@@ -40,7 +40,6 @@ export function loggedIn(req: Request, res: Response, next: NextFunction) {
       return res.status(403).json({ message: errorMessages.NOT_AUTHORIZED });
     }
     req.user = decodedToken;
-    console.log(decodedToken)
     next();
   });
 }

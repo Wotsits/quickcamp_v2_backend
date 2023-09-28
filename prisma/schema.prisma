@@ -72,8 +72,10 @@ model LeadGuest {
     lastName      String         
     address1      String         
     address2      String         
-    townCity      String         
-    postcode      String         
+    townCity      String
+    county        String         
+    postcode      String
+    country       String         
     tel           String         
     email         String         
     password      String

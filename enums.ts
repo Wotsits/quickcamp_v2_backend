@@ -7,7 +7,7 @@ export const urls: { [key: string]: string } = {
   REGISTER: "/register",
   UNITTYPES: "/unit-types",
   UNITS: "/units",
-  GUESTS: "/guests",
+  LEADGUESTS: "/lead-guests",
   VEHICLES: "/vehicles",
   PETS: "/pets",
   BOOKINGS: "/bookings",
