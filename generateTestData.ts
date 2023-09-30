@@ -406,9 +406,10 @@ async function main() {
   bookings.forEach((booking, index) => {
     payments.push({
       id: index,
-      createdAt: new Date(),
+      paymentDate: new Date(),
       bookingId: booking.id,
-      amount: 100,
+      paymentAmount: 100,
+      paymentMethod: "CASH",
     });
   });
 

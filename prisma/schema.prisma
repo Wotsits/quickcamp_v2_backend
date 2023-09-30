@@ -171,10 +171,11 @@ model BookingPet {
 
 model Payment {
     id            Int       @id @default(autoincrement())
-    createdAt     DateTime    
+    paymentDate   DateTime    
     booking       Booking   @relation(fields:[bookingId], references: [id])     
     bookingId     Int         
-    amount        Float
+    paymentAmount Float
+    paymentMethod String
 }
 
 model Token {
