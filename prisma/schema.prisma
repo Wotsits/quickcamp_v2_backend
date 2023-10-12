@@ -35,7 +35,7 @@ model User {
   password        String
   tenant          Tenant    @relation(fields: [tenantId], references: [id])
   tenantId        Int
-  email           String
+  email           String    @unique
   roles           Role[]             
 }
 
@@ -113,13 +113,13 @@ model ExtraType {
 }
 
 model Booking {
-    id            Int       @id @default(autoincrement())
+    id            Int               @id @default(autoincrement())
     start         DateTime         
     end           DateTime 
-    unit          Unit      @relation(fields: [unitId], references: [id])      
+    unit          Unit              @relation(fields: [unitId], references: [id])      
     unitId        Int          
     totalFee      Float  
-    leadGuest     LeadGuest     @relation(fields: [leadGuestId], references: [id])
+    leadGuest     LeadGuest         @relation(fields: [leadGuestId], references: [id])
     leadGuestId   Int
     payments      Payment[]
     guests        BookingGuest[]
