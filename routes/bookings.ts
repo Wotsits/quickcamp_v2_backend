@@ -1,7 +1,6 @@
 import { Express, Request, Response } from "express";
-import { entityTypes, urls } from "../enums.js";
+import { urls } from "../enums.js";
 import { loggedIn } from "../utilities/userManagement/middleware.js";
-import { getAll } from "../dataFetchers/getAll.js";
 import {
   BookingGuest,
   BookingPet,
