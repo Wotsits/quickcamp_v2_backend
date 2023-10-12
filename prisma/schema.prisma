@@ -110,6 +110,7 @@ model ExtraType {
   description     String
   icon            String
   unitTypes       UnitType[]
+  bookings        Booking[]
 }
 
 model Booking {
@@ -125,6 +126,7 @@ model Booking {
     guests        BookingGuest[]
     pets          BookingPet[]
     vehicles      BookingVehicle[]     
+    extras        ExtraType[]
     calendarEntries  Calendar[]
 }
 

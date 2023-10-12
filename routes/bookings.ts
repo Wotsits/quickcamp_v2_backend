@@ -433,6 +433,12 @@ export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
 
     // the way that the booking is created depends on whether the leadGuestId has been provided
 
+    const extrasMap = extras.map((extra: any) => {
+      return {
+        id: extra,
+      }
+    })
+
     try {
       if (path === "EXISTINGGUEST") {
         const result = await prisma.booking.create({
@@ -458,6 +464,9 @@ export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
             },
             vehicles: {
               create: bookingVehiclesMapped,
+            },
+            extras: {
+              connect: extrasMap
             },
             payments: {
               create: {
@@ -518,7 +527,9 @@ export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
             vehicles: {
               create: bookingVehiclesMapped,
             },
-            // TODO add extras
+            extras: {
+              connect: extrasMap
+            },
             payments: {
               create: {
                 paymentAmount: paymentAmount,
