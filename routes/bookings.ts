@@ -431,14 +431,14 @@ export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
       }
     );
 
-    // the way that the booking is created depends on whether the leadGuestId has been provided
-
+    // convert the extras to Extras objects
     const extrasMap = extras.map((extra: any) => {
       return {
         id: extra,
       }
     })
 
+    // the way that the booking is created depends on whether the leadGuestId has been provided
     try {
       if (path === "EXISTINGGUEST") {
         const result = await prisma.booking.create({
