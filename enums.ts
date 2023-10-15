@@ -16,4 +16,5 @@ export const urls: { [key: string]: string } = {
   NEW_BOOKING: "/new-booking",
   PAYMENTS: "/payments",
   EXTRATYPES: "/extra-types",
+  ARRIVALS_BY_DATE: "/arrivals-by-date",
 };
