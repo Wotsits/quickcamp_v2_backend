@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { Express, Request, Response } from "express";
-import { entityTypes, urls } from "../enums.js";
+import { urls } from "../enums.js";
 import { loggedIn } from "../utilities/userManagement/middleware.js";
 
 export function registerLeadGuestRoutes(app: Express, prisma: PrismaClient) {

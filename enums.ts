@@ -17,12 +17,3 @@ export const urls: { [key: string]: string } = {
   PAYMENTS: "/payments",
   EXTRATYPES: "/extra-types",
 };
-
-export const entityTypes: { [key: string]: keyof PrismaClient } = {
-  TENANT: "tenant",
-  SITE: "site",
-  UNITTYPE: "unitType",
-  UNIT: "unit",
-  BOOKING: "booking",
-  PAYMENT: "payment",
-};
