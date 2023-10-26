@@ -58,40 +58,41 @@ model UnitType {
 }
 
 model Unit {
-    id            Int       @id @default(autoincrement())
-    name          String   
-    unitType      UnitType  @relation(fields:[unitTypeId], references: [id])      
-    unitTypeId    Int
-    bookings      Booking[]
-    calendarEntries  Calendar[]
+  id                Int       @id @default(autoincrement())
+  name              String   
+  unitType          UnitType  @relation(fields:[unitTypeId], references: [id])      
+  unitTypeId        Int
+  bookings          Booking[]
+  calendarEntries   Calendar[]
 }
 
 model LeadGuest {
-    id            Int       @id @default(autoincrement())
-    firstName     String         
-    lastName      String         
-    address1      String         
-    address2      String         
-    townCity      String
-    county        String         
-    postcode      String
-    country       String         
-    tel           String         
-    email         String         
-    password      String
-    tenant        Tenant    @relation(fields: [tenantId], references: [id])
-    tenantId      Int
-    bookings      Booking[]
+  id            Int       @id @default(autoincrement())
+  firstName     String         
+  lastName      String         
+  address1      String         
+  address2      String         
+  townCity      String
+  county        String         
+  postcode      String
+  country       String         
+  tel           String         
+  email         String         
+  password      String
+  tenant        Tenant    @relation(fields: [tenantId], references: [id])
+  tenantId      Int
+  bookings      Booking[]
 }
 
 model GuestType {
-  id              Int       @id @default(autoincrement())
-  name            String    
-  description     String
-  icon            String
-  siteId          Int 
-  site            Site      @relation(fields: [siteId], references: [id])
-  bookingGuests   BookingGuest[]
+  id                  Int       @id @default(autoincrement())
+  name                String    
+  description         String
+  icon                String
+  siteId              Int 
+  site                Site      @relation(fields: [siteId], references: [id])
+  bookingGuests       BookingGuest[]
+  feesCalendarEntries FeesCalendar[]
 }
 
 model EquipmentType {
@@ -105,29 +106,30 @@ model EquipmentType {
 }
 
 model ExtraType {
-  id              Int       @id @default(autoincrement())
-  name            String
-  description     String
-  icon            String
-  unitTypes       UnitType[]
-  bookings        Booking[]
+  id                        Int       @id @default(autoincrement())
+  name                      String
+  description               String
+  icon                      String
+  unitTypes                 UnitType[]
+  bookings                  Booking[]
+  ExtraFeesCalendarEntries  ExtraFeesCalendar[]
 }
 
 model Booking {
-    id            Int               @id @default(autoincrement())
-    start         DateTime         
-    end           DateTime 
-    unit          Unit              @relation(fields: [unitId], references: [id])      
-    unitId        Int          
-    totalFee      Float  
-    leadGuest     LeadGuest         @relation(fields: [leadGuestId], references: [id])
-    leadGuestId   Int
-    payments      Payment[]
-    guests        BookingGuest[]
-    pets          BookingPet[]
-    vehicles      BookingVehicle[]     
-    extras        ExtraType[]
-    calendarEntries  Calendar[]
+  id                Int               @id @default(autoincrement())
+  start             DateTime         
+  end               DateTime 
+  unit              Unit              @relation(fields: [unitId], references: [id])      
+  unitId            Int          
+  totalFee          Float  
+  leadGuest         LeadGuest         @relation(fields: [leadGuestId], references: [id])
+  leadGuestId       Int
+  payments          Payment[]
+  guests            BookingGuest[]
+  pets              BookingPet[]
+  vehicles          BookingVehicle[]     
+  extras            ExtraType[]
+  calendarEntries   Calendar[]
 }
 
 model Calendar {
@@ -169,6 +171,38 @@ model BookingPet {
     start         DateTime         
     end           DateTime
     checkedIn     Boolean
+}
+
+model FeesCalendar {
+  id              Int       @id @default(autoincrement())
+  date            DateTime
+  guestType       GuestType @relation(fields: [guestTypeId], references: [id])
+  guestTypeId     Int
+  feePerNight     Float
+  feePerStay      Float     
+}
+
+model PetFeesCalendar {
+  id              Int       @id @default(autoincrement())
+  date            DateTime
+  feePerNight     Float
+  feePerStay      Float     
+}
+
+model VehicleFeesCalendar {
+  id              Int       @id @default(autoincrement())
+  date            DateTime
+  feePerNight     Float
+  feePerStay      Float  
+}
+
+model ExtraFeesCalendar {
+  id              Int       @id @default(autoincrement())
+  date            DateTime
+  extraType       ExtraType @relation(fields: [extraTypeId], references: [id])
+  extraTypeId     Int
+  feePerNight     Float
+  feePerStay      Float     
 }
 
 model Payment {

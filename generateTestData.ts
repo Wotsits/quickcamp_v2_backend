@@ -17,6 +17,10 @@ import {
   GuestType,
   EquipmentType,
   ExtraType,
+  FeesCalendar,
+  PetFeesCalendar,
+  VehicleFeesCalendar,
+  ExtraFeesCalendar,
 } from "@prisma/client";
 import bcrypt from "bcryptjs";
 
@@ -80,7 +84,7 @@ async function main() {
 
   // build tenants
   const tenants: Tenant[] = [];
-  for (let i = 0; i < tenantNo; i++) {
+  for (let i = 1; i <= tenantNo; i++) {
     const newTenant = {
       id: i,
       name: "Org" + i,
@@ -88,10 +92,12 @@ async function main() {
     tenants.push(newTenant);
   }
 
+  console.log("Tenants built")
+
   // build Sites
   const sites: Site[] = [];
   tenants.forEach((tenant) => {
-    for (let i = 0; i < siteNo; i++) {
+    for (let i = 1; i <= siteNo; i++) {
       const newSite = {
         id: i,
         name: faker.lorem.word() + " Campsite",
@@ -101,11 +107,13 @@ async function main() {
     }
   });
 
+  console.log("Sites built")
+
   // build Users,
   const users: User[] = [];
   let userId = 1;
   for await (let tenant of tenants) {
-    for (let i = 0; i < siteNo; i++) {
+    for (let i = 1; i <= siteNo; i++) {
       const hash = await bcrypt.hash("password", 10);
       const newUser = {
         id: userId,
@@ -120,6 +128,8 @@ async function main() {
     }
   }
 
+  console.log("Users built")
+
   // build Roles
   const roles: Role[] = [];
   users.forEach((user) => {
@@ -129,6 +139,8 @@ async function main() {
       userId: user.id,
     });
   });
+
+  console.log("Roles built")
 
   // build UnitTypes,
   const unitTypes: UnitType[] = [];
@@ -156,6 +168,8 @@ async function main() {
     });
   });
 
+  console.log("Unit Types built")
+
   // build Units,
   const units: Unit[] = [];
   unitTypes.forEach((unitType, index) => {
@@ -165,6 +179,8 @@ async function main() {
       unitTypeId: unitType.id,
     });
   });
+
+  console.log("Units built")
 
   // build calendarTable
   const calendarTable: Calendar[] = [];
@@ -180,9 +196,11 @@ async function main() {
     });
   });
 
+  console.log("Calendar built")
+
   // build guests
-  const guests: LeadGuest[] = [];
-  for (let i = 0; i < bookingNo; i++) {
+  const leadGuests: LeadGuest[] = [];
+  for (let i = 1; i <= bookingNo; i++) {
     const hash = await bcrypt.hash("password", 10);
     const newGuest = {
       id: i,
@@ -197,10 +215,12 @@ async function main() {
       tel: faker.phone.number(),
       email: faker.internet.email(),
       password: hash,
-      tenantId: 0,
+      tenantId: 1,
     };
-    guests.push(newGuest);
+    leadGuests.push(newGuest);
   }
+
+  console.log("Lead Guests built")
 
   // build GuestTypes
 
@@ -236,6 +256,8 @@ async function main() {
       siteId: site.id,
     });
   });
+
+  console.log("Guest Types built")
 
   // build EquipmentTypes
   const equipmentTypes: EquipmentType[] = [];
@@ -287,32 +309,83 @@ async function main() {
     });
   });
 
-  const extras: ExtraType[] = [];
-  extras.push({
+  console.log("Equipment Types built")
+
+  const extraTypes: ExtraType[] = [];
+  extraTypes.push({
     id: 1,
     name: "Electric Hookup",
     description: "An electric hookup for your unit.",
     icon: "Electric",
   })
-  extras.push({
+  extraTypes.push({
     id: 2,
     name: "Awning",
     description: "An awning for a caravan or campervan.",
     icon: "Awning",
   });
-  extras.push({
+  extraTypes.push({
     id: 3,
     name: "Gazebo",
     description: "A gazebo for use on a pitch.",
     icon: "Gazebo",
   });
 
+  console.log("Extra Types built")
+
+  //build fees
+  const feesCalendar: FeesCalendar[] = [];
+  const petFeesCalendar: PetFeesCalendar[] = [];
+  const vehicleFeesCalendar: VehicleFeesCalendar[] = [];
+  const extraFeesCalendar: ExtraFeesCalendar[] = [];
+
+  let counter = 1;
+
+  dates.forEach((date) => {
+    guestTypes.forEach(guestType => {
+      feesCalendar.push({
+        id: counter,
+        date,
+        guestTypeId: guestType.id,
+        feePerNight: 10,
+        feePerStay: 0
+      });
+      counter++;
+    });
+  });
+
+  counter = 1;
+
+  dates.forEach((date) => {
+    petFeesCalendar.push({
+      id: counter,
+      date,
+      feePerNight: 5,
+      feePerStay: 0
+    });
+    counter++;
+  });
+
+  counter = 1;
+
+  dates.forEach((date) => {
+    vehicleFeesCalendar.push({
+      id: counter,
+      date,
+      feePerNight: 5,
+      feePerStay: 0
+    });
+    counter++;
+  });
+
+  console.log("Fee calendars built")
+
   // build Bookings,
   const bookings: Booking[] = [];
   let successfulBookingCount = 0;
   while (successfulBookingCount < bookingNo) {
     // make bookings
-    const randomGuestId = Math.floor(Math.random() * guests.length);
+    const randomGuestId = Math.ceil(Math.random() * leadGuests.length);
     const randomUnitIndex = Math.floor(Math.random() * units.length);
     const randomUnitId = units[randomUnitIndex].id;
     const unitsAvailableDates = calendarTable.filter(
@@ -342,13 +415,15 @@ async function main() {
     successfulBookingCount++;
   }
 
+  console.log("Bookings built")
+
   // build BookingGuests,
   const bookingGuests: BookingGuest[] = [];
   let bookingId = 1;
   bookings.forEach((booking, bookingIndex) => {
     const randomGuestNo = Math.ceil(Math.random() * 6);
     const guestType = Math.ceil(Math.random() * 4);
-    for (let i = 0; i < randomGuestNo; i++) {
+    for (let i = 1; i <= randomGuestNo; i++) {
       const newMap = {
         id: bookingId,
         bookingId: booking.id,
@@ -363,12 +438,14 @@ async function main() {
     }
   });
 
+  console.log("Booking Guests built")
+
   // build BookingVehicles,
   const bookingVehicles: BookingVehicle[] = [];
   let vehicleId = 1;
   bookings.forEach((booking) => {
     const randomVehicleNo = Math.ceil(Math.random() * 2);
-    for (let i = 0; i < randomVehicleNo; i++) {
+    for (let i = 1; i <= randomVehicleNo; i++) {
       const newMap = {
         id: vehicleId,
         bookingId: booking.id,
@@ -382,12 +459,14 @@ async function main() {
     }
   });
 
+  console.log("Booking Vehicles built")
+
   // build BookingPetMaps,
   const bookingPets: BookingPet[] = [];
   let petId = 1;
   bookings.forEach((booking) => {
     const randomPetNo = Math.ceil(Math.random() * 2);
-    for (let i = 0; i < randomPetNo; i++) {
+    for (let i = 1; i <= randomPetNo; i++) {
       const newMap = {
         id: petId,
         bookingId: booking.id,
@@ -401,6 +480,8 @@ async function main() {
     }
   });
 
+  console.log("Booking Pets built")
+
   // build Payments
   const payments: Payment[] = [];
   bookings.forEach((booking, index) => {
@@ -413,27 +494,33 @@ async function main() {
     });
   });
 
+  console.log("Payments built")
+
   // WRITE TO DB
   for await (let tenant of tenants) {
     await prisma.tenant.create({
       data: tenant,
     });
   }
+  console.log("Tenants created")
   for await (let site of sites) {
     await prisma.site.create({
       data: site,
     });
   }
+  console.log("Sites created")
   for await (let user of users) {
     await prisma.user.create({
       data: user,
     });
   }
+  console.log("Users created")
   for await (let equipmentType of equipmentTypes) {
     await prisma.equipmentType.create({
       data: equipmentType,
     });
   }
+  console.log("Equipment Types created")
   for await (let unitType of unitTypes) {
     const connectArr: {id: number}[] = equipmentTypes.map((equipmentType) => {
       return { id: equipmentType.id };
@@ -442,59 +529,88 @@ async function main() {
       data: {...unitType, equipmentTypes: { connect: connectArr } },
     });
   }
+  console.log("Unit Types created")
   for await (let unit of units) {
     await prisma.unit.create({
       data: unit,
     });
   }
-  for await (let guest of guests) {
+  console.log("Units created")
+  for await (let leadGuest of leadGuests) {
     await prisma.leadGuest.create({
-      data: guest,
+      data: leadGuest,
     });
   }
+  console.log("Lead Guests created")
   for await (let guestType of guestTypes) {
     await prisma.guestType.create({
       data: guestType,
     });
   }
-  for await (let extra of extras) {
+  console.log("Guest Types created")
+  for await (let extraType of extraTypes) {
     const connectArr = unitTypes.map((unityType) => {
       return { id: unityType.id };
     });
     await prisma.extraType.create({
-      data: { ...extra, unitTypes: { connect: connectArr } },
+      data: { ...extraType, unitTypes: { connect: connectArr } },
     });
   }
+  console.log("Extra Types created")
+  for await (let fees of feesCalendar) {
+    await prisma.feesCalendar.create({
+      data: fees,
+    });
+  }
+  console.log("Fees created")
+  for await (let fees of petFeesCalendar) {
+    await prisma.petFeesCalendar.create({
+      data: fees,
+    });
+  }
+  console.log("Pet Fees created")
+  for await (let fees of vehicleFeesCalendar) {
+    await prisma.vehicleFeesCalendar.create({
+      data: fees,
+    });
+  }
+  console.log("Vehicle Fees created")
   for await (let booking of bookings) {
     await prisma.booking.create({
       data: booking,
     });
   }
+  console.log("Bookings created")
   for await (let calendarEntry of calendarTable) {
     await prisma.calendar.create({
       data: calendarEntry,
     });
   }
+  console.log("Calendar created")
   for await (let bookingGuestObj of bookingGuests) {
     await prisma.bookingGuest.create({
       data: bookingGuestObj,
     });
   }
+  console.log("Booking Guests created")
   for await (let bookingPetObj of bookingPets) {
     await prisma.bookingPet.create({
       data: bookingPetObj,
     });
   }
+  console.log("Booking Pets created")
   for await (let bookingVehicleObj of bookingVehicles) {
     await prisma.bookingVehicle.create({
       data: bookingVehicleObj,
     });
   }
+  console.log("Booking Vehicles created")
   for await (let payment of payments) {
     await prisma.payment.create({
       data: payment,
     });
   }
+  console.log("Payments created")
   console.log("Woohoo!  Test data has been generated.  Have at it!");
 }
 
