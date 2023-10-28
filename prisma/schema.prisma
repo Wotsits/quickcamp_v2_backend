@@ -173,7 +173,14 @@ model BookingPet {
     checkedIn     Boolean
 }
 
-model FeesCalendar {
+model UnitTypeFeesCalendar {
+  id              Int       @id @default(autoincrement())
+  date            DateTime
+  unitType        UnitType  @relation(fields: [unitTypeId], references: [id])
+  unitTypeId      Int
+}
+
+model GuestFeesCalendar {
   id              Int       @id @default(autoincrement())
   date            DateTime
   guestType       GuestType @relation(fields: [guestTypeId], references: [id])

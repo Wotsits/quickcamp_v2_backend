@@ -17,4 +17,5 @@ export const urls: { [key: string]: string } = {
   PAYMENTS: "/payments",
   EXTRATYPES: "/extra-types",
   ARRIVALS_BY_DATE: "/arrivals-by-date",
+  FEECALCS: "/get-fee-calc",
 };
