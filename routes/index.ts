@@ -8,16 +8,16 @@ import {
 } from "./auth.js";
 import { registerTenantRoutes } from "./tenants.js";
 import { registerSiteRoutes } from "./sites.js";
-import { registerUnitTypeRoutes } from "./unitTypes.js";
+import { registerUnitTypeRoutes } from "./unit-types.js";
 import { registerUnitRoutes } from "./units.js";
-import { registerLeadGuestRoutes } from "./leadGuests.js";
+import { registerLeadGuestRoutes } from "./lead-guests.js";
 import { registerVehicleRoutes } from "./vehicles.js";
 import { registerPetRoutes } from "./pets.js";
 import { registerBookingRoutes } from "./bookings.js";
 import { registerPaymentRoutes } from "./payments.js";
-import { registerExtraTypeRoutes } from "./extraTypes.js";
+import { registerExtraTypeRoutes } from "./extra-types.js";
 import { registerArrivalsRoutes } from "./arrivals.js";
-import { registerFeeCalcRoutes } from "./feeCalcs.js";
+import { registerFeeCalcRoutes } from "./get-fee-calc.js";
 
 export function routesInit(app: Express, prisma: PrismaClient) {
   registerRegisterRoute(app, prisma);
