@@ -15,14 +15,6 @@ export async function calculateFee(
   bookingVehicles: BookingProcessVehicle[],
   prisma: PrismaClient
 ) {
-    console.log("UnitTypeId: ", unitTypeId);
-    console.log("StartDate: ", startDate);
-    console.log("EndDate: ", endDate);
-    console.log("Extras: ", extras);
-    console.log("BookingGuests: ", bookingGuests);
-    console.log("BookingPets: ", bookingPets);
-    console.log("BookingVehicles: ", bookingVehicles);
-
     const guestTypes: number[] = [];
     bookingGuests.forEach((guest: BookingProcessGuest) => {
         const guestTypeId = parseInt(guest.guestTypeId);

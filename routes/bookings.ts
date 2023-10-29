@@ -252,6 +252,12 @@ export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
       paymentDate,
     } = req.body;
 
+    if (!siteId || !equipmentTypeId || !unitId || !startDate || !endDate || !extras || !bookingGuests || !bookingPets || !bookingVehicles || !paymentAmount || !paymentMethod || !paymentDate) {
+      return res.status(400).json({
+        message: "Bad request - missing data",
+      });
+    }
+
     const path: "NEWGUEST" | "EXISTINGGUEST" =
       leadGuestId !== undefined && leadGuestId !== null
         ? "EXISTINGGUEST"
