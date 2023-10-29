@@ -17,7 +17,7 @@ import {
   GuestType,
   EquipmentType,
   ExtraType,
-  FeesCalendar,
+  GuestFeesCalendar,
   PetFeesCalendar,
   VehicleFeesCalendar,
   ExtraFeesCalendar,
@@ -334,7 +334,7 @@ async function main() {
   console.log("Extra Types built")
 
   //build fees
-  const feesCalendar: FeesCalendar[] = [];
+  const feesCalendar: GuestFeesCalendar[] = [];
   const petFeesCalendar: PetFeesCalendar[] = [];
   const vehicleFeesCalendar: VehicleFeesCalendar[] = [];
   const extraFeesCalendar: ExtraFeesCalendar[] = [];
@@ -558,11 +558,11 @@ async function main() {
   }
   console.log("Extra Types created")
   for await (let fees of feesCalendar) {
-    await prisma.feesCalendar.create({
+    await prisma.guestFeesCalendar.create({
       data: fees,
     });
   }
-  console.log("Fees created")
+  console.log("Guest Fees created")
   for await (let fees of petFeesCalendar) {
     await prisma.petFeesCalendar.create({
       data: fees,

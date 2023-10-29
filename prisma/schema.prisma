@@ -55,6 +55,7 @@ model UnitType {
     units         Unit[]
     equipmentTypes  EquipmentType[]
     extraTypes      ExtraType[]
+    unitTypeFeesCalendarEntries UnitTypeFeesCalendar[]
 }
 
 model Unit {
@@ -92,7 +93,7 @@ model GuestType {
   siteId              Int 
   site                Site      @relation(fields: [siteId], references: [id])
   bookingGuests       BookingGuest[]
-  feesCalendarEntries FeesCalendar[]
+  feesCalendarEntries GuestFeesCalendar[]
 }
 
 model EquipmentType {
@@ -178,6 +179,8 @@ model UnitTypeFeesCalendar {
   date            DateTime
   unitType        UnitType  @relation(fields: [unitTypeId], references: [id])
   unitTypeId      Int
+  feePerNight     Float
+  feePerStay      Float
 }
 
 model GuestFeesCalendar {
