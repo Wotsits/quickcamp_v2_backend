@@ -4,7 +4,7 @@ import { loggedIn } from "../utilities/userManagement/middleware.js";
 import { PrismaClient } from "@prisma/client";
 
 export function registerUnitRoutes(app: Express, prisma: PrismaClient) {
-  app.get(urls.UNITS, loggedIn, async (req: Request, res: Response) => {
+  app.get(urls.AVAILABLE_UNITS, loggedIn, async (req: Request, res: Response) => {
     // check that the user is logged in
     if (!req.user) {
       return res.status(401).json({
@@ -66,12 +66,13 @@ export function registerUnitRoutes(app: Express, prisma: PrismaClient) {
               },
               bookingId: {
                 not: null,
-              },
+              }
             },
           },
         },
       },
     });
+
     res.json(data);
   });
 }

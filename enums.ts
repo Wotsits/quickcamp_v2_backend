@@ -6,7 +6,7 @@ export const urls: { [key: string]: string } = {
   LOGIN: "/login",
   REGISTER: "/register",
   UNITTYPES: "/unit-types",
-  UNITS: "/units",
+  AVAILABLE_UNITS: "/available-units",
   LEADGUESTS: "/lead-guests",
   VEHICLES: "/vehicles",
   PETS: "/pets",
