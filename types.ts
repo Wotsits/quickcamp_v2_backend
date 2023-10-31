@@ -165,9 +165,9 @@ export type FeeCalcResponse = {
 export type BookingSumm = {
   id: any;
   bookingName: string;
-  adults: number;
-  children: number;
-  infants: number;
+  guests: {
+    [key: string]: number
+  }
   pets: number;
   vehicles: number;
   unit: number;

@@ -9,6 +9,7 @@ import {
 } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { raiseConsoleErrorWithListOfMissingData } from "../utilities/raiseErrorWithListOfMissingData.js";
+import { bookingPaymentsTotal } from "../utilities/bookingPaymentsTotal.js";
 
 export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
   // ****************************************************
@@ -149,13 +150,53 @@ export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
         include: {
           unit: true,
           leadGuest: true,
-          guests: true,
+          guests: {
+            select: {
+              checkedIn: true,
+              guestType: {
+                select: {
+                  name: true,
+                },
+              },
+            }
+          },
           pets: true,
           vehicles: true,
           payments: true,
         },
       });
-      return res.json(data);
+
+      // convert to summary for transmission
+      const bookingSummaries = data.map((booking) => ({
+        id: booking.id,
+        bookingName: booking.leadGuest.lastName,
+        guests: booking.guests.reduce(
+          (acc: { [key: string]: number }, guest) => {
+            if (acc[guest.guestType.name]) {
+              acc[guest.guestType.name] += 1;
+              return acc;
+            } else {
+              acc[guest.guestType.name] = 1;
+              return acc;
+            }
+          },
+          {}
+        ),
+        pets: booking.pets!.length,
+        vehicles: booking.vehicles!.length,
+        unit: booking.unitId,
+        start: booking.start.toString(),
+        end: booking.end.toString(),
+        paid: bookingPaymentsTotal(booking.payments) >= booking.totalFee,
+        peopleCheckedIn: booking.guests.filter((guest) => guest.checkedIn)
+          .length,
+        petsCheckedIn: booking.pets.filter((pet) => pet.checkedIn).length,
+        vehiclesCheckedIn: booking.vehicles.filter(
+          (vehicle) => vehicle.checkedIn
+        ).length,
+      }));
+
+      return res.json(bookingSummaries);
     }
   );
 
@@ -253,9 +294,35 @@ export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
       paymentDate,
     } = req.body;
 
-    if (!siteId || !equipmentTypeId || !unitId || !startDate || !endDate || !extras || !bookingGuests || !bookingPets || !bookingVehicles || !paymentAmount || !paymentMethod || !paymentDate) {
-      const requiredData = {siteId, equipmentTypeId, unitId, startDate, endDate, extras, bookingGuests, bookingPets, bookingVehicles, paymentAmount, paymentMethod, paymentDate}
-      raiseConsoleErrorWithListOfMissingData(requiredData)      
+    if (
+      !siteId ||
+      !equipmentTypeId ||
+      !unitId ||
+      !startDate ||
+      !endDate ||
+      !extras ||
+      !bookingGuests ||
+      !bookingPets ||
+      !bookingVehicles ||
+      !paymentAmount ||
+      !paymentMethod ||
+      !paymentDate
+    ) {
+      const requiredData = {
+        siteId,
+        equipmentTypeId,
+        unitId,
+        startDate,
+        endDate,
+        extras,
+        bookingGuests,
+        bookingPets,
+        bookingVehicles,
+        paymentAmount,
+        paymentMethod,
+        paymentDate,
+      };
+      raiseConsoleErrorWithListOfMissingData(requiredData);
       return res.status(400).json({
         message: "Bad request - missing data",
       });
@@ -443,8 +510,8 @@ export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
     const extrasMap = extras.map((extra: any) => {
       return {
         id: extra,
-      }
-    })
+      };
+    });
 
     const applicableCalendarEntries = await prisma.calendar.findMany({
       where: {
@@ -458,7 +525,8 @@ export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
 
     if (applicableCalendarEntries.length === 0) {
       return res.status(400).json({
-        message: "Bad request - no calendar entries found for this unit and date range.  Something is wrong with the setup.",
+        message:
+          "Bad request - no calendar entries found for this unit and date range.  Something is wrong with the setup.",
       });
     }
 
@@ -466,7 +534,7 @@ export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
       return {
         id: entry.id,
       };
-    })
+    });
 
     // the way that the booking is created depends on whether the leadGuestId has been provided
     try {
@@ -475,10 +543,10 @@ export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
           data: {
             start: new Date(startDate),
             end: new Date(endDate),
-            unit: { 
+            unit: {
               connect: {
-                id: parseInt(unitId)
-              }
+                id: parseInt(unitId),
+              },
             },
             leadGuest: {
               connect: {
@@ -496,7 +564,7 @@ export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
               create: bookingVehiclesMapped,
             },
             extras: {
-              connect: extrasMap
+              connect: extrasMap,
             },
             payments: {
               create: {
@@ -506,12 +574,12 @@ export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
               },
             },
             calendarEntries: {
-              connect: calendarConnectArr
-            }
+              connect: calendarConnectArr,
+            },
           },
           include: {
             leadGuest: true,
-          }
+          },
         });
 
         return res.status(201).json({
@@ -561,7 +629,7 @@ export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
               create: bookingVehiclesMapped,
             },
             extras: {
-              connect: extrasMap
+              connect: extrasMap,
             },
             payments: {
               create: {
@@ -571,19 +639,19 @@ export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
               },
             },
             calendarEntries: {
-              connect: calendarConnectArr
-            }
+              connect: calendarConnectArr,
+            },
           },
           include: {
             leadGuest: true,
-          }
+          },
         });
         return res.status(201).json({
           data: result,
         });
       }
     } catch (error) {
-      console.log(error)
+      console.log(error);
       return res.status(500).json({
         message: "Internal server error",
         error: error,
