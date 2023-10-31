@@ -10,6 +10,7 @@ import {
 import bcrypt from "bcryptjs";
 import { raiseConsoleErrorWithListOfMissingData } from "../utilities/raiseErrorWithListOfMissingData.js";
 import { bookingPaymentsTotal } from "../utilities/bookingPaymentsTotal.js";
+import { calculateFee } from "../utilities/calculateFee.js";
 
 export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
   // ****************************************************
@@ -553,7 +554,7 @@ export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
                 id: parseInt(leadGuestId),
               },
             },
-            totalFee: 100, //TODO calculate this
+            totalFee: await calculateFee(unit.unitTypeId, new Date(startDate), new Date(endDate), extras, bookingGuests, bookingPets, bookingVehicles, prisma),
             guests: {
               create: bookingGuestsMapped,
             },
@@ -618,7 +619,7 @@ export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
                 password: hash,
               },
             },
-            totalFee: 100, // TODO calculate this
+            totalFee: await calculateFee(unit.unitTypeId, new Date(startDate), new Date(endDate), extras, bookingGuests, bookingPets, bookingVehicles, prisma),
             guests: {
               create: bookingGuestsMapped,
             },

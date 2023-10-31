@@ -32,7 +32,7 @@ export function registerFeeCalcRoutes(app: Express, prisma: PrismaClient) {
       parsedUnitTypeId = parseInt(unitTypeId);
       parsedStartDate = new Date(startDate);
       parsedEndDate = new Date(endDate);
-      parsedExtras = extras.map((extra) => parseInt(extra as unknown as string));
+      parsedExtras = extras ? extras.map((extra) => parseInt(extra as unknown as string)) : [];
     } catch {
       return res.status(400).json({
         message: "Bad request - invalid parameters.",
