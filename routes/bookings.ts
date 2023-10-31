@@ -254,7 +254,7 @@ export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
     } = req.body;
 
     if (!siteId || !equipmentTypeId || !unitId || !startDate || !endDate || !extras || !bookingGuests || !bookingPets || !bookingVehicles || !paymentAmount || !paymentMethod || !paymentDate) {
-      const requiredData = [siteId, equipmentTypeId, unitId, startDate, endDate, extras, bookingGuests, bookingPets, bookingVehicles, paymentAmount, paymentMethod, paymentDate]
+      const requiredData = {siteId, equipmentTypeId, unitId, startDate, endDate, extras, bookingGuests, bookingPets, bookingVehicles, paymentAmount, paymentMethod, paymentDate}
       raiseConsoleErrorWithListOfMissingData(requiredData)      
       return res.status(400).json({
         message: "Bad request - missing data",
