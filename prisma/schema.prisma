@@ -94,6 +94,7 @@ model GuestType {
   site                Site      @relation(fields: [siteId], references: [id])
   bookingGuests       BookingGuest[]
   feesCalendarEntries GuestFeesCalendar[]
+  @@unique([siteId, name], name: "siteGuestTypeNameCombo")
 }
 
 model EquipmentType {
