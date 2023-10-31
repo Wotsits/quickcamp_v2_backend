@@ -446,6 +446,28 @@ export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
       }
     })
 
+    const applicableCalendarEntries = await prisma.calendar.findMany({
+      where: {
+        unitId: parseInt(unitId as string),
+        date: {
+          gte: new Date(startDate),
+          lt: new Date(endDate),
+        },
+      },
+    });
+
+    if (applicableCalendarEntries.length === 0) {
+      return res.status(400).json({
+        message: "Bad request - no calendar entries found for this unit and date range.  Something is wrong with the setup.",
+      });
+    }
+
+    const calendarConnectArr = applicableCalendarEntries.map((entry) => {
+      return {
+        id: entry.id,
+      };
+    })
+
     // the way that the booking is created depends on whether the leadGuestId has been provided
     try {
       if (path === "EXISTINGGUEST") {
@@ -483,6 +505,9 @@ export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
                 paymentDate: new Date(paymentDate),
               },
             },
+            calendarEntries: {
+              connect: calendarConnectArr
+            }
           },
           include: {
             leadGuest: true,
@@ -506,8 +531,8 @@ export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
             end: new Date(endDate),
             unit: {
               connect: {
-                id: parseInt(unitId as string)
-              }
+                id: parseInt(unitId as string),
+              },
             },
             leadGuest: {
               create: {
@@ -545,6 +570,9 @@ export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
                 paymentDate: new Date(paymentDate),
               },
             },
+            calendarEntries: {
+              connect: calendarConnectArr
+            }
           },
           include: {
             leadGuest: true,
