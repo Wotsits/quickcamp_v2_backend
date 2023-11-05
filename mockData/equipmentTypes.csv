@@ -1,0 +1,6 @@
+id,name,description,icon,siteId
+1,Tent,A tent accommodation a maximum of 10 people.,MediumTent,1
+2,Caravan,"A single-axle caravan measuring a maximum of 6,5m in length.",Caravan,1
+3,Small Campervan,A small campervan measuring a maximum of 5.5m in length.,SmallCampervan,1
+4,Large Campervan,A large campervan/motorhome measuring a maximum of 7m in length.,LargeCampervan,1
+5,Wedding,A wedding party.,None,2
