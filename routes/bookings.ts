@@ -19,6 +19,7 @@ export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
     urls.BOOKINGS_BY_SITE,
     loggedIn,
     async (req: Request, res: Response) => {
+
       if (!req.user) {
         return res.status(401).json({
           message: "Unauthorized",
@@ -47,7 +48,7 @@ export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
       }
 
       // return bookings here, paginated.
-      const data = await prisma.booking.findMany({
+      const data =  await prisma.booking.findMany({
         where: {
           unit: {
             unitType: {
@@ -64,6 +65,8 @@ export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
           payments: true,
         },
       });
+
+      return res.json(data);
     }
   );
 
