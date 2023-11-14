@@ -59,12 +59,46 @@ export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
         include: {
           unit: true,
           leadGuest: true,
-          guests: true,
+          guests: {
+            include: {
+              guestType: true,
+            }
+          },
           pets: true,
           vehicles: true,
           payments: true,
         },
       });
+
+      // convert to summary for transmission
+      const bookingSummaries = data.map((booking) => ({
+        id: booking.id,
+        bookingName: booking.leadGuest.lastName,
+        guests: booking.guests.reduce(
+          (acc: { [key: string]: number }, guest) => {
+            if (acc[guest.guestType.name]) {
+              acc[guest.guestType.name] += 1;
+              return acc;
+            } else {
+              acc[guest.guestType.name] = 1;
+              return acc;
+            }
+          },
+          {}
+        ),
+        pets: booking.pets!.length,
+        vehicles: booking.vehicles!.length,
+        unit: booking.unitId,
+        start: booking.start.toString(),
+        end: booking.end.toString(),
+        paid: bookingPaymentsTotal(booking.payments) >= booking.totalFee,
+        peopleCheckedIn: booking.guests.filter((guest) => guest.checkedIn)
+          .length,
+        petsCheckedIn: booking.pets.filter((pet) => pet.checkedIn).length,
+        vehiclesCheckedIn: booking.vehicles.filter(
+          (vehicle) => vehicle.checkedIn
+        ).length,
+      }));
 
       return res.json(data);
     }
@@ -243,7 +277,11 @@ export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
             },
           },
           leadGuest: true,
-          guests: true,
+          guests: { 
+            include: {
+              guestType: true,
+            }
+          },
           pets: true,
           vehicles: true,
           payments: true,
