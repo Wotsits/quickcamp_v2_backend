@@ -105,7 +105,7 @@ export function registerCheckInRoutes(app: Express, prisma: PrismaClient) {
       const { id, type, reverse } = req.body;
 
       // check that the required data is present
-      if (!id || !type || !reverse) {
+      if (!id || !type || reverse === undefined) {
         const requiredData = {
           id,
           type,
