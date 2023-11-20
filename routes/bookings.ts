@@ -523,7 +523,7 @@ export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
         guestTypeId: guest.guestTypeId,
         start: guest.start,
         end: guest.end,
-        checkedIn: false,
+        checkedIn: null,
       };
     });
 
@@ -533,7 +533,7 @@ export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
         name: pet.name,
         start: pet.start,
         end: pet.end,
-        checkedIn: false,
+        checkedIn: null,
       };
     });
 
@@ -544,7 +544,7 @@ export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
           vehicleReg: vehicle.vehicleReg,
           start: vehicle.start,
           end: vehicle.end,
-          checkedIn: false,
+          checkedIn: null,
         };
       }
     );

@@ -152,7 +152,7 @@ model BookingGuest {
     guestTypeId   Int
     start         DateTime         
     end           DateTime
-    checkedIn     Boolean
+    checkedIn     DateTime?
 }
 
 model BookingVehicle {
@@ -162,7 +162,7 @@ model BookingVehicle {
     vehicleReg    String
     start         DateTime
     end           DateTime
-    checkedIn     Boolean
+    checkedIn     DateTime?
 }
 
 model BookingPet {
@@ -172,7 +172,7 @@ model BookingPet {
     name          String      
     start         DateTime         
     end           DateTime
-    checkedIn     Boolean
+    checkedIn     DateTime?
 }
 
 model UnitTypeFeesCalendar {
@@ -217,14 +217,14 @@ model ExtraFeesCalendar {
 }
 
 model Payment {
-    id            Int       @id @default(autoincrement())
-    paymentDate   DateTime    
-    booking       Booking   @relation(fields:[bookingId], references: [id])     
-    bookingId     Int         
-    paymentAmount Float
-    paymentMethod String
+  id            Int       @id @default(autoincrement())
+  paymentDate   DateTime    
+  booking       Booking   @relation(fields:[bookingId], references: [id])     
+  bookingId     Int         
+  paymentAmount Float
+  paymentMethod String
 }
 
 model Token {
-    id         String    @id @unique
+  id         String    @id @unique
 }

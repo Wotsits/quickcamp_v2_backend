@@ -320,7 +320,7 @@ async function main() {
         guestTypeId: guestTypes[guestType].id,
         start: booking.start,
         end: booking.end,
-        checkedIn: false,
+        checkedIn: null,
       };
       bookingGuests.push(newMap);
       bookingId++;
@@ -341,7 +341,7 @@ async function main() {
         vehicleReg: generateRandomUKRegistrationNumber(),
         start: booking.start,
         end: booking.end,
-        checkedIn: false,
+        checkedIn: null,
       };
       bookingVehicles.push(newMap);
       vehicleId++;
@@ -362,7 +362,7 @@ async function main() {
         name: faker.person.firstName(),
         start: booking.start,
         end: booking.end,
-        checkedIn: false,
+        checkedIn: null,
       };
       bookingPets.push(newMap);
       petId++;
