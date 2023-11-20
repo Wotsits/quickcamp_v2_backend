@@ -2,13 +2,10 @@ import { Express, Request, Response } from "express";
 import { urls } from "../enums.js";
 import { loggedIn } from "../utilities/userManagement/middleware.js";
 import {
-  Booking,
-  BookingGuest,
-  BookingPet,
-  BookingVehicle,
   PrismaClient,
 } from "@prisma/client";
 import { raiseConsoleErrorWithListOfMissingData } from "../utilities/raiseErrorWithListOfMissingData.js";
+import { isGuestDue } from "../utilities/isGuestDue.js";
 
 export function registerArrivalsRoutes(app: Express, prisma: PrismaClient) {
   // ****************************************************
@@ -202,6 +199,13 @@ export function registerCheckInRoutes(app: Express, prisma: PrismaClient) {
       if (thing.checkedOut) {
         return res.status(400).json({
           message: "Bad request - guest already checked out",
+        });
+      }
+
+      // check that the guest is due to check in
+      if (!isGuestDue(thing)) {
+        return res.status(400).json({
+          message: "Bad request - guest not due",
         });
       }
 
