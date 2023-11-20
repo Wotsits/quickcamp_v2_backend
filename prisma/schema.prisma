@@ -132,6 +132,7 @@ model Booking {
   vehicles          BookingVehicle[]     
   extras            ExtraType[]
   calendarEntries   Calendar[]
+  status            String
 }
 
 model Calendar {
@@ -144,35 +145,38 @@ model Calendar {
 }
 
 model BookingGuest {
-    id            Int       @id @default(autoincrement())
-    booking       Booking   @relation(fields:[bookingId], references: [id])     
-    bookingId     Int   
-    name          String
-    guestType     GuestType @relation(fields: [guestTypeId], references: [id])
-    guestTypeId   Int
-    start         DateTime         
-    end           DateTime
-    checkedIn     DateTime?
+  id            Int       @id @default(autoincrement())
+  booking       Booking   @relation(fields:[bookingId], references: [id])     
+  bookingId     Int   
+  name          String
+  guestType     GuestType @relation(fields: [guestTypeId], references: [id])
+  guestTypeId   Int
+  start         DateTime         
+  end           DateTime
+  checkedIn     DateTime?
+  checkedOut    DateTime?
 }
 
 model BookingVehicle {
-    id            Int       @id @default(autoincrement())
-    booking       Booking   @relation(fields:[bookingId], references: [id])     
-    bookingId     Int
-    vehicleReg    String
-    start         DateTime
-    end           DateTime
-    checkedIn     DateTime?
+  id            Int       @id @default(autoincrement())
+  booking       Booking   @relation(fields:[bookingId], references: [id])     
+  bookingId     Int
+  vehicleReg    String
+  start         DateTime
+  end           DateTime
+  checkedIn     DateTime?
+  checkedOut    DateTime?
 }
 
 model BookingPet {
-    id            Int       @id @default(autoincrement())
-    booking       Booking   @relation(fields:[bookingId], references: [id])     
-    bookingId     Int
-    name          String      
-    start         DateTime         
-    end           DateTime
-    checkedIn     DateTime?
+  id            Int       @id @default(autoincrement())
+  booking       Booking   @relation(fields:[bookingId], references: [id])     
+  bookingId     Int
+  name          String      
+  start         DateTime         
+  end           DateTime
+  checkedIn     DateTime?
+  checkedOut    DateTime?
 }
 
 model UnitTypeFeesCalendar {

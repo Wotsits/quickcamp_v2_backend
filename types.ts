@@ -94,6 +94,7 @@ export type Booking = {
   vehicles?: BookingVehicle[];
   pets?: BookingPet[];
   payments?: Payment[];
+  status: "UNCONFIRMED" | "CONFIRMED" | "CANCELLED";
 };
 
 export type Calendar = {
@@ -111,7 +112,8 @@ export type BookingGuest = {
   age: number;
   start: Date;
   end: Date;
-  checkedIn: boolean;
+  checkedIn: Date | null;
+  checkedOut: Date | null;
 };
 
 export type BookingVehicle = {
@@ -121,7 +123,8 @@ export type BookingVehicle = {
   vehicleReg: string;
   start: Date;
   end: Date;
-  checkedIn: boolean;
+  checkedIn: Date | null;
+  checkedOut: Date | null;
 };
 
 export type BookingPet = {
@@ -130,7 +133,8 @@ export type BookingPet = {
   booking?: Booking;
   name: string;
   start: Date;
-  checkedIn: boolean;
+  checkedIn: Date | null;
+  checkedOut: Date | null;
 };
 
 export type Payment = {

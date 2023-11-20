@@ -619,6 +619,7 @@ export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
             calendarEntries: {
               connect: calendarConnectArr,
             },
+            status: "CONFIRMED"
           },
           include: {
             leadGuest: true,
@@ -684,6 +685,7 @@ export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
             calendarEntries: {
               connect: calendarConnectArr,
             },
+            status: "CONFIRMED"
           },
           include: {
             leadGuest: true,

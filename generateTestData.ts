@@ -297,6 +297,7 @@ async function main() {
       unitId: randomUnitId,
       totalFee: 100,
       leadGuestId: randomGuestId,
+      status: "CONFIRMED"
     };
 
     bookings.push(newBooking);
@@ -321,6 +322,7 @@ async function main() {
         start: booking.start,
         end: booking.end,
         checkedIn: null,
+        checkedOut: null,
       };
       bookingGuests.push(newMap);
       bookingId++;
@@ -342,6 +344,7 @@ async function main() {
         start: booking.start,
         end: booking.end,
         checkedIn: null,
+        checkedOut: null,
       };
       bookingVehicles.push(newMap);
       vehicleId++;
@@ -363,6 +366,7 @@ async function main() {
         start: booking.start,
         end: booking.end,
         checkedIn: null,
+        checkedOut: null,
       };
       bookingPets.push(newMap);
       petId++;
