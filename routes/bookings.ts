@@ -100,6 +100,7 @@ export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
         ).length,
       }));
 
+      // TODO return the booking summaries instead of the full booking
       return res.json(data);
     }
   );
@@ -520,8 +521,8 @@ export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
       return {
         name: guest.name,
         guestTypeId: guest.guestTypeId,
-        start: new Date(startDate),
-        end: new Date(endDate),
+        start: guest.start,
+        end: guest.end,
         checkedIn: false,
       };
     });
@@ -530,8 +531,8 @@ export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
     const bookingPetsMapped = bookingPets.map((pet: BookingPet) => {
       return {
         name: pet.name,
-        start: new Date(startDate),
-        end: new Date(endDate),
+        start: pet.start,
+        end: pet.end,
         checkedIn: false,
       };
     });
@@ -541,8 +542,8 @@ export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
       (vehicle: BookingVehicle) => {
         return {
           vehicleReg: vehicle.vehicleReg,
-          start: new Date(startDate),
-          end: new Date(endDate),
+          start: vehicle.start,
+          end: vehicle.end,
           checkedIn: false,
         };
       }
