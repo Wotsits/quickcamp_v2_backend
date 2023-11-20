@@ -18,5 +18,6 @@ export const urls: { [key: string]: string } = {
   EXTRATYPES: "/extra-types",
   ARRIVALS_BY_DATE: "/arrivals-by-date",
   CHECK_IN_GUEST: "/check-in-guest",
+  CHECK_IN_MANY_GUESTS: "/check-in-many-guests",
   FEECALCS: "/get-fee-calc",
 };
