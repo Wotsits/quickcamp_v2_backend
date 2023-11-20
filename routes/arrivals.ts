@@ -102,13 +102,14 @@ export function registerCheckInRoutes(app: Express, prisma: PrismaClient) {
     loggedIn,
     async (req: Request, res: Response) => {
       // unpack the request body
-      const { id, type } = req.body;
+      const { id, type, reverse } = req.body;
 
       // check that the required data is present
-      if (!id || !type) {
+      if (!id || !type || !reverse) {
         const requiredData = {
           id,
           type,
+          reverse
         };
         raiseConsoleErrorWithListOfMissingData(requiredData);
         return res.status(400).json({
@@ -120,6 +121,12 @@ export function registerCheckInRoutes(app: Express, prisma: PrismaClient) {
       if (type !== "GUEST" && type !== "PET" && type !== "VEHICLE") {
         return res.status(400).json({
           message: "Bad request - invalid type",
+        });
+      }
+
+      if (typeof reverse !== "boolean") {
+        return res.status(400).json({
+          message: "Bad request - invalid datatype for supplied 'reverse' field",
         });
       }
 
@@ -186,12 +193,23 @@ export function registerCheckInRoutes(app: Express, prisma: PrismaClient) {
         });
       }
 
-      // check that the guest is not already checked in
-      if (thing.checkedIn) {
-        return res.status(400).json({
-          message: "Bad request - guest already checked in",
-        });
+      if (!reverse) {
+        // check that the guest is not already checked in
+        if (thing.checkedIn) {
+          return res.status(400).json({
+            message: "Bad request - guest already checked in",
+          });
+        }
       }
+      else {
+        // check that the guest is already checked in
+        if (!thing.checkedIn) {
+          return res.status(400).json({
+            message: "Bad request - guest not checked in",
+          });
+        }
+      }
+      
 
       // check that the guest is not already checked out
       if (thing.checkedOut) {
@@ -222,7 +240,7 @@ export function registerCheckInRoutes(app: Express, prisma: PrismaClient) {
             id: id,
           },
           data: {
-            checkedIn: new Date(),
+            checkedIn: !reverse ? new Date() : null,
           },
         });
       }
@@ -234,7 +252,7 @@ export function registerCheckInRoutes(app: Express, prisma: PrismaClient) {
             id: id,
           },
           data: {
-            checkedIn: new Date(),
+            checkedIn: !reverse ? new Date() : null,
           },
         });
       }
@@ -246,7 +264,7 @@ export function registerCheckInRoutes(app: Express, prisma: PrismaClient) {
             id: id,
           },
           data: {
-            checkedIn: new Date(),
+            checkedIn: !reverse ? new Date() : null,
           },
         });
       }
@@ -259,7 +277,7 @@ export function registerCheckInRoutes(app: Express, prisma: PrismaClient) {
 
   app.post(urls.CHECK_IN_MANY_GUESTS, loggedIn, async (req, res) => {
     // unpack the request body
-    const { guests } = req.body;
+    const { guests, reverse } = req.body;
 
     // check that the required data is present
     if (!guests) {
@@ -298,6 +316,12 @@ export function registerCheckInRoutes(app: Express, prisma: PrismaClient) {
     if (!isValid) {
       return res.status(400).json({
         message: "Bad request - invalid guests data",
+      });
+    }
+
+    if (typeof reverse !== "boolean") {
+      return res.status(400).json({
+        message: "Bad request - invalid datatype for supplied 'reverse' field",
       });
     }
 
@@ -375,12 +399,23 @@ export function registerCheckInRoutes(app: Express, prisma: PrismaClient) {
           });
         }
 
-        // check that the guest is not already checked in
-        if (thing.checkedIn) {
-          return res.status(400).json({
-            message: "Bad request - guest already checked in",
-          });
+        if (!reverse) {
+          // check that the guest is not already checked in
+          if (thing.checkedIn) {
+            return res.status(400).json({
+              message: "Bad request - guest already checked in",
+            });
+          }
         }
+        else {
+          // check that the guest is already checked in
+          if (!thing.checkedIn) {
+            return res.status(400).json({
+              message: "Bad request - guest not checked in",
+            });
+          }
+        }
+        
 
         // check that the guest is not already checked out
         if (thing.checkedOut) {
@@ -438,7 +473,7 @@ export function registerCheckInRoutes(app: Express, prisma: PrismaClient) {
           }
         },
         data: {
-          checkedIn: now,
+          checkedIn: !reverse ? now: null,
         },
       }),
       prisma.bookingPet.updateMany({
@@ -448,7 +483,7 @@ export function registerCheckInRoutes(app: Express, prisma: PrismaClient) {
           }
         },
         data: {
-          checkedIn: now,
+          checkedIn: !reverse ? now : null,
         },
       }),
       prisma.bookingVehicle.updateMany({
@@ -458,15 +493,15 @@ export function registerCheckInRoutes(app: Express, prisma: PrismaClient) {
           }
         },
         data: {
-          checkedIn: now,
+          checkedIn: !reverse ? now : null,
         },
       }),
     ])
 
     res.json({
-      checkedInGuests,
-      checkedInPets,
-      checkedInVehicles,
+      guestsUpdated: checkedInGuests,
+      petsUpdated: checkedInPets,
+      vehiclesUpdated: checkedInVehicles,
     });
   });
 }
