@@ -20,4 +20,5 @@ export const urls: { [key: string]: string } = {
   CHECK_IN_GUEST: "/check-in-guest",
   CHECK_IN_MANY_GUESTS: "/check-in-many-guests",
   FEECALCS: "/get-fee-calc",
+  GUEST_TYPES: "/guest-types",
 };
