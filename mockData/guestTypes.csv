@@ -1,6 +1,6 @@
 id,name,description,icon,siteId
-1,Adult,A person aged 18 or over.,adult,1
-2,Child,A person aged 5 to 17 years old.,child,1
-3,Infant,A person aged 0 to 4 years old.,infant,1
-4,Youth,A person aged 18 to 24 years old and travelling as part of an organsiated group such as Scouts or DofE.,youth,1
-5,Wedding Guest,A person attending a wedding.,weddingguest,2
+1,Adult,A person aged 18 or over.,Adult,1
+2,Child,A person aged 5 to 17 years old.,Child,1
+3,Infant,A person aged 0 to 4 years old.,Infant,1
+4,Youth,A person aged 18 to 24 years old and travelling as part of an organsiated group such as Scouts or DofE.,Youth,1
+5,Wedding Guest,A person attending a wedding.,WeddingGuest,2
