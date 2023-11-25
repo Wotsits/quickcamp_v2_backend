@@ -5,14 +5,29 @@ import { PrismaClient } from "@prisma/client";
 
 export function registerSiteRoutes(app: Express, prisma: PrismaClient) {
     app.get(urls.SITES, loggedIn, async (req: Request, res: Response) => {
-        // return all sites here, paginated.
+        // confirm that the user is logged in and has a tenantId
+
+        if (!req.user) {
+          res.status(401).send({ message: "Not logged in" });
+          return;
+        }
+
+        if (!req.user.tenantId) {
+          res.status(401).send({ message: "Not logged in" });
+          return;
+        }
+
+        // get the tenantId from the user
+        const tenantId = req.user.tenantId;
+
+        // get all sites for that tenantId
+        const sites = await prisma.site.findMany({
+          where: { tenantId },
+        });
+
+        // return all sites for that tenantId
+        return res.status(200).send(sites);
+
       });
     
-      app.get(
-        `${urls.SITES}/:id`,
-        loggedIn,
-        async (req: Request, res: Response) => {
-          // return site by id here.
-        }
-      );
 }
