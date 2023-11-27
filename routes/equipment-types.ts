@@ -2,6 +2,7 @@ import { Express, Request, Response } from "express";
 import { urls } from "../enums.js";
 import { loggedIn } from "../utilities/userManagement/middleware.js";
 import { PrismaClient } from "@prisma/client";
+import { UserResponse } from "../types.js";
 
 export function registerEquipmentTypeRoutes(app: Express, prisma: PrismaClient) {
   app.get(
@@ -20,7 +21,7 @@ export function registerEquipmentTypeRoutes(app: Express, prisma: PrismaClient) 
         includeSite = req.query.includeSite === "true";
       }
 
-      const tenantId = req.user.tenantId;
+      const { tenantId } = req.user;
 
       if (!tenantId) {
         res.status(401).json({ message: "Not logged in." });
@@ -42,6 +43,15 @@ export function registerEquipmentTypeRoutes(app: Express, prisma: PrismaClient) 
       }
       // if siteId is provided, return all equipment-types for the site.
       else {
+        // check that the user has access to the siteId
+        const sitesToWhichUserHasAccess = (req.user as unknown as UserResponse).sites.map((site) => site.id);
+        
+        if (!sitesToWhichUserHasAccess.includes(parseInt(siteId as string))) {
+          return res.status(403).json({
+            message: "Forbidden",
+          });
+        }
+        
         const data = await prisma.equipmentType.findMany({
           where: {
             siteId: parseInt(siteId as string),
