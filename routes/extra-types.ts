@@ -6,28 +6,7 @@ import { UserResponse } from "../types.js";
 
 export function registerExtraTypeRoutes(app: Express, prisma: PrismaClient) {
   app.get(urls.EXTRATYPES, loggedIn, async (req: Request, res: Response) => {
-    const params = req.query;
-    let siteId: number | null;
     
-    // check that the siteId is a number
-    if (params.siteId) {
-        try {
-            siteId = parseInt(params.siteId as string);
-        }
-        catch (e) {
-            return res.status(400).json({
-                message: "Bad request",
-            });
-        }
-    }
-    else siteId = null;
-
-    if (siteId === null) {
-        return res.status(400).json({
-            message: "Bad request",
-        });
-    }
-
     // check that the user is logged in
     if (!req.user) {
       return res.status(401).json({
@@ -35,26 +14,70 @@ export function registerExtraTypeRoutes(app: Express, prisma: PrismaClient) {
       });
     }
 
-    // check that the user has access to the siteId
-    const sitesToWhichUserHasAccess = (req.user as unknown as UserResponse).sites.map((site) => site.id);
-    if (!sitesToWhichUserHasAccess.includes(siteId)) {
-      return res.status(403).json({
-        message: "Forbidden",
+    let includeSite = false;
+    let includeUnitTypes = false;
+
+    if (req.query.includeSite) {
+      includeSite = req.query.includeSite === "true";
+    }
+    if (req.query.includeUnitTypes) {
+      includeUnitTypes = req.query.includeUnitTypes === "true";
+    }
+
+    const { tenantId } = req.user;
+
+    if (!tenantId) {
+      return res.status(401).json({
+        message: "Unauthorized",
       });
     }
 
-    // return all extraTypes here.
-    const data = await prisma.extraType.findMany({
-        where: {
-            unitTypes: {
-                some: {
-                    siteId
-                },
-            },
-        }
-    });
+    const { siteId } = req.query;
 
-    // return all guests here, paginated.
-    res.json(data);
+    // if siteId is not provided, return all extraTypes for the tenant.
+    if (!siteId) {
+      const data = await prisma.extraType.findMany({
+        where: {
+          unitTypes: {
+            some: {
+              site: {
+                tenantId: tenantId,
+              },
+            },
+          },
+        },
+        include: {
+          ...(includeSite && { unitTypes: { include: { site: true } } }),
+          ...(includeUnitTypes && { unitTypes: true }),
+        },
+      });
+      return res.status(200).json(data);
+    }
+    // if siteId is provided, return all extraTypes for the site.
+    else {
+      // check that the user has access to the siteId
+      const sitesToWhichUserHasAccess = (req.user as unknown as UserResponse).sites.map((site) => site.id);
+      
+      if (!sitesToWhichUserHasAccess.includes(parseInt(siteId as string))) {
+        return res.status(403).json({
+          message: "Forbidden",
+        });
+      }
+
+      const data = await prisma.extraType.findMany({
+        where: {
+          unitTypes: {
+            some: {
+              siteId: parseInt(siteId as string),
+            },
+          },
+        },
+        include: {
+          ...(includeSite && { unitTypes: { include: { site: true } } }),
+          ...(includeUnitTypes && { unitTypes: true }),
+        },
+      });
+      return res.status(200).json(data);
+    }
   });
 }
