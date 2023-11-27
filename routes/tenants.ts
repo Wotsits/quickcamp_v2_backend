@@ -6,6 +6,7 @@ import { PrismaClient } from "@prisma/client";
 export function registerTenantRoutes(app: Express, prisma: PrismaClient) {
     app.get(urls.TENANTS, loggedIn, async (req: Request, res: Response) => {
         // return all tenants here, paginated.
+        return res.json({ message: "tenants route" });
       });
     
       app.get(
@@ -13,6 +14,7 @@ export function registerTenantRoutes(app: Express, prisma: PrismaClient) {
         loggedIn,
         async (req: Request, res: Response) => {
           // return tenant by id here.
+          return res.json({ message: "tenant by id route" });
         }
       );
 }

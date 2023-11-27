@@ -13,6 +13,7 @@ export function registerPaymentRoutes(app: Express, prisma: PrismaClient) {
     loggedIn,
     async (req: Request, res: Response) => {
       // return payments by id here.
+      return res.json({ message: "payments by id route" });
     }
   );
 
@@ -21,6 +22,7 @@ export function registerPaymentRoutes(app: Express, prisma: PrismaClient) {
     loggedIn,
     async (req: Request, res: Response) => {
       // return payments by bookingId here, paginated.
+      return res.json({ message: "payments by bookingId route" });
     }
   );
 }
