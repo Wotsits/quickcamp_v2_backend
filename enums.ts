@@ -22,4 +22,5 @@ export const urls: { [key: string]: string } = {
   FEECALCS: "/get-fee-calc",
   GUEST_TYPES: "/guest-types",
   EQUIPMENT_TYPES: "/equipment-types",
+  USERS: "/users",
 };

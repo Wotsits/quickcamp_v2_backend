@@ -18,6 +18,7 @@ import { registerArrivalsRoutes, registerCheckInRoutes } from "./arrivals.js";
 import { registerFeeCalcRoutes } from "./get-fee-calc.js";
 import { registerGuestTypeRoutes } from "./guest-types.js";
 import { registerEquipmentTypeRoutes } from "./equipment-types.js";
+import { registerUserRoutes } from "./users.js";
 
 export function routesInit(app: Express, prisma: PrismaClient) {
   registerRegisterRoute(app, prisma);
@@ -37,4 +38,5 @@ export function routesInit(app: Express, prisma: PrismaClient) {
   registerCheckInRoutes(app, prisma);
   registerPaymentRoutes(app, prisma);
   registerFeeCalcRoutes(app, prisma);
+  registerUserRoutes(app, prisma);
 }
