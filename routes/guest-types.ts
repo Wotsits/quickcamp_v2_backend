@@ -1,19 +1,22 @@
 import { Express, Request, Response } from "express";
 import { urls } from "../enums.js";
-import { loggedIn } from "../utilities/userManagement/middleware.js";
+import { hasAccessToRequestedSite, loggedIn } from "../utilities/userManagement/middleware.js";
 import { PrismaClient } from "@prisma/client";
 
 export function registerGuestTypeRoutes(app: Express, prisma: PrismaClient) {
   app.get(
     `${urls.GUEST_TYPES}`,
     loggedIn,
+    hasAccessToRequestedSite,
     async (req: Request, res: Response) => {
-      if (!req.user) {
+      // belt and braces check that the user is logged in and has a tenantId
+      const { user } = req;
+      if (!user) {
         res.status(401).json({ message: "Not logged in." });
         return;
       }
 
-      const tenantId = req.user.tenantId;
+      const { tenantId } = user;
 
       if (!tenantId) {
         res.status(401).json({ message: "Not logged in." });

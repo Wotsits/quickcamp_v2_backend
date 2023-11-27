@@ -95,3 +95,41 @@ export function userAuth(req: Request, res: Response, next: NextFunction) {
       .json({ message: errorMessages.NOT_AUTHORIZED_TOKEN_NOT_AVAILABLE });
   }
 }
+
+// ----------------
+
+export function hasAccessToRequestedSite(req: Request, res: Response, next: NextFunction) {
+  // extract any site ids from the query string or params
+  const {siteId: querySiteId} = req.query;
+  const {siteId: paramsSiteId} = req.params;
+  const {siteId: bodySiteId} = req.body;
+
+  // get the user from the request
+  const {user} = req;
+  if (!user) {
+    return res.status(401).json({ message: errorMessages.NOT_AUTHORIZED });
+  }
+
+  // check the user sites object for the siteId
+  if (querySiteId) {
+    const targetSite = user.sites.find((site: any) => site.id === parseInt(querySiteId as string));
+    if (!targetSite) {
+      return res.status(401).json({ message: errorMessages.NOT_AUTHORIZED });
+    }
+  }
+  if (paramsSiteId) {
+    const targetSite = user.sites.find((site: any) => site.id === parseInt(paramsSiteId as string));
+    if (!targetSite) {
+      return res.status(401).json({ message: errorMessages.NOT_AUTHORIZED });
+    }
+  }
+  if (bodySiteId) {
+    const targetSite = user.sites.find((site: any) => site.id === parseInt(bodySiteId as string));
+    if (!targetSite) {
+      return res.status(401).json({ message: errorMessages.NOT_AUTHORIZED });
+    }
+  }
+
+  // if we get here, the user has access to the site
+  next();
+}

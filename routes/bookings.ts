@@ -1,6 +1,9 @@
 import { Express, Request, Response } from "express";
 import { urls } from "../enums.js";
-import { loggedIn } from "../utilities/userManagement/middleware.js";
+import {
+  hasAccessToRequestedSite,
+  loggedIn,
+} from "../utilities/userManagement/middleware.js";
 import {
   BookingGuest,
   BookingPet,
@@ -18,15 +21,16 @@ export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
   app.get(
     urls.BOOKINGS_BY_SITE,
     loggedIn,
+    hasAccessToRequestedSite,
     async (req: Request, res: Response) => {
-
-      if (!req.user) {
+      const { user } = req;
+      if (!user) {
         return res.status(401).json({
           message: "Unauthorized",
         });
       }
 
-      const siteId = req.query.siteId;
+      const { siteId } = req.query;
 
       if (!siteId) {
         return res.status(400).json({
@@ -34,21 +38,8 @@ export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
         });
       }
 
-      // check that user is allowed to access this siteId
-      const siteIdInt = parseInt(siteId as string);
-
-      const user = req.user;
-      const userSites = user.sites;
-      const targetSite = userSites.find((site) => site.id === siteIdInt);
-
-      if (!targetSite) {
-        return res.status(403).json({
-          message: "Forbidden",
-        });
-      }
-
       // return bookings here, paginated.
-      const data =  await prisma.booking.findMany({
+      const data = await prisma.booking.findMany({
         where: {
           unit: {
             unitType: {
@@ -62,7 +53,7 @@ export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
           guests: {
             include: {
               guestType: true,
-            }
+            },
           },
           pets: true,
           vehicles: true,
@@ -110,6 +101,7 @@ export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
   app.get(
     urls.BOOKINGS_BY_SITE_AND_DATE_RANGE,
     loggedIn,
+    hasAccessToRequestedSite,
     async (req: Request, res: Response) => {
       if (!req.user) {
         return res.status(401).json({
@@ -128,20 +120,6 @@ export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
       if (!start || !end) {
         return res.status(400).json({
           message: "Bad request - no start or end date",
-        });
-      }
-
-      // check that user is allowed to access this siteId
-      const siteIdInt = parseInt(siteId as string);
-
-      const user = req.user;
-
-      const userSites = user.sites;
-      const targetSite = userSites.find((site) => site.id === siteIdInt);
-
-      if (!targetSite) {
-        return res.status(403).json({
-          message: "Forbidden",
         });
       }
 
@@ -197,7 +175,7 @@ export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
                   name: true,
                 },
               },
-            }
+            },
           },
           pets: true,
           vehicles: true,
@@ -246,17 +224,17 @@ export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
     loggedIn,
     async (req: Request, res: Response) => {
       // ensure we have the user on the request
-      const user = req.user;
+      const { user } = req;
       if (!user) {
         return res.status(401).json({
           message: "Unauthorized",
         });
       }
 
-      const bookingId = req.query.id;
+      const { id: bookingId } = req.query;
 
       // get the user's tenancy
-      const tenantId = user?.tenantId;
+      const { tenantId } = user;
 
       // get the booking
       const data = await prisma.booking.findUnique({
@@ -278,10 +256,10 @@ export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
             },
           },
           leadGuest: true,
-          guests: { 
+          guests: {
             include: {
               guestType: true,
-            }
+            },
           },
           pets: true,
           vehicles: true,
@@ -310,49 +288,24 @@ export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
 
   // ****************************************************
 
-  app.post(urls.NEW_BOOKING, loggedIn, async (req: Request, res: Response) => {
-    const {
-      siteId,
-      leadGuestId,
-      leadGuestFirstName,
-      leadGuestLastName,
-      leadGuestEmail,
-      leadGuestTel,
-      leadGuestAddress1,
-      leadGuestAddress2,
-      leadGuestCity,
-      leadGuestCounty,
-      leadGuestPostcode,
-      leadGuestCountry,
-      equipmentTypeId,
-      unitId,
-      startDate,
-      endDate,
-      extras,
-      bookingGuests,
-      bookingPets,
-      bookingVehicles,
-      paymentAmount,
-      paymentMethod,
-      paymentDate,
-    } = req.body;
-
-    if (
-      !siteId ||
-      !equipmentTypeId ||
-      !unitId ||
-      !startDate ||
-      !endDate ||
-      !extras ||
-      !bookingGuests ||
-      !bookingPets ||
-      !bookingVehicles ||
-      !paymentAmount ||
-      !paymentMethod ||
-      !paymentDate
-    ) {
-      const requiredData = {
+  app.post(
+    urls.NEW_BOOKING,
+    loggedIn,
+    hasAccessToRequestedSite,
+    async (req: Request, res: Response) => {
+      const {
         siteId,
+        leadGuestId,
+        leadGuestFirstName,
+        leadGuestLastName,
+        leadGuestEmail,
+        leadGuestTel,
+        leadGuestAddress1,
+        leadGuestAddress2,
+        leadGuestCity,
+        leadGuestCounty,
+        leadGuestPostcode,
+        leadGuestCountry,
         equipmentTypeId,
         unitId,
         startDate,
@@ -364,343 +317,377 @@ export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
         paymentAmount,
         paymentMethod,
         paymentDate,
-      };
-      raiseConsoleErrorWithListOfMissingData(requiredData);
-      return res.status(400).json({
-        message: "Bad request - missing data",
+      } = req.body;
+
+      if (
+        !siteId ||
+        !equipmentTypeId ||
+        !unitId ||
+        !startDate ||
+        !endDate ||
+        !extras ||
+        !bookingGuests ||
+        !bookingPets ||
+        !bookingVehicles ||
+        !paymentAmount ||
+        !paymentMethod ||
+        !paymentDate
+      ) {
+        const requiredData = {
+          siteId,
+          equipmentTypeId,
+          unitId,
+          startDate,
+          endDate,
+          extras,
+          bookingGuests,
+          bookingPets,
+          bookingVehicles,
+          paymentAmount,
+          paymentMethod,
+          paymentDate,
+        };
+        raiseConsoleErrorWithListOfMissingData(requiredData);
+        return res.status(400).json({
+          message: "Bad request - missing data",
+        });
+      }
+
+      const path: "NEWGUEST" | "EXISTINGGUEST" =
+        leadGuestId !== undefined && leadGuestId !== null
+          ? "EXISTINGGUEST"
+          : "NEWGUEST";
+
+      // ensure we have the user on the request
+      if (!req.user) {
+        return res.status(401).json({
+          message: "Unauthorized",
+        });
+      }
+
+      // ensure that we have all the required data for the site
+      if (siteId === undefined || siteId === null) {
+        return res.status(400).json({
+          message: "Bad request - no siteId",
+        });
+      }
+
+      // ensure that we have all the required data for the lead guest
+      if (
+        path === "NEWGUEST" &&
+        (!leadGuestLastName ||
+          !leadGuestEmail ||
+          !leadGuestAddress1 ||
+          !leadGuestPostcode)
+      ) {
+        return res.status(400).json({
+          message: "Bad request - no leadGuestId or leadGuest details",
+        });
+      }
+
+      // --------------
+
+      // check that the emailAddress does existing in the database already
+      if (leadGuestEmail) {
+        const existingLeadGuest = await prisma.leadGuest.findFirst({
+          where: {
+            email: leadGuestEmail,
+            tenantId: req.user.tenantId,
+          },
+        });
+
+        if (existingLeadGuest) {
+          return res.status(400).json({
+            message: "Bad request - leadGuest email already exists",
+          });
+        }
+      }
+
+      // --------------
+
+      // ensure that we have all the required data for the booking
+      if (equipmentTypeId === undefined || equipmentTypeId === null) {
+        return res.status(400).json({
+          message: "Bad request - no equipmentTypeId",
+        });
+      }
+
+      if (unitId === undefined || unitId === null) {
+        return res.status(400).json({
+          message: "Bad request - no unitId",
+        });
+      }
+
+      if (!startDate || !endDate) {
+        return res.status(400).json({
+          message: "Bad request - no startDate or endDate",
+        });
+      }
+
+      // ensure that we have all the required data for the bookingGuests
+      if (bookingGuests.length === 0) {
+        return res.status(400).json({
+          message: "Bad request - no bookingGuests",
+        });
+      }
+
+      const everyGuestHasName = bookingGuests.every((guest: BookingGuest) => {
+        return guest.name !== "";
       });
-    }
-
-    const path: "NEWGUEST" | "EXISTINGGUEST" =
-      leadGuestId !== undefined && leadGuestId !== null
-        ? "EXISTINGGUEST"
-        : "NEWGUEST";
-
-    // ensure we have the user on the request
-    if (!req.user) {
-      return res.status(401).json({
-        message: "Unauthorized",
+      const everyGuestHasType = bookingGuests.every((guest: BookingGuest) => {
+        return guest.guestTypeId !== -1;
       });
-    }
-
-    // ensure that we have all the required data for the site
-    if (siteId === undefined || siteId === null) {
-      return res.status(400).json({
-        message: "Bad request - no siteId",
+      const everyPetHasName = bookingPets.every((pet: BookingPet) => {
+        return pet.name !== "";
       });
-    }
+      const everyVehicleHasVehicleReg = bookingVehicles.every(
+        (vehicle: BookingVehicle) => {
+          return vehicle.vehicleReg !== "";
+        }
+      );
 
-    // ensure that we have all the required data for the lead guest
-    if (
-      path === "NEWGUEST" &&
-      (!leadGuestLastName ||
-        !leadGuestEmail ||
-        !leadGuestAddress1 ||
-        !leadGuestPostcode)
-    ) {
-      return res.status(400).json({
-        message: "Bad request - no leadGuestId or leadGuest details",
-      });
-    }
+      if (
+        !everyGuestHasName ||
+        !everyGuestHasType ||
+        !everyPetHasName ||
+        !everyVehicleHasVehicleReg
+      ) {
+        return res.status(400).json({
+          message:
+            "Bad request - some bookingGuests, bookingPets or bookingVehicles are missing data",
+        });
+      }
 
-    // --------------
-
-    // check that the emailAddress does existing in the database already
-    if (leadGuestEmail) {
-      const existingLeadGuest = await prisma.leadGuest.findFirst({
+      // ensure that the equipmentTypeId is valid
+      const equipmentType = await prisma.equipmentType.findUnique({
         where: {
-          email: leadGuestEmail,
-          tenantId: req.user.tenantId,
+          id: parseInt(equipmentTypeId as string),
         },
       });
 
-      if (existingLeadGuest) {
-        return res.status(400).json({
-          message: "Bad request - leadGuest email already exists",
+      if (!equipmentType) {
+        return res.status(404).json({
+          message: "Equipment type not found",
         });
       }
-    }
 
-    // --------------
-
-    // ensure that we have all the required data for the booking
-    if (equipmentTypeId === undefined || equipmentTypeId === null) {
-      return res.status(400).json({
-        message: "Bad request - no equipmentTypeId",
+      // ensure that the unitId is valid
+      const unit = await prisma.unit.findUnique({
+        where: {
+          id: parseInt(unitId as string),
+        },
       });
-    }
 
-    if (unitId === undefined || unitId === null) {
-      return res.status(400).json({
-        message: "Bad request - no unitId",
-      });
-    }
-
-    if (!startDate || !endDate) {
-      return res.status(400).json({
-        message: "Bad request - no startDate or endDate",
-      });
-    }
-
-    // ensure that we have all the required data for the bookingGuests
-    if (bookingGuests.length === 0) {
-      return res.status(400).json({
-        message: "Bad request - no bookingGuests",
-      });
-    }
-
-    const everyGuestHasName = bookingGuests.every((guest: BookingGuest) => {
-      return guest.name !== "";
-    });
-    const everyGuestHasType = bookingGuests.every((guest: BookingGuest) => {
-      return guest.guestTypeId !== -1;
-    });
-    const everyPetHasName = bookingPets.every((pet: BookingPet) => {
-      return pet.name !== "";
-    });
-    const everyVehicleHasVehicleReg = bookingVehicles.every(
-      (vehicle: BookingVehicle) => {
-        return vehicle.vehicleReg !== "";
+      if (!unit) {
+        return res.status(404).json({
+          message: "Unit not found",
+        });
       }
-    );
 
-    if (
-      !everyGuestHasName ||
-      !everyGuestHasType ||
-      !everyPetHasName ||
-      !everyVehicleHasVehicleReg
-    ) {
-      return res.status(400).json({
-        message:
-          "Bad request - some bookingGuests, bookingPets or bookingVehicles are missing data",
-      });
-    }
-
-    // ensure that the user is allowed to access the siteId
-    const site = await prisma.site.findUnique({
-      where: {
-        id: parseInt(siteId as string),
-        tenantId: req.user?.tenantId,
-      },
-    });
-
-    if (!site) {
-      return res.status(404).json({
-        message: "Site not found",
-      });
-    }
-
-    // ensure that the equipmentTypeId is valid
-    const equipmentType = await prisma.equipmentType.findUnique({
-      where: {
-        id: parseInt(equipmentTypeId as string),
-      },
-    });
-
-    if (!equipmentType) {
-      return res.status(404).json({
-        message: "Equipment type not found",
-      });
-    }
-
-    // ensure that the unitId is valid
-    const unit = await prisma.unit.findUnique({
-      where: {
-        id: parseInt(unitId as string),
-      },
-    });
-
-    if (!unit) {
-      return res.status(404).json({
-        message: "Unit not found",
-      });
-    }
-
-    // convert the bookingGuests to BookingGuest objects
-    const bookingGuestsMapped = bookingGuests.map((guest: BookingGuest) => {
-      return {
-        name: guest.name,
-        guestTypeId: guest.guestTypeId,
-        start: guest.start,
-        end: guest.end,
-        checkedIn: null,
-      };
-    });
-
-    // convert the bookingPets to BookingPet objects
-    const bookingPetsMapped = bookingPets.map((pet: BookingPet) => {
-      return {
-        name: pet.name,
-        start: pet.start,
-        end: pet.end,
-        checkedIn: null,
-      };
-    });
-
-    // convert the bookingVehicles to BookingVehicle objects
-    const bookingVehiclesMapped = bookingVehicles.map(
-      (vehicle: BookingVehicle) => {
+      // convert the bookingGuests to BookingGuest objects
+      const bookingGuestsMapped = bookingGuests.map((guest: BookingGuest) => {
         return {
-          vehicleReg: vehicle.vehicleReg,
-          start: vehicle.start,
-          end: vehicle.end,
+          name: guest.name,
+          guestTypeId: guest.guestTypeId,
+          start: guest.start,
+          end: guest.end,
           checkedIn: null,
         };
-      }
-    );
+      });
 
-    // convert the extras to Extras objects
-    const extrasMap = extras.map((extra: any) => {
-      return {
-        id: extra,
-      };
-    });
+      // convert the bookingPets to BookingPet objects
+      const bookingPetsMapped = bookingPets.map((pet: BookingPet) => {
+        return {
+          name: pet.name,
+          start: pet.start,
+          end: pet.end,
+          checkedIn: null,
+        };
+      });
 
-    const applicableCalendarEntries = await prisma.calendar.findMany({
-      where: {
-        unitId: parseInt(unitId as string),
-        date: {
-          gte: new Date(startDate),
-          lt: new Date(endDate),
+      // convert the bookingVehicles to BookingVehicle objects
+      const bookingVehiclesMapped = bookingVehicles.map(
+        (vehicle: BookingVehicle) => {
+          return {
+            vehicleReg: vehicle.vehicleReg,
+            start: vehicle.start,
+            end: vehicle.end,
+            checkedIn: null,
+          };
+        }
+      );
+
+      // convert the extras to Extras objects
+      const extrasMap = extras.map((extra: any) => {
+        return {
+          id: extra,
+        };
+      });
+
+      const applicableCalendarEntries = await prisma.calendar.findMany({
+        where: {
+          unitId: parseInt(unitId as string),
+          date: {
+            gte: new Date(startDate),
+            lt: new Date(endDate),
+          },
         },
-      },
-    });
-
-    if (applicableCalendarEntries.length === 0) {
-      return res.status(400).json({
-        message:
-          "Bad request - no calendar entries found for this unit and date range.  Something is wrong with the setup.",
       });
-    }
 
-    const calendarConnectArr = applicableCalendarEntries.map((entry) => {
-      return {
-        id: entry.id,
-      };
-    });
-
-    // the way that the booking is created depends on whether the leadGuestId has been provided
-    try {
-      if (path === "EXISTINGGUEST") {
-        const result = await prisma.booking.create({
-          data: {
-            start: new Date(startDate),
-            end: new Date(endDate),
-            unit: {
-              connect: {
-                id: parseInt(unitId),
-              },
-            },
-            leadGuest: {
-              connect: {
-                id: parseInt(leadGuestId),
-              },
-            },
-            totalFee: await calculateFee(unit.unitTypeId, new Date(startDate), new Date(endDate), extras, bookingGuests, bookingPets, bookingVehicles, prisma),
-            guests: {
-              create: bookingGuestsMapped,
-            },
-            pets: {
-              create: bookingPetsMapped,
-            },
-            vehicles: {
-              create: bookingVehiclesMapped,
-            },
-            extras: {
-              connect: extrasMap,
-            },
-            payments: {
-              create: {
-                paymentAmount: paymentAmount,
-                paymentMethod: paymentMethod,
-                paymentDate: new Date(paymentDate),
-              },
-            },
-            calendarEntries: {
-              connect: calendarConnectArr,
-            },
-            status: "CONFIRMED"
-          },
-          include: {
-            leadGuest: true,
-          },
-        });
-
-        return res.status(201).json({
-          data: result,
+      if (applicableCalendarEntries.length === 0) {
+        return res.status(400).json({
+          message:
+            "Bad request - no calendar entries found for this unit and date range.  Something is wrong with the setup.",
         });
       }
-      if (path === "NEWGUEST") {
-        const tempPassword =
-          leadGuestPostcode.replace(" ", "") +
-          "-" +
-          leadGuestTel.replace(" ", "");
-        const hash = await bcrypt.hash(tempPassword, 10);
 
-        const result = await prisma.booking.create({
-          data: {
-            start: new Date(startDate),
-            end: new Date(endDate),
-            unit: {
-              connect: {
-                id: parseInt(unitId as string),
+      const calendarConnectArr = applicableCalendarEntries.map((entry) => {
+        return {
+          id: entry.id,
+        };
+      });
+
+      // the way that the booking is created depends on whether the leadGuestId has been provided
+      try {
+        if (path === "EXISTINGGUEST") {
+          const result = await prisma.booking.create({
+            data: {
+              start: new Date(startDate),
+              end: new Date(endDate),
+              unit: {
+                connect: {
+                  id: parseInt(unitId),
+                },
               },
-            },
-            leadGuest: {
-              create: {
-                firstName: leadGuestFirstName,
-                lastName: leadGuestLastName,
-                email: leadGuestEmail,
-                tel: leadGuestTel,
-                address1: leadGuestAddress1,
-                address2: leadGuestAddress2,
-                townCity: leadGuestCity,
-                county: leadGuestCounty,
-                postcode: leadGuestPostcode,
-                country: leadGuestCountry,
-                tenantId: req.user.tenantId,
-                password: hash,
+              leadGuest: {
+                connect: {
+                  id: parseInt(leadGuestId),
+                },
               },
-            },
-            totalFee: await calculateFee(unit.unitTypeId, new Date(startDate), new Date(endDate), extras, bookingGuests, bookingPets, bookingVehicles, prisma),
-            guests: {
-              create: bookingGuestsMapped,
-            },
-            pets: {
-              create: bookingPetsMapped,
-            },
-            vehicles: {
-              create: bookingVehiclesMapped,
-            },
-            extras: {
-              connect: extrasMap,
-            },
-            payments: {
-              create: {
-                paymentAmount: paymentAmount,
-                paymentMethod: paymentMethod,
-                paymentDate: new Date(paymentDate),
+              totalFee: await calculateFee(
+                unit.unitTypeId,
+                new Date(startDate),
+                new Date(endDate),
+                extras,
+                bookingGuests,
+                bookingPets,
+                bookingVehicles,
+                prisma
+              ),
+              guests: {
+                create: bookingGuestsMapped,
               },
+              pets: {
+                create: bookingPetsMapped,
+              },
+              vehicles: {
+                create: bookingVehiclesMapped,
+              },
+              extras: {
+                connect: extrasMap,
+              },
+              payments: {
+                create: {
+                  paymentAmount: paymentAmount,
+                  paymentMethod: paymentMethod,
+                  paymentDate: new Date(paymentDate),
+                },
+              },
+              calendarEntries: {
+                connect: calendarConnectArr,
+              },
+              status: "CONFIRMED",
             },
-            calendarEntries: {
-              connect: calendarConnectArr,
+            include: {
+              leadGuest: true,
             },
-            status: "CONFIRMED"
-          },
-          include: {
-            leadGuest: true,
-          },
-        });
-        return res.status(201).json({
-          data: result,
+          });
+
+          return res.status(201).json({
+            data: result,
+          });
+        }
+        if (path === "NEWGUEST") {
+          const tempPassword =
+            leadGuestPostcode.replace(" ", "") +
+            "-" +
+            leadGuestTel.replace(" ", "");
+          const hash = await bcrypt.hash(tempPassword, 10);
+
+          const result = await prisma.booking.create({
+            data: {
+              start: new Date(startDate),
+              end: new Date(endDate),
+              unit: {
+                connect: {
+                  id: parseInt(unitId as string),
+                },
+              },
+              leadGuest: {
+                create: {
+                  firstName: leadGuestFirstName,
+                  lastName: leadGuestLastName,
+                  email: leadGuestEmail,
+                  tel: leadGuestTel,
+                  address1: leadGuestAddress1,
+                  address2: leadGuestAddress2,
+                  townCity: leadGuestCity,
+                  county: leadGuestCounty,
+                  postcode: leadGuestPostcode,
+                  country: leadGuestCountry,
+                  tenantId: req.user.tenantId,
+                  password: hash,
+                },
+              },
+              totalFee: await calculateFee(
+                unit.unitTypeId,
+                new Date(startDate),
+                new Date(endDate),
+                extras,
+                bookingGuests,
+                bookingPets,
+                bookingVehicles,
+                prisma
+              ),
+              guests: {
+                create: bookingGuestsMapped,
+              },
+              pets: {
+                create: bookingPetsMapped,
+              },
+              vehicles: {
+                create: bookingVehiclesMapped,
+              },
+              extras: {
+                connect: extrasMap,
+              },
+              payments: {
+                create: {
+                  paymentAmount: paymentAmount,
+                  paymentMethod: paymentMethod,
+                  paymentDate: new Date(paymentDate),
+                },
+              },
+              calendarEntries: {
+                connect: calendarConnectArr,
+              },
+              status: "CONFIRMED",
+            },
+            include: {
+              leadGuest: true,
+            },
+          });
+          return res.status(201).json({
+            data: result,
+          });
+        }
+      } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+          message: "Internal server error",
+          error: error,
         });
       }
-    } catch (error) {
-      console.log(error);
-      return res.status(500).json({
-        message: "Internal server error",
-        error: error,
-      });
     }
-  });
+  );
 }

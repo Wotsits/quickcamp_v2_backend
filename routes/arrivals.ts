@@ -1,6 +1,6 @@
 import { Express, Request, Response } from "express";
 import { urls } from "../enums.js";
-import { loggedIn } from "../utilities/userManagement/middleware.js";
+import { hasAccessToRequestedSite, loggedIn } from "../utilities/userManagement/middleware.js";
 import { PrismaClient } from "@prisma/client";
 import { raiseConsoleErrorWithListOfMissingData } from "../utilities/raiseErrorWithListOfMissingData.js";
 import { isGuestDue } from "../utilities/isGuestDue.js";
@@ -11,6 +11,7 @@ export function registerArrivalsRoutes(app: Express, prisma: PrismaClient) {
   app.get(
     urls.ARRIVALS_BY_DATE,
     loggedIn,
+    hasAccessToRequestedSite,
     async (req: Request, res: Response) => {
       if (!req.user) {
         return res.status(401).json({
