@@ -337,6 +337,9 @@ async function main() {
   bookings.forEach((booking) => {
     const randomVehicleNo = Math.ceil(Math.random() * 2);
     for (let i = 1; i <= randomVehicleNo; i++) {
+      const expectedArrivalHour = Math.floor(Math.random() * 24);
+      const expectedArrivalMinute = 0;
+      const expectedArrivalTime = expectedArrivalHour.toString().padStart(2, "0") + ":" + expectedArrivalMinute.toString().padStart(2, "0");
       const newMap = {
         id: vehicleId,
         bookingId: booking.id,
@@ -345,6 +348,7 @@ async function main() {
         end: booking.end,
         checkedIn: null,
         checkedOut: null,
+        expectedArrival: expectedArrivalTime,
       };
       bookingVehicles.push(newMap);
       vehicleId++;

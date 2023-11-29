@@ -5,11 +5,11 @@ import { PrismaClient } from "@prisma/client";
 import { raiseConsoleErrorWithListOfMissingData } from "../utilities/raiseErrorWithListOfMissingData.js";
 import { isGuestDue } from "../utilities/isGuestDue.js";
 
-export function registerArrivalsRoutes(app: Express, prisma: PrismaClient) {
+export function registerDeparturesRoutes(app: Express, prisma: PrismaClient) {
   // ****************************************************
 
   app.get(
-    urls.ARRIVALS_BY_DATE,
+    urls.DEPARTURES_BY_DATE,
     loggedIn,
     hasAccessToRequestedSite,
     async (req: Request, res: Response) => {
@@ -35,21 +35,21 @@ export function registerArrivalsRoutes(app: Express, prisma: PrismaClient) {
             {
               guests: {
                 some: {
-                  start: new Date(date as string),
+                  end: new Date(date as string),
                 },
               },
             },
             {
               pets: {
                 some: {
-                  start: new Date(date as string),
+                  end: new Date(date as string),
                 },
               },
             },
             {
               vehicles: {
                 some: {
-                  start: new Date(date as string),
+                  end: new Date(date as string),
                 },
               },
             },
@@ -82,11 +82,11 @@ export function registerArrivalsRoutes(app: Express, prisma: PrismaClient) {
   );
 }
 
-export function registerCheckInRoutes(app: Express, prisma: PrismaClient) {
+export function registerCheckOutRoutes(app: Express, prisma: PrismaClient) {
   // ****************************************************
 
   app.post(
-    urls.CHECK_IN_GUEST,
+    urls.CHECK_OUT_GUEST,
     loggedIn,
     async (req: Request, res: Response) => {
       // unpack the request body
@@ -182,34 +182,27 @@ export function registerCheckInRoutes(app: Express, prisma: PrismaClient) {
       }
 
       if (!reverse) {
-        // check that the guest is not already checked in
-        if (thing.checkedIn) {
+        // check that the guest is not already checked out
+        if (thing.checkedOut) {
           return res.status(400).json({
-            message: "Bad request - guest already checked in",
+            message: "Bad request - guest already checked out",
           });
         }
       }
       else {
         // check that the guest is already checked in
-        if (!thing.checkedIn) {
+        if (!thing.checkedOut) {
           return res.status(400).json({
-            message: "Bad request - guest not checked in",
+            message: "Bad request - guest not checked out",
           });
         }
       }
       
 
-      // check that the guest is not already checked out
-      if (thing.checkedOut) {
+      // check that the guest is checked in
+      if (!thing.checkedIn) {
         return res.status(400).json({
-          message: "Bad request - guest already checked out",
-        });
-      }
-
-      // check that the guest is due to check in
-      if (!isGuestDue(thing)) {
-        return res.status(400).json({
-          message: "Bad request - guest not due",
+          message: "Bad request - guest is not checked in",
         });
       }
 
@@ -228,7 +221,7 @@ export function registerCheckInRoutes(app: Express, prisma: PrismaClient) {
             id: id,
           },
           data: {
-            checkedIn: !reverse ? new Date() : null,
+            checkedOut: !reverse ? new Date() : null,
           },
         });
       }
@@ -240,7 +233,7 @@ export function registerCheckInRoutes(app: Express, prisma: PrismaClient) {
             id: id,
           },
           data: {
-            checkedIn: !reverse ? new Date() : null,
+            checkedOut: !reverse ? new Date() : null,
           },
         });
       }
@@ -252,7 +245,7 @@ export function registerCheckInRoutes(app: Express, prisma: PrismaClient) {
             id: id,
           },
           data: {
-            checkedIn: !reverse ? new Date() : null,
+            checkedOut: !reverse ? new Date() : null,
           },
         });
       }
@@ -263,7 +256,7 @@ export function registerCheckInRoutes(app: Express, prisma: PrismaClient) {
 
   // ****************************************************
 
-  app.post(urls.CHECK_IN_MANY_GUESTS, loggedIn, async (req, res) => {
+  app.post(urls.CHECK_OUT_MANY_GUESTS, loggedIn, async (req, res) => {
     // unpack the request body
     const { guests, reverse } = req.body;
 
@@ -388,16 +381,16 @@ export function registerCheckInRoutes(app: Express, prisma: PrismaClient) {
         }
 
         if (!reverse) {
-          // check that the guest is not already checked in
-          if (thing.checkedIn) {
+          // check that the guest is not already checked out
+          if (thing.checkedOut) {
             return res.status(400).json({
               message: "Bad request - guest already checked in",
             });
           }
         }
         else {
-          // check that the guest is already checked in
-          if (!thing.checkedIn) {
+          // check that the guest is already checked out
+          if (!thing.checkedOut) {
             return res.status(400).json({
               message: "Bad request - guest not checked in",
             });
@@ -405,17 +398,10 @@ export function registerCheckInRoutes(app: Express, prisma: PrismaClient) {
         }
         
 
-        // check that the guest is not already checked out
-        if (thing.checkedOut) {
+        // check that the guest is checked in
+        if (!thing.checkedIn) {
           return res.status(400).json({
-            message: "Bad request - guest already checked out",
-          });
-        }
-
-        // check that the guest is due to check in
-        if (!isGuestDue(thing)) {
-          return res.status(400).json({
-            message: "Bad request - guest not due",
+            message: "Bad request - guest no checked in",
           });
         }
 
@@ -453,7 +439,7 @@ export function registerCheckInRoutes(app: Express, prisma: PrismaClient) {
       }
     );
 
-    const [checkedInGuests, checkedInPets, checkedInVehicles] = await prisma.$transaction([
+    const [checkedOutGuests, checkedOutPets, checkedOutVehicles] = await prisma.$transaction([
       prisma.bookingGuest.updateMany({
         where: {
           id: {
@@ -461,7 +447,7 @@ export function registerCheckInRoutes(app: Express, prisma: PrismaClient) {
           }
         },
         data: {
-          checkedIn: !reverse ? now: null,
+          checkedOut: !reverse ? now: null,
         },
       }),
       prisma.bookingPet.updateMany({
@@ -471,7 +457,7 @@ export function registerCheckInRoutes(app: Express, prisma: PrismaClient) {
           }
         },
         data: {
-          checkedIn: !reverse ? now : null,
+          checkedOut: !reverse ? now : null,
         },
       }),
       prisma.bookingVehicle.updateMany({
@@ -481,15 +467,15 @@ export function registerCheckInRoutes(app: Express, prisma: PrismaClient) {
           }
         },
         data: {
-          checkedIn: !reverse ? now : null,
+          checkedOut: !reverse ? now : null,
         },
       }),
     ])
 
     res.json({
-      guestsUpdated: checkedInGuests,
-      petsUpdated: checkedInPets,
-      vehiclesUpdated: checkedInVehicles,
+      guestsUpdated: checkedOutGuests,
+      petsUpdated: checkedOutPets,
+      vehiclesUpdated: checkedOutVehicles,
     });
   });
 }

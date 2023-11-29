@@ -166,6 +166,7 @@ model BookingVehicle {
   end           DateTime
   checkedIn     DateTime?
   checkedOut    DateTime?
+  expectedArrival  String?
 }
 
 model BookingPet {
