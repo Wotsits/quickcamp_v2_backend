@@ -26,4 +26,6 @@ export const urls: { [key: string]: string } = {
   GUEST_TYPES: "/guest-types",
   EQUIPMENT_TYPES: "/equipment-types",
   USERS: "/users",
+  STATS: "/stats",
+  ON_SITE: "/total-on-site",
 };
