@@ -250,7 +250,7 @@ export function registerCheckOutRoutes(app: Express, prisma: PrismaClient) {
         });
       }
 
-      res.json(updatedThing);
+      return res.status(200).json(updatedThing);
     }
   );
 
@@ -397,7 +397,6 @@ export function registerCheckOutRoutes(app: Express, prisma: PrismaClient) {
           }
         }
         
-
         // check that the guest is checked in
         if (!thing.checkedIn) {
           return res.status(400).json({
@@ -472,7 +471,7 @@ export function registerCheckOutRoutes(app: Express, prisma: PrismaClient) {
       }),
     ])
 
-    res.json({
+    return res.status(200).json({
       guestsUpdated: checkedOutGuests,
       petsUpdated: checkedOutPets,
       vehiclesUpdated: checkedOutVehicles,
