@@ -28,4 +28,5 @@ export const urls: { [key: string]: string } = {
   USERS: "/users",
   STATS: "/stats",
   ON_SITE: "/total-on-site",
+  UPDATE_BOOKING_LEAD_GUEST: "/update-booking-lead-guest",
 };

@@ -690,4 +690,111 @@ export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
       }
     }
   );
+
+  // ****************************************************
+
+  app.post(urls.UPDATE_BOOKING_LEAD_GUEST, loggedIn, async (req, res) => {
+    // ensure that the user is logged in - belt and braces
+    if (!req.user) {
+      return res.status(401).json({
+        message: "Unauthorized",
+      });
+    }
+
+    // destructure the request body
+    const {
+      bookingId,
+      leadGuestId
+    } = req.body;
+
+    // ensure that we have all the required data
+    if (!bookingId || !leadGuestId) {
+      return res.status(400).json({
+        message: "Bad request - missing data",
+      });
+    }
+
+    // ensure that the bookingId is a number
+    let parsedBookingId: number;
+    try {
+      parsedBookingId = parseInt(bookingId);
+    } catch {
+      return res.status(400).json({
+        message: "Bad request - invalid bookingId",
+      });
+    }
+
+    // ensure that the leadGuestId is a number
+    let parsedLeadGuestId: number;
+    try {
+      parsedLeadGuestId = parseInt(leadGuestId);
+    } catch {
+      return res.status(400).json({
+        message: "Bad request - invalid leadGuestId",
+      });
+    }
+
+    // ensure that the booking exists
+    const booking = await prisma.booking.findUnique({
+      where: {
+        id: parsedBookingId,
+      },
+      include: {
+        leadGuest: true,
+      }
+    });
+
+    if (!booking) {
+      return res.status(404).json({
+        message: "Booking not found",
+      });
+    }
+
+    // ensure that the leadGuest exists
+    const leadGuest = await prisma.leadGuest.findUnique({
+      where: {
+        id: parsedLeadGuestId,
+      },
+    });
+
+    if (!leadGuest) {
+      return res.status(404).json({
+        message: "Lead guest not found",
+      });
+    }
+
+    // ensure that the booking belongs to user's tenancy
+    if (booking.leadGuest.tenantId !== req.user.tenantId) {
+      return res.status(403).json({
+        message: "Lead guest not found",
+      });
+    }
+
+    // ensure that the leadGuest belongs to the user's tenancy
+    if (leadGuest.tenantId !== req.user.tenantId) {
+      return res.status(403).json({
+        message: "Lead guest not found",
+      });
+    }
+
+    // update the booking
+    const updatedBooking = await prisma.booking.update({
+      where: {
+        id: parsedBookingId,
+      },
+      data: {
+        leadGuest: {
+          connect: {
+            id: parsedLeadGuestId,
+          }
+        }
+      },
+      include: {
+        leadGuest: true,
+      }
+    });
+
+    return res.status(200).json(updatedBooking);
+
+  });
 }
