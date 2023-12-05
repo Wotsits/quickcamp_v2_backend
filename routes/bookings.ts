@@ -693,8 +693,114 @@ export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
 
   // ****************************************************
 
-  app.post(urls.UPDATE_BOOKING_LEAD_GUEST, loggedIn, async (req, res) => {
-    // ensure that the user is logged in - belt and braces
+  app.post(
+    urls.UPDATE_BOOKING_LEAD_GUEST_EXISTING,
+    loggedIn,
+    async (req, res) => {
+      // ensure that the user is logged in - belt and braces
+      if (!req.user) {
+        return res.status(401).json({
+          message: "Unauthorized",
+        });
+      }
+
+      // destructure the request body
+      const { bookingId, leadGuestId } = req.body;
+
+      // ensure that we have all the required data
+      if (!bookingId || !leadGuestId) {
+        return res.status(400).json({
+          message: "Bad request - missing data",
+        });
+      }
+
+      // ensure that the bookingId is a number
+      let parsedBookingId: number;
+      try {
+        parsedBookingId = parseInt(bookingId);
+      } catch {
+        return res.status(400).json({
+          message: "Bad request - invalid bookingId",
+        });
+      }
+
+      // ensure that the leadGuestId is a number
+      let parsedLeadGuestId: number;
+      try {
+        parsedLeadGuestId = parseInt(leadGuestId);
+      } catch {
+        return res.status(400).json({
+          message: "Bad request - invalid leadGuestId",
+        });
+      }
+
+      // ensure that the booking exists
+      const booking = await prisma.booking.findUnique({
+        where: {
+          id: parsedBookingId,
+        },
+        include: {
+          leadGuest: true,
+        },
+      });
+
+      if (!booking) {
+        return res.status(404).json({
+          message: "Booking not found",
+        });
+      }
+
+      // ensure that the leadGuest exists
+      const leadGuest = await prisma.leadGuest.findUnique({
+        where: {
+          id: parsedLeadGuestId,
+        },
+      });
+
+      if (!leadGuest) {
+        return res.status(404).json({
+          message: "Lead guest not found",
+        });
+      }
+
+      // ensure that the booking belongs to user's tenancy
+      if (booking.leadGuest.tenantId !== req.user.tenantId) {
+        return res.status(403).json({
+          message: "Lead guest not found",
+        });
+      }
+
+      // ensure that the leadGuest belongs to the user's tenancy
+      if (leadGuest.tenantId !== req.user.tenantId) {
+        return res.status(403).json({
+          message: "Lead guest not found",
+        });
+      }
+
+      // update the booking
+      const updatedBooking = await prisma.booking.update({
+        where: {
+          id: parsedBookingId,
+        },
+        data: {
+          leadGuest: {
+            connect: {
+              id: parsedLeadGuestId,
+            },
+          },
+        },
+        include: {
+          leadGuest: true,
+        },
+      });
+
+      return res.status(200).json(updatedBooking);
+    }
+  );
+
+  // ****************************************************
+
+  app.post(urls.UPDATE_BOOKING_LEAD_GUEST_NEW, loggedIn, async (req, res) => {
     if (!req.user) {
       return res.status(401).json({
         message: "Unauthorized",
@@ -704,11 +810,28 @@ export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
     // destructure the request body
     const {
       bookingId,
-      leadGuestId
+      firstName,
+      lastName,
+      email,
+      tel,
+      address1,
+      address2,
+      townCity,
+      county,
+      postcode,
+      country,
     } = req.body;
 
     // ensure that we have all the required data
-    if (!bookingId || !leadGuestId) {
+    if (
+      !bookingId ||
+      !firstName ||
+      !lastName ||
+      !email ||
+      !tel ||
+      !address1 ||
+      !postcode
+    ) {
       return res.status(400).json({
         message: "Bad request - missing data",
       });
@@ -724,16 +847,6 @@ export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
       });
     }
 
-    // ensure that the leadGuestId is a number
-    let parsedLeadGuestId: number;
-    try {
-      parsedLeadGuestId = parseInt(leadGuestId);
-    } catch {
-      return res.status(400).json({
-        message: "Bad request - invalid leadGuestId",
-      });
-    }
-
     // ensure that the booking exists
     const booking = await prisma.booking.findUnique({
       where: {
@@ -741,25 +854,12 @@ export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
       },
       include: {
         leadGuest: true,
-      }
+      },
     });
 
     if (!booking) {
       return res.status(404).json({
         message: "Booking not found",
-      });
-    }
-
-    // ensure that the leadGuest exists
-    const leadGuest = await prisma.leadGuest.findUnique({
-      where: {
-        id: parsedLeadGuestId,
-      },
-    });
-
-    if (!leadGuest) {
-      return res.status(404).json({
-        message: "Lead guest not found",
       });
     }
 
@@ -770,31 +870,70 @@ export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
       });
     }
 
-    // ensure that the leadGuest belongs to the user's tenancy
-    if (leadGuest.tenantId !== req.user.tenantId) {
-      return res.status(403).json({
-        message: "Lead guest not found",
+    // check that the emailAddress does existing in the database already
+    const existingLeadGuest = await prisma.leadGuest.findFirst({
+      where: {
+        email: email,
+        tenantId: req.user.tenantId,
+      },
+    });
+
+    if (existingLeadGuest) {
+      return res.status(400).json({
+        message: "Bad request - leadGuest email already exists",
       });
     }
 
     // update the booking
-    const updatedBooking = await prisma.booking.update({
-      where: {
-        id: parsedBookingId,
-      },
-      data: {
-        leadGuest: {
-          connect: {
-            id: parsedLeadGuestId,
-          }
-        }
-      },
-      include: {
-        leadGuest: true,
-      }
-    });
 
-    return res.status(200).json(updatedBooking);
+    let hash = "";
+    try {
+      const tempPassword =
+        postcode.replace(" ", "") + "-" + tel.replace(" ", "");
+      hash = await bcrypt.hash(tempPassword, 10);
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({
+        message: "Internal server error",
+        error: error,
+      });
+    }
 
+    try {
+      const updatedBooking = await prisma.booking.update({
+        where: {
+          id: parsedBookingId,
+        },
+        data: {
+          leadGuest: {
+            create: {
+              firstName: firstName,
+              lastName: lastName,
+              email: email,
+              tel: tel,
+              address1: address1,
+              address2: address2,
+              townCity: townCity,
+              county: county,
+              postcode: postcode,
+              country: country,
+              tenantId: req.user.tenantId,
+              password: hash,
+            },
+          },
+        },
+        include: {
+          leadGuest: true,
+        },
+      });
+
+      return res.status(200).json(updatedBooking);
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({
+        message: "Internal server error",
+        error: error,
+      });
+    }
   });
 }
