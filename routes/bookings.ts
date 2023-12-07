@@ -82,7 +82,7 @@ export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
         skip: parsedSkip,
         take: parsedTake,
         orderBy: {
-          id: "asc",
+          id: "desc",
         },
         include: {
           unit: true,
