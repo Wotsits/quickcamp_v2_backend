@@ -30,7 +30,11 @@ export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
         });
       }
 
-      const { siteId } = req.query;
+      const { siteId, take, skip } = req.query;
+
+      // ----------------------------
+      // VALIDATE THE SUPPLIED DATA
+      // ----------------------------
 
       if (!siteId) {
         return res.status(400).json({
@@ -38,14 +42,47 @@ export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
         });
       }
 
+      // ensure that siteId, take and skip are numbers
+      let parsedSiteId: number;
+      let parsedTake: number;
+      let parsedSkip: number;
+      try {
+        parsedSiteId = parseInt(siteId as string);
+        parsedTake = parseInt(take as string);
+        parsedSkip = parseInt(skip as string);
+      } catch {
+        return res.status(400).json({
+          message: "Bad request - invalid siteId, take or skip",
+        });
+      }
+
+      // ----------------------------
+      // GET THE BOOKINGS
+      // ----------------------------
+
       // return bookings here, paginated.
+      const count = await prisma.booking.count({
+        where: {
+          unit: {
+            unitType: {
+              siteId: parsedSiteId,
+            },
+          },
+        },
+      });
+
       const data = await prisma.booking.findMany({
         where: {
           unit: {
             unitType: {
-              siteId: parseInt(siteId as string),
+              siteId: parsedSiteId,
             },
           },
+        },
+        skip: parsedSkip,
+        take: parsedTake,
+        orderBy: {
+          id: "asc",
         },
         include: {
           unit: true,
@@ -92,7 +129,7 @@ export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
       }));
 
       // TODO return the booking summaries instead of the full booking
-      return res.json(data);
+      return res.status(200).json({ data, count });
     }
   );
 
@@ -213,7 +250,7 @@ export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
         ).length,
       }));
 
-      return res.json(bookingSummaries);
+      return res.status(200).json({ data: bookingSummaries });
     }
   );
 
@@ -282,7 +319,7 @@ export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
       }
 
       // return the booking
-      return res.json(data);
+      return res.status(200).json({ data: data });
     }
   );
 
@@ -794,7 +831,7 @@ export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
         },
       });
 
-      return res.status(200).json(updatedBooking);
+      return res.status(200).json({ data: updatedBooking });
     }
   );
 
@@ -927,7 +964,8 @@ export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
         },
       });
 
-      return res.status(200).json(updatedBooking);
+      return res.status(200).json({ data: updatedBooking });
+
     } catch (error) {
       console.log(error);
       return res.status(500).json({

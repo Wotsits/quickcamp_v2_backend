@@ -13,7 +13,7 @@ export function registerPaymentRoutes(app: Express, prisma: PrismaClient) {
     loggedIn,
     async (req: Request, res: Response) => {
       // return payments by id here.
-      return res.json({ message: "payments by id route" });
+      return res.status(501).json({ message: "Not implemented" });
     }
   );
 
@@ -22,7 +22,7 @@ export function registerPaymentRoutes(app: Express, prisma: PrismaClient) {
     loggedIn,
     async (req: Request, res: Response) => {
       // return payments by bookingId here, paginated.
-      return res.json({ message: "payments by bookingId route" });
+      return res.status(501).json({ message: "Not implemented" });
     }
   );
 }

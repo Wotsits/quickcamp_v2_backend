@@ -1,6 +1,9 @@
 import { Express, Request, Response } from "express";
 import { urls } from "../enums.js";
-import { hasAccessToRequestedSite, loggedIn } from "../utilities/userManagement/middleware.js";
+import {
+  hasAccessToRequestedSite,
+  loggedIn,
+} from "../utilities/userManagement/middleware.js";
 import { PrismaClient } from "@prisma/client";
 import { raiseConsoleErrorWithListOfMissingData } from "../utilities/raiseErrorWithListOfMissingData.js";
 import { isGuestDue } from "../utilities/isGuestDue.js";
@@ -77,7 +80,7 @@ export function registerArrivalsRoutes(app: Express, prisma: PrismaClient) {
         },
       });
 
-      return res.json(data);
+      return res.status(200).json({ data });
     }
   );
 }
@@ -97,7 +100,7 @@ export function registerCheckInRoutes(app: Express, prisma: PrismaClient) {
         const requiredData = {
           id,
           type,
-          reverse
+          reverse,
         };
         raiseConsoleErrorWithListOfMissingData(requiredData);
         return res.status(400).json({
@@ -114,7 +117,8 @@ export function registerCheckInRoutes(app: Express, prisma: PrismaClient) {
 
       if (typeof reverse !== "boolean") {
         return res.status(400).json({
-          message: "Bad request - invalid datatype for supplied 'reverse' field",
+          message:
+            "Bad request - invalid datatype for supplied 'reverse' field",
         });
       }
 
@@ -188,8 +192,7 @@ export function registerCheckInRoutes(app: Express, prisma: PrismaClient) {
             message: "Bad request - guest already checked in",
           });
         }
-      }
-      else {
+      } else {
         // check that the guest is already checked in
         if (!thing.checkedIn) {
           return res.status(400).json({
@@ -197,7 +200,6 @@ export function registerCheckInRoutes(app: Express, prisma: PrismaClient) {
           });
         }
       }
-      
 
       // check that the guest is not already checked out
       if (thing.checkedOut) {
@@ -257,7 +259,7 @@ export function registerCheckInRoutes(app: Express, prisma: PrismaClient) {
         });
       }
 
-      res.json(updatedThing);
+      res.status(200).json({ data: updatedThing });
     }
   );
 
@@ -394,8 +396,7 @@ export function registerCheckInRoutes(app: Express, prisma: PrismaClient) {
               message: "Bad request - guest already checked in",
             });
           }
-        }
-        else {
+        } else {
           // check that the guest is already checked in
           if (!thing.checkedIn) {
             return res.status(400).json({
@@ -403,7 +404,6 @@ export function registerCheckInRoutes(app: Express, prisma: PrismaClient) {
             });
           }
         }
-        
 
         // check that the guest is not already checked out
         if (thing.checkedOut) {
@@ -436,60 +436,57 @@ export function registerCheckInRoutes(app: Express, prisma: PrismaClient) {
     guests.forEach(
       (guest: { id: number; type: "GUEST" | "PET" | "VEHICLE" }) => {
         if (guest.type === "GUEST") {
-          guestsToUpdate.push(
-            guest.id,
-          );
+          guestsToUpdate.push(guest.id);
         }
         if (guest.type === "PET") {
-          petsToUpdate.push(
-            guest.id,
-          );
+          petsToUpdate.push(guest.id);
         }
         if (guest.type === "VEHICLE") {
-          vehiclesToUpdate.push(
-            guest.id,
-          );
+          vehiclesToUpdate.push(guest.id);
         }
       }
     );
 
-    const [checkedInGuests, checkedInPets, checkedInVehicles] = await prisma.$transaction([
-      prisma.bookingGuest.updateMany({
-        where: {
-          id: {
-            in: guestsToUpdate,
-          }
-        },
-        data: {
-          checkedIn: !reverse ? now: null,
-        },
-      }),
-      prisma.bookingPet.updateMany({
-        where: {
-          id: {
-            in: petsToUpdate,
-          }
-        },
-        data: {
-          checkedIn: !reverse ? now : null,
-        },
-      }),
-      prisma.bookingVehicle.updateMany({
-        where: {
-          id: {
-            in: vehiclesToUpdate,
-          }
-        },
-        data: {
-          checkedIn: !reverse ? now : null,
-        },
-      }),
-    ])
+    const [checkedInGuests, checkedInPets, checkedInVehicles] =
+      await prisma.$transaction([
+        prisma.bookingGuest.updateMany({
+          where: {
+            id: {
+              in: guestsToUpdate,
+            },
+          },
+          data: {
+            checkedIn: !reverse ? now : null,
+          },
+        }),
+        prisma.bookingPet.updateMany({
+          where: {
+            id: {
+              in: petsToUpdate,
+            },
+          },
+          data: {
+            checkedIn: !reverse ? now : null,
+          },
+        }),
+        prisma.bookingVehicle.updateMany({
+          where: {
+            id: {
+              in: vehiclesToUpdate,
+            },
+          },
+          data: {
+            checkedIn: !reverse ? now : null,
+          },
+        }),
+      ]);
 
-    res.json({
-      guestsUpdated: checkedInGuests,
-      petsUpdated: checkedInPets,
-      vehiclesUpdated: checkedInVehicles,
+    res.status(200).json({
+      data: {
+        guestsUpdated: checkedInGuests,
+        petsUpdated: checkedInPets,
+        vehiclesUpdated: checkedInVehicles,
+      },
     });
   });
 }

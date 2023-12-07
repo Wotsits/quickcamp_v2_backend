@@ -44,7 +44,7 @@ export function registerUnitTypeRoutes(app: Express, prisma: PrismaClient) {
             units: includeUnits,
           },
         });
-        return res.status(200).json(data);
+        return res.status(200).json({ data });
       }
       // if siteId is provided, return all unit-types for the site.
       else {
@@ -56,7 +56,7 @@ export function registerUnitTypeRoutes(app: Express, prisma: PrismaClient) {
             units: includeUnits,
           },
         });
-        return res.status(200).json(data);
+        return res.status(200).json({ data });
       }
     }
   );
@@ -65,7 +65,7 @@ export function registerUnitTypeRoutes(app: Express, prisma: PrismaClient) {
     `${urls.UNITTYPES}/:id`,
     loggedIn,
     async (req: Request, res: Response) => {
-      // return unit-type by id here.
+      return res.status(200).json({ message: "Not implemented" });
     }
   );
 }

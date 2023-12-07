@@ -56,7 +56,7 @@ export function registerStatsRoutes(app: Express, prisma: PrismaClient) {
         },
       });
 
-      return res.status(200).json({ totalOnSite });
+      return res.status(200).json({ data: totalOnSite });
     }
   );
 }

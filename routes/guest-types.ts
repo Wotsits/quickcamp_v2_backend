@@ -1,6 +1,9 @@
 import { Express, Request, Response } from "express";
 import { urls } from "../enums.js";
-import { hasAccessToRequestedSite, loggedIn } from "../utilities/userManagement/middleware.js";
+import {
+  hasAccessToRequestedSite,
+  loggedIn,
+} from "../utilities/userManagement/middleware.js";
 import { PrismaClient } from "@prisma/client";
 
 export function registerGuestTypeRoutes(app: Express, prisma: PrismaClient) {
@@ -34,7 +37,7 @@ export function registerGuestTypeRoutes(app: Express, prisma: PrismaClient) {
             },
           },
         });
-        return res.status(200).json(data);
+        return res.status(200).json({ data });
       }
       // if siteId is provided, return all guest-types for the site.
       else {
@@ -42,9 +45,8 @@ export function registerGuestTypeRoutes(app: Express, prisma: PrismaClient) {
           where: {
             siteId: parseInt(siteId as string),
           },
-          
         });
-        return res.status(200).json(data);
+        return res.status(200).json({ data });
       }
     }
   );

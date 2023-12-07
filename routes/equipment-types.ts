@@ -1,16 +1,21 @@
 import { Express, Request, Response } from "express";
 import { urls } from "../enums.js";
-import { hasAccessToRequestedSite, loggedIn } from "../utilities/userManagement/middleware.js";
+import {
+  hasAccessToRequestedSite,
+  loggedIn,
+} from "../utilities/userManagement/middleware.js";
 import { PrismaClient } from "@prisma/client";
 import { UserResponse } from "../types.js";
 
-export function registerEquipmentTypeRoutes(app: Express, prisma: PrismaClient) {
+export function registerEquipmentTypeRoutes(
+  app: Express,
+  prisma: PrismaClient
+) {
   app.get(
     `${urls.EQUIPMENT_TYPES}`,
     loggedIn,
     hasAccessToRequestedSite,
     async (req: Request, res: Response) => {
-      
       if (!req.user) {
         res.status(401).json({ message: "Not logged in." });
         return;
@@ -40,7 +45,7 @@ export function registerEquipmentTypeRoutes(app: Express, prisma: PrismaClient) 
             },
           },
         });
-        return res.status(200).json(data);
+        return res.status(200).json({ data });
       }
       // if siteId is provided, return all equipment-types for the site.
       else {
@@ -49,7 +54,7 @@ export function registerEquipmentTypeRoutes(app: Express, prisma: PrismaClient) 
             siteId: parseInt(siteId as string),
           },
         });
-        return res.status(200).json(data);
+        return res.status(200).json({ data });
       }
     }
   );

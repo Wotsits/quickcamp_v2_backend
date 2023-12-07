@@ -57,7 +57,7 @@ export function registerExtraTypeRoutes(app: Express, prisma: PrismaClient) {
             ...(includeUnitTypes && { unitTypes: true }),
           },
         });
-        return res.status(200).json(data);
+        return res.status(200).json({ data });
       }
       // if siteId is provided, return all extraTypes for the site.
       else {
@@ -74,7 +74,7 @@ export function registerExtraTypeRoutes(app: Express, prisma: PrismaClient) {
             ...(includeUnitTypes && { unitTypes: true }),
           },
         });
-        return res.status(200).json(data);
+        return res.status(200).json({ data });
       }
     }
   );

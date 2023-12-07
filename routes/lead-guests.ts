@@ -13,7 +13,7 @@ export function registerLeadGuestRoutes(app: Express, prisma: PrismaClient) {
     }
 
     const { tenantId } = req.user;
-    
+
     // if the request has a query string, search for guests that match the query string
     if (req.query.q) {
       const data = await prisma.leadGuest.findMany({
@@ -51,7 +51,7 @@ export function registerLeadGuestRoutes(app: Express, prisma: PrismaClient) {
           ],
         },
       });
-      return res.json(data);
+      return res.status(200).json({ data });
     }
 
     // return all guests here, paginated.
@@ -60,7 +60,6 @@ export function registerLeadGuestRoutes(app: Express, prisma: PrismaClient) {
         tenantId: tenantId,
       },
     });
-    res.json(data);
+    res.status(200).json({ data });
   });
 }
-
