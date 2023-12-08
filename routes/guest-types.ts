@@ -5,10 +5,12 @@ import {
   loggedIn,
 } from "../utilities/middleware/userManagement/middleware.js";
 import { PrismaClient } from "@prisma/client";
+import { validateProvidedData } from "../utilities/middleware/validation/middleware.js";
 
 export function registerGuestTypeRoutes(app: Express, prisma: PrismaClient) {
   app.get(
     `${urls.GUEST_TYPES}`,
+    validateProvidedData,
     loggedIn,
     hasAccessToRequestedSite,
     async (req: Request, res: Response) => {

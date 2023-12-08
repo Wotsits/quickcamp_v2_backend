@@ -2,9 +2,10 @@ import { PrismaClient } from "@prisma/client";
 import { Express, Request, Response } from "express";
 import { urls } from "../enums.js";
 import { loggedIn } from "../utilities/middleware/userManagement/middleware.js";
+import { validateProvidedData } from "../utilities/middleware/validation/middleware.js";
 
 export function registerLeadGuestRoutes(app: Express, prisma: PrismaClient) {
-  app.get(urls.LEADGUESTS, loggedIn, async (req: Request, res: Response) => {
+  app.get(urls.LEADGUESTS, validateProvidedData, loggedIn, async (req: Request, res: Response) => {
     // check that the user is logged in
     if (!req.user) {
       return res.status(401).json({

@@ -5,12 +5,14 @@ import {
   loggedIn,
 } from "../utilities/middleware/userManagement/middleware.js";
 import { PrismaClient } from "@prisma/client";
+import { validateProvidedData } from "../utilities/middleware/validation/middleware.js";
 
 export function registerStatsRoutes(app: Express, prisma: PrismaClient) {
   // ****************************************************
 
   app.get(
     urls.STATS + urls.ON_SITE,
+    validateProvidedData, 
     loggedIn,
     hasAccessToRequestedSite,
     async (req: Request, res: Response) => {

@@ -2,10 +2,12 @@ import { Express, Request, Response } from "express";
 import { urls } from "../enums.js";
 import { loggedIn } from "../utilities/middleware/userManagement/middleware.js";
 import { PrismaClient } from "@prisma/client";
+import { validateProvidedData } from "../utilities/middleware/validation/middleware.js";
 
 export function registerUnitRoutes(app: Express, prisma: PrismaClient) {
   app.get(
     urls.AVAILABLE_UNITS,
+    validateProvidedData,
     loggedIn,
     async (req: Request, res: Response) => {
       // check that the user is logged in

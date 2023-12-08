@@ -4,11 +4,12 @@ import { loggedIn } from "../utilities/middleware/userManagement/middleware.js";
 import { PrismaClient } from "@prisma/client";
 import { calculateFee } from "../utilities/calculateFee.js";
 import { BookingProcessGuest, BookingProcessPet, BookingProcessVehicle } from "../types.js";
+import { validateProvidedData } from "../utilities/middleware/validation/middleware.js";
 
 export function registerFeeCalcRoutes(app: Express, prisma: PrismaClient) {
   // ****************************************************
 
-  app.get(urls.FEECALCS, loggedIn, async (req: Request, res: Response) => {
+  app.get(urls.FEECALCS, validateProvidedData, loggedIn, async (req: Request, res: Response) => {
     if (!req.user) {
       return res.status(401).json({
         message: "Unauthorized",

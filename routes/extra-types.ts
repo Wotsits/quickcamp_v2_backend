@@ -6,10 +6,12 @@ import {
   loggedIn,
 } from "../utilities/middleware/userManagement/middleware.js";
 import { UserResponse } from "../types.js";
+import { validateProvidedData } from "../utilities/middleware/validation/middleware.js";
 
 export function registerExtraTypeRoutes(app: Express, prisma: PrismaClient) {
   app.get(
     urls.EXTRATYPES,
+    validateProvidedData,
     loggedIn,
     hasAccessToRequestedSite,
     async (req: Request, res: Response) => {

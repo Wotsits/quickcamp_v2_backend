@@ -6,6 +6,7 @@ import {
 } from "../utilities/middleware/userManagement/middleware.js";
 import { PrismaClient } from "@prisma/client";
 import { UserResponse } from "../types.js";
+import { validateProvidedData } from "../utilities/middleware/validation/middleware.js";
 
 export function registerEquipmentTypeRoutes(
   app: Express,
@@ -13,6 +14,7 @@ export function registerEquipmentTypeRoutes(
 ) {
   app.get(
     `${urls.EQUIPMENT_TYPES}`,
+    validateProvidedData,
     loggedIn,
     hasAccessToRequestedSite,
     async (req: Request, res: Response) => {

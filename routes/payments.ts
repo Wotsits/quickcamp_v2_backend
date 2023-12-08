@@ -2,9 +2,10 @@ import { Express, Request, Response } from "express";
 import { urls } from "../enums.js";
 import { loggedIn } from "../utilities/middleware/userManagement/middleware.js";
 import { PrismaClient } from "@prisma/client";
+import { validateProvidedData } from "../utilities/middleware/validation/middleware.js";
 
 export function registerPaymentRoutes(app: Express, prisma: PrismaClient) {
-  app.get(urls.PAYMENTS, loggedIn, async (req: Request, res: Response) => {
+  app.get(urls.PAYMENTS, validateProvidedData, loggedIn, async (req: Request, res: Response) => {
     // return all payments here, paginated.
   });
 

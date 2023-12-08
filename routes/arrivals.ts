@@ -7,12 +7,15 @@ import {
 import { PrismaClient } from "@prisma/client";
 import { raiseConsoleErrorWithListOfMissingData } from "../utilities/raiseErrorWithListOfMissingData.js";
 import { isGuestDue } from "../utilities/isGuestDue.js";
+import { validate } from "../utilities/middleware/validation/helpers.js";
+import { validateProvidedData } from "../utilities/middleware/validation/middleware.js";
 
 export function registerArrivalsRoutes(app: Express, prisma: PrismaClient) {
   // ****************************************************
 
   app.get(
     urls.ARRIVALS_BY_DATE,
+    validateProvidedData,
     loggedIn,
     hasAccessToRequestedSite,
     async (req: Request, res: Response) => {
@@ -90,6 +93,7 @@ export function registerCheckInRoutes(app: Express, prisma: PrismaClient) {
 
   app.post(
     urls.CHECK_IN_GUEST,
+    validateProvidedData,
     loggedIn,
     async (req: Request, res: Response) => {
       // unpack the request body
@@ -265,7 +269,7 @@ export function registerCheckInRoutes(app: Express, prisma: PrismaClient) {
 
   // ****************************************************
 
-  app.post(urls.CHECK_IN_MANY_GUESTS, loggedIn, async (req, res) => {
+  app.post(urls.CHECK_IN_MANY_GUESTS, validateProvidedData, loggedIn, async (req, res) => {
     // unpack the request body
     const { guests, reverse } = req.body;
 

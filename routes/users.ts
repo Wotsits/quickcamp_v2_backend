@@ -2,9 +2,10 @@ import { Express, Request, Response } from "express";
 import { urls } from "../enums.js";
 import { loggedIn } from "../utilities/middleware/userManagement/middleware.js";
 import { PrismaClient } from "@prisma/client";
+import { validateProvidedData } from "../utilities/middleware/validation/middleware.js";
 
 export function registerUserRoutes(app: Express, prisma: PrismaClient) {
-  app.get(urls.USERS, loggedIn, async (req: Request, res: Response) => {
+  app.get(urls.USERS, validateProvidedData, loggedIn, async (req: Request, res: Response) => {
     const { user } = req;
     if (!user) {
       res.status(401).send({ message: "Not logged in" });

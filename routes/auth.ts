@@ -7,6 +7,7 @@ import { jwtMaxAge } from "../settings.js";
 import { isPasswordOk } from "../utilities/middleware/userManagement/helpers.js";
 import { User } from "../types.js";
 import { loggedIn } from "../utilities/middleware/userManagement/middleware.js";
+import { validateProvidedData } from "../utilities/middleware/validation/middleware.js";
 
 // ----------------
 
@@ -52,6 +53,7 @@ function generateToken(
 export function registerLoginRoute(app: Express, prisma: PrismaClient) {
   app.post(
     "/login",
+    validateProvidedData,
     async (req: Request, res: Response, next: NextFunction) => {
       // ----------------
       // AUTHENTICATE USER CREDENTIALS
@@ -134,7 +136,7 @@ export function registerLoginRoute(app: Express, prisma: PrismaClient) {
 
 export function registerRegisterRoute(app: Express, prisma: PrismaClient) {
   app.post(
-    "/register", loggedIn,
+    "/register", validateProvidedData, loggedIn,
     async (req: Request, res: Response, next: NextFunction) => {
       const { username, name, password, role, email } = req.body;
       const tenantId = req.user!.tenantId;
@@ -178,7 +180,7 @@ export function registerRegisterRoute(app: Express, prisma: PrismaClient) {
 }
 
 export function registerTokenRoute(app: Express, prisma: PrismaClient) {
-  app.post("/token", async (req: Request, res: Response) => {
+  app.post("/token", validateProvidedData, async (req: Request, res: Response) => {
     const refreshToken = req.body.token;
     if (!refreshToken) return res.sendStatus(401);
     if (!refreshTokenSecret)
@@ -203,7 +205,7 @@ export function registerTokenRoute(app: Express, prisma: PrismaClient) {
 }
 
 export function registerLogoutRoute(app: Express, prisma: PrismaClient) {
-  app.delete("/logout", async (req: Request, res: Response) => {
+  app.delete("/logout", validateProvidedData, async (req: Request, res: Response) => {
     const refreshToken = req.body.token;
     if (!refreshToken) return res.sendStatus(401);
     if (!refreshTokenSecret)

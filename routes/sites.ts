@@ -2,9 +2,10 @@ import { Express, Request, Response } from "express";
 import { urls } from "../enums.js";
 import { loggedIn } from "../utilities/middleware/userManagement/middleware.js";
 import { PrismaClient } from "@prisma/client";
+import { validateProvidedData } from "../utilities/middleware/validation/middleware.js";
 
 export function registerSiteRoutes(app: Express, prisma: PrismaClient) {
-  app.get(urls.SITES, loggedIn, async (req: Request, res: Response) => {
+  app.get(urls.SITES, validateProvidedData, loggedIn, async (req: Request, res: Response) => {
     // confirm that the user is logged in and has a tenantId
     const { user } = req;
     if (!user) {

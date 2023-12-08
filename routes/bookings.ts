@@ -14,12 +14,14 @@ import bcrypt from "bcryptjs";
 import { raiseConsoleErrorWithListOfMissingData } from "../utilities/raiseErrorWithListOfMissingData.js";
 import { bookingPaymentsTotal } from "../utilities/bookingPaymentsTotal.js";
 import { calculateFee } from "../utilities/calculateFee.js";
+import { validateProvidedData } from "../utilities/middleware/validation/middleware.js";
 
 export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
   // ****************************************************
 
   app.get(
     urls.BOOKINGS_BY_SITE,
+    validateProvidedData,
     loggedIn,
     hasAccessToRequestedSite,
     async (req: Request, res: Response) => {
@@ -137,6 +139,7 @@ export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
 
   app.get(
     urls.BOOKINGS_BY_SITE_AND_DATE_RANGE,
+    validateProvidedData,
     loggedIn,
     hasAccessToRequestedSite,
     async (req: Request, res: Response) => {
@@ -258,6 +261,7 @@ export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
 
   app.get(
     `${urls.BOOKING_BY_ID}`,
+    validateProvidedData,
     loggedIn,
     async (req: Request, res: Response) => {
       // ensure we have the user on the request
@@ -327,6 +331,7 @@ export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
 
   app.post(
     urls.NEW_BOOKING,
+    validateProvidedData,
     loggedIn,
     hasAccessToRequestedSite,
     async (req: Request, res: Response) => {
@@ -732,6 +737,7 @@ export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
 
   app.post(
     urls.UPDATE_BOOKING_LEAD_GUEST_EXISTING,
+    validateProvidedData,
     loggedIn,
     async (req, res) => {
       // ensure that the user is logged in - belt and braces
@@ -837,7 +843,7 @@ export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
 
   // ****************************************************
 
-  app.post(urls.UPDATE_BOOKING_LEAD_GUEST_NEW, loggedIn, async (req, res) => {
+  app.post(urls.UPDATE_BOOKING_LEAD_GUEST_NEW, validateProvidedData, loggedIn, async (req, res) => {
     if (!req.user) {
       return res.status(401).json({
         message: "Unauthorized",
