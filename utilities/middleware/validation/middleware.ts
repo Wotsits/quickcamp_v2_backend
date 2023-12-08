@@ -1,15 +1,6 @@
 import { NextFunction, Request, Response } from "express";
-import jwt from "jsonwebtoken";
-import dotenv from "dotenv";
-import { ValidationRule, validationRulesMap } from "./validationRules";
-import { validate } from "./helpers";
-
-// ----------------
-
-dotenv.config();
-const { JWTSECRET: jwtSecret } = process.env;
-
-// ----------------
+import { validationRulesMap } from "./validationRules.js";
+import { validate } from "./helpers.js";
 
 /* Herein lies the gatekeeper to the backend.  All requests which pass data via params, body, or query
  * must pass through this middleware.  This middleware will validate the data against the validationRulesMap
@@ -22,50 +13,56 @@ export function validateProvidedData(
   res: Response,
   next: NextFunction
 ) {
-  const paramNames = Object.keys(req.params);
-  const bodyNames = Object.keys(req.body);
-  const queryNames = Object.keys(req.query);
+  // this object contains the params, body, and query object keys
+  const obj: {
+    [key: string]: string[];
+  } = {
+    params: Object.keys(req.params),
+    body: Object.keys(req.body),
+    query: Object.keys(req.query),
+  };
 
-  paramNames.forEach((paramName: string) => {
-    const validationRule = validationRulesMap[paramName];
-    const paramValue = req.params[paramName];
+  // this array contains the params, body, and query object keys
+  const queue = Object.keys(obj) as ("params" | "query" | "body") [];
 
-    if (!validationRule) {
-      console.warn(`No validation rule found for param ${paramName}`);
-    } else {
-      const isValid = validate(paramValue, validationRule);
-      if (!isValid) {
-        return res.status(400).json({ message: `Invalid param ${paramName}` });
+  // iterate over the queue
+  queue.forEach((queueItem) => {
+    const queueItemNames = obj[queueItem];
+    // iterate over the params, body, and query object keys
+    queueItemNames.forEach((queueItemName) => {
+      const validationRule = validationRulesMap[queueItemName];
+      const queueItemValue = req[queueItem][queueItemName];
+
+      // if there is no validation rule for the queueItemName, return a 400
+      if (!validationRule) {
+        console.warn("*************************")
+        console.warn("*************************")
+        console.warn(
+          `No validation rule found for ${queueItem} ${queueItemName}`
+        );
+        console.warn("*************************")
+        console.warn("*************************")
+        return res
+          .status(400)
+          .json({ message: `Invalid ${queueItem} ${queueItemName}` });
       }
-    }
-  });
-
-  bodyNames.forEach((bodyName: string) => {
-    const validationRule = validationRulesMap[bodyName];
-    const bodyValue = req.body[bodyName];
-
-    if (!validationRule) {
-      console.warn(`No validation rule found for body ${bodyName}`);
-    } else {
-      const isValid = validate(bodyValue, validationRule);
-      if (!isValid) {
-        return res.status(400).json({ message: `Invalid body ${bodyName}` });
+      // if there is a validation rule for the queueItemName, validate the queueItemValue against the validation rule
+      else {
+        const isValid = validate(queueItemValue, validationRule);
+        if (!isValid) {
+          console.warn("*************************")
+          console.warn("*************************")
+          console.warn(
+            `Supplied data failed validation.  In particular, ${queueItem} ${queueItemName} failed validation.`
+          );
+          console.warn("*************************")
+          console.warn("*************************")
+          return res
+            .status(400)
+            .json({ message: `Invalid ${queueItem} ${queueItemName}` });
+        }
       }
-    }
-  });
-
-  queryNames.forEach((queryName: string) => {
-    const validationRule = validationRulesMap[queryName];
-    const queryValue = req.query[queryName];
-
-    if (!validationRule) {
-      console.warn(`No validation rule found for query ${queryName}`);
-    } else {
-      const isValid = validate(queryValue, validationRule);
-      if (!isValid) {
-        return res.status(400).json({ message: `Invalid query ${queryName}` });
-      }
-    }
+    });
   });
 
   next();

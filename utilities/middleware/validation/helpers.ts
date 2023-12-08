@@ -1,7 +1,7 @@
 import { ValidationRule } from "./validationRules";
 
 export function validate(paramValue: any, validationRule: ValidationRule) {
-    const { type, min, max, minLength, maxLength } = validationRule;
+    const { type, min, max, minLength, maxLength, validEnum } = validationRule;
   
     if (type === "number") {
       const paramValueAsNumber = Number(paramValue);
@@ -32,6 +32,25 @@ export function validate(paramValue: any, validationRule: ValidationRule) {
       if (maxLength && paramValue.length > maxLength) {
         return false;
       }
+      if (validEnum && !validEnum.includes(paramValue)) {
+        return false;
+      }
+    }
+
+    if (type === "date") {
+        const paramValueAsDate = new Date(paramValue);
+        if (isNaN(paramValueAsDate.getTime())) {
+            return false;
+        }
+    }
+
+    if (type === "array") {
+        if (!Array.isArray(paramValue)) {
+            return false;
+        }
+        if (minLength && paramValue.length < minLength) {
+            return false;
+        }
     }
   
     return true;

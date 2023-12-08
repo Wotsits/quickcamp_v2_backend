@@ -7,13 +7,20 @@ import { validateProvidedData } from "../utilities/middleware/validation/middlew
 export function registerLeadGuestRoutes(app: Express, prisma: PrismaClient) {
   app.get(urls.LEADGUESTS, validateProvidedData, loggedIn, async (req: Request, res: Response) => {
     // check that the user is logged in
-    if (!req.user) {
+    const { user } = req;
+    if (!user) {
       return res.status(401).json({
         message: "Unauthorized",
       });
     }
 
-    const { tenantId } = req.user;
+    const { tenantId } = user;
+
+    if (!tenantId) {
+      return res.status(401).json({
+        message: "Tenant id not accessible on user object.  This is a backend issue.",
+      });
+    }
 
     // if the request has a query string, search for guests that match the query string
     if (req.query.q) {

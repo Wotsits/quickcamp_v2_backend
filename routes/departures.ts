@@ -6,7 +6,6 @@ import {
 } from "../utilities/middleware/userManagement/middleware.js";
 import { PrismaClient } from "@prisma/client";
 import { raiseConsoleErrorWithListOfMissingData } from "../utilities/raiseErrorWithListOfMissingData.js";
-import { isGuestDue } from "../utilities/isGuestDue.js";
 import { validateProvidedData } from "../utilities/middleware/validation/middleware.js";
 
 export function registerDeparturesRoutes(app: Express, prisma: PrismaClient) {
@@ -27,34 +26,50 @@ export function registerDeparturesRoutes(app: Express, prisma: PrismaClient) {
       const siteId = req.query.siteId;
       const date = req.query.date;
 
+      // check that the required data is present
       if (!siteId) {
         return res.status(400).json({
           message: "Bad request - no siteId",
         });
       }
 
+      if (!date) {
+        return res.status(400).json({
+          message: "Bad request - no date",
+        });
+      }
+
+      // parse supplied data
+      let parsedSiteId = parseInt(siteId as string);
+      let parsedDate = new Date(date as string);
+
       // return bookings here, paginated.
       const data = await prisma.booking.findMany({
         where: {
+          unit: {
+            unitType: {
+              siteId: parsedSiteId,
+            },
+          },
           OR: [
             {
               guests: {
                 some: {
-                  end: new Date(date as string),
+                  end: parsedDate,
                 },
               },
             },
             {
               pets: {
                 some: {
-                  end: new Date(date as string),
+                  end: parsedDate,
                 },
               },
             },
             {
               vehicles: {
                 some: {
-                  end: new Date(date as string),
+                  end: parsedDate,
                 },
               },
             },
@@ -95,6 +110,15 @@ export function registerCheckOutRoutes(app: Express, prisma: PrismaClient) {
     validateProvidedData,
     loggedIn,
     async (req: Request, res: Response) => {
+
+      // check that the user is logged in
+      const { user } = req;
+      if (!user) {
+        return res.status(401).json({
+          message: "Unauthorized",
+        });
+      }
+
       // unpack the request body
       const { id, type, reverse } = req.body;
 
@@ -108,28 +132,6 @@ export function registerCheckOutRoutes(app: Express, prisma: PrismaClient) {
         raiseConsoleErrorWithListOfMissingData(requiredData);
         return res.status(400).json({
           message: "Bad request - missing id or type",
-        });
-      }
-
-      // check that the type is valid
-      if (type !== "GUEST" && type !== "PET" && type !== "VEHICLE") {
-        return res.status(400).json({
-          message: "Bad request - invalid type",
-        });
-      }
-
-      if (typeof reverse !== "boolean") {
-        return res.status(400).json({
-          message:
-            "Bad request - invalid datatype for supplied 'reverse' field",
-        });
-      }
-
-      // check that the user is logged in
-      const user = req.user;
-      if (!user) {
-        return res.status(401).json({
-          message: "Unauthorized",
         });
       }
 
@@ -262,6 +264,15 @@ export function registerCheckOutRoutes(app: Express, prisma: PrismaClient) {
   // ****************************************************
 
   app.post(urls.CHECK_OUT_MANY_GUESTS, validateProvidedData, loggedIn, async (req, res) => {
+    
+    // check that the user is logged in
+    const { user } = req;
+    if (!user) {
+      return res.status(401).json({
+        message: "Unauthorized",
+      });
+    }
+
     // unpack the request body
     const { guests, reverse } = req.body;
 
@@ -308,14 +319,6 @@ export function registerCheckOutRoutes(app: Express, prisma: PrismaClient) {
     if (typeof reverse !== "boolean") {
       return res.status(400).json({
         message: "Bad request - invalid datatype for supplied 'reverse' field",
-      });
-    }
-
-    // check that the user is logged in
-    const user = req.user;
-    if (!user) {
-      return res.status(401).json({
-        message: "Unauthorized",
       });
     }
 

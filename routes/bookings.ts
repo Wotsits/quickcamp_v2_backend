@@ -15,6 +15,7 @@ import { raiseConsoleErrorWithListOfMissingData } from "../utilities/raiseErrorW
 import { bookingPaymentsTotal } from "../utilities/bookingPaymentsTotal.js";
 import { calculateFee } from "../utilities/calculateFee.js";
 import { validateProvidedData } from "../utilities/middleware/validation/middleware.js";
+import { parse } from "path";
 
 export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
   // ****************************************************
@@ -43,20 +44,10 @@ export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
           message: "Bad request - no siteId",
         });
       }
-
-      // ensure that siteId, take and skip are numbers
-      let parsedSiteId: number;
-      let parsedTake: number;
-      let parsedSkip: number;
-      try {
-        parsedSiteId = parseInt(siteId as string);
-        parsedTake = parseInt(take as string);
-        parsedSkip = parseInt(skip as string);
-      } catch {
-        return res.status(400).json({
-          message: "Bad request - invalid siteId, take or skip",
-        });
-      }
+      
+      const parsedSiteId = parseInt(siteId as string);
+      const parsedTake = parseInt(take as string);
+      const parsedSkip = parseInt(skip as string);
 
       // ----------------------------
       // GET THE BOOKINGS
@@ -163,6 +154,12 @@ export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
         });
       }
 
+
+      // parse the suppled data
+      const parsedSiteId = parseInt(siteId as string);
+      const parsedStart = new Date(start as string);
+      const parsedEnd = new Date(end as string);
+
       // return bookings by date range here, paginated.
       const data = await prisma.booking.findMany({
         where: {
@@ -170,7 +167,7 @@ export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
             {
               unit: {
                 unitType: {
-                  siteId: parseInt(siteId as string),
+                  siteId: parsedSiteId,
                 },
               },
             },
@@ -178,24 +175,24 @@ export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
               OR: [
                 {
                   start: {
-                    gte: new Date(start as string),
-                    lt: new Date(end as string),
+                    gte: parsedStart,
+                    lt: parsedEnd,
                   },
                 },
                 {
                   end: {
-                    gte: new Date(start as string),
-                    lt: new Date(end as string),
+                    gte: parsedStart,
+                    lt: parsedEnd,
                   },
                 },
                 {
                   AND: [
                     {
                       start: {
-                        lte: new Date(start as string),
+                        lte: parsedStart,
                       },
                       end: {
-                        gt: new Date(end as string),
+                        gt: parsedEnd,
                       },
                     },
                   ],
@@ -277,10 +274,13 @@ export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
       // get the user's tenancy
       const { tenantId } = user;
 
+      // parse supplied data
+      const parsedBookingId = parseInt(bookingId as string);
+
       // get the booking
       const data = await prisma.booking.findUnique({
         where: {
-          id: parseInt(bookingId as string),
+          id: parsedBookingId,
         },
         include: {
           unit: {
@@ -338,16 +338,16 @@ export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
       const {
         siteId,
         leadGuestId,
-        leadGuestFirstName,
-        leadGuestLastName,
-        leadGuestEmail,
-        leadGuestTel,
-        leadGuestAddress1,
-        leadGuestAddress2,
-        leadGuestCity,
-        leadGuestCounty,
-        leadGuestPostcode,
-        leadGuestCountry,
+        firstName,
+        lastName,
+        email,
+        tel,
+        address1,
+        address2,
+        townCity,
+        county,
+        postcode,
+        country,
         equipmentTypeId,
         unitId,
         startDate,
@@ -417,10 +417,10 @@ export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
       // ensure that we have all the required data for the lead guest
       if (
         path === "NEWGUEST" &&
-        (!leadGuestLastName ||
-          !leadGuestEmail ||
-          !leadGuestAddress1 ||
-          !leadGuestPostcode)
+        (!lastName ||
+          !email ||
+          !address1 ||
+          !postcode)
       ) {
         return res.status(400).json({
           message: "Bad request - no leadGuestId or leadGuest details",
@@ -430,10 +430,10 @@ export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
       // --------------
 
       // check that the emailAddress does existing in the database already
-      if (leadGuestEmail) {
+      if (email) {
         const existingLeadGuest = await prisma.leadGuest.findFirst({
           where: {
-            email: leadGuestEmail,
+            email: email,
             tenantId: req.user.tenantId,
           },
         });
@@ -651,9 +651,9 @@ export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
         }
         if (path === "NEWGUEST") {
           const tempPassword =
-            leadGuestPostcode.replace(" ", "") +
+            postcode.replace(" ", "") +
             "-" +
-            leadGuestTel.replace(" ", "");
+            tel.replace(" ", "");
           const hash = await bcrypt.hash(tempPassword, 10);
 
           const result = await prisma.booking.create({
@@ -667,16 +667,16 @@ export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
               },
               leadGuest: {
                 create: {
-                  firstName: leadGuestFirstName,
-                  lastName: leadGuestLastName,
-                  email: leadGuestEmail,
-                  tel: leadGuestTel,
-                  address1: leadGuestAddress1,
-                  address2: leadGuestAddress2,
-                  townCity: leadGuestCity,
-                  county: leadGuestCounty,
-                  postcode: leadGuestPostcode,
-                  country: leadGuestCountry,
+                  firstName,
+                  lastName,
+                  email,
+                  tel,
+                  address1,
+                  address2,
+                  townCity,
+                  county,
+                  postcode,
+                  country,
                   tenantId: req.user.tenantId,
                   password: hash,
                 },
@@ -757,25 +757,9 @@ export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
         });
       }
 
-      // ensure that the bookingId is a number
-      let parsedBookingId: number;
-      try {
-        parsedBookingId = parseInt(bookingId);
-      } catch {
-        return res.status(400).json({
-          message: "Bad request - invalid bookingId",
-        });
-      }
-
-      // ensure that the leadGuestId is a number
-      let parsedLeadGuestId: number;
-      try {
-        parsedLeadGuestId = parseInt(leadGuestId);
-      } catch {
-        return res.status(400).json({
-          message: "Bad request - invalid leadGuestId",
-        });
-      }
+      // parse the supplied data
+      let parsedBookingId = parseInt(bookingId);
+      let parsedLeadGuestId = parseInt(leadGuestId);
 
       // ensure that the booking exists
       const booking = await prisma.booking.findUnique({

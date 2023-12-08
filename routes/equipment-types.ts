@@ -18,8 +18,11 @@ export function registerEquipmentTypeRoutes(
     loggedIn,
     hasAccessToRequestedSite,
     async (req: Request, res: Response) => {
-      if (!req.user) {
-        res.status(401).json({ message: "Not logged in." });
+
+      // check if user is logged in
+      const {user} = req;
+      if (!user) {
+        res.status(401).json({ message: "Unauthorized." });
         return;
       }
 
@@ -29,10 +32,10 @@ export function registerEquipmentTypeRoutes(
         includeSite = req.query.includeSite === "true";
       }
 
-      const { tenantId } = req.user;
+      const { tenantId } = user;
 
       if (!tenantId) {
-        res.status(401).json({ message: "Not logged in." });
+        res.status(401).json({ message: "Tenant id not accessible on user object.  This is a backend issue." });
         return;
       }
 
@@ -46,6 +49,9 @@ export function registerEquipmentTypeRoutes(
               tenantId: tenantId,
             },
           },
+          include: {
+            site: includeSite,
+          },
         });
         return res.status(200).json({ data });
       }
@@ -54,6 +60,9 @@ export function registerEquipmentTypeRoutes(
         const data = await prisma.equipmentType.findMany({
           where: {
             siteId: parseInt(siteId as string),
+          },
+          include: {
+            site: includeSite,
           },
         });
         return res.status(200).json({ data });

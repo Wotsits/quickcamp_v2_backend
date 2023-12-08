@@ -16,7 +16,8 @@ export function registerExtraTypeRoutes(app: Express, prisma: PrismaClient) {
     hasAccessToRequestedSite,
     async (req: Request, res: Response) => {
       // check that the user is logged in
-      if (!req.user) {
+      const { user } = req;
+      if (!user) {
         return res.status(401).json({
           message: "Unauthorized",
         });
@@ -32,11 +33,11 @@ export function registerExtraTypeRoutes(app: Express, prisma: PrismaClient) {
         includeUnitTypes = req.query.includeUnitTypes === "true";
       }
 
-      const { tenantId } = req.user;
+      const { tenantId } = user;
 
       if (!tenantId) {
         return res.status(401).json({
-          message: "Unauthorized",
+          message: "Tenant id not accessible on user object.  This is a backend issue.",
         });
       }
 

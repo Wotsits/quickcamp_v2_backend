@@ -8,13 +8,13 @@ export function registerUserRoutes(app: Express, prisma: PrismaClient) {
   app.get(urls.USERS, validateProvidedData, loggedIn, async (req: Request, res: Response) => {
     const { user } = req;
     if (!user) {
-      res.status(401).send({ message: "Not logged in" });
+      res.status(401).send({ message: "Unauthorized" });
       return;
     }
 
     const { tenantId } = user;
     if (!tenantId) {
-      res.status(401).send({ message: "Not logged in" });
+      res.status(401).send({ message: "Tenant id not accessible on user object.  This is a backend issue." });
       return;
     }
 

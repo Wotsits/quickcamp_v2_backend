@@ -10,7 +10,8 @@ export function registerFeeCalcRoutes(app: Express, prisma: PrismaClient) {
   // ****************************************************
 
   app.get(urls.FEECALCS, validateProvidedData, loggedIn, async (req: Request, res: Response) => {
-    if (!req.user) {
+    const { user } = req;
+    if (!user) {
       return res.status(401).json({
         message: "Unauthorized",
       });
@@ -24,21 +25,10 @@ export function registerFeeCalcRoutes(app: Express, prisma: PrismaClient) {
     const bookingPets = req.query.bookingPets as unknown as BookingProcessPet[];
     const bookingVehicles = req.query.bookingVehicles as unknown as BookingProcessVehicle[];
 
-    let parsedUnitTypeId: number;
-    let parsedStartDate: Date;
-    let parsedEndDate: Date;
-    let parsedExtras: number[]
-
-    try {
-      parsedUnitTypeId = parseInt(unitTypeId);
-      parsedStartDate = new Date(startDate);
-      parsedEndDate = new Date(endDate);
-      parsedExtras = extras ? extras.map((extra) => parseInt(extra as unknown as string)) : [];
-    } catch {
-      return res.status(400).json({
-        message: "Bad request - invalid parameters.",
-      });
-    }
+    let parsedUnitTypeId = parseInt(unitTypeId);
+    let parsedStartDate = new Date(startDate);
+    let parsedEndDate = new Date(endDate);
+    let parsedExtras = extras ? extras.map((extra) => parseInt(extra as unknown as string)) : [];
 
     const totalFee = await calculateFee(parsedUnitTypeId, parsedStartDate, parsedEndDate, parsedExtras, bookingGuests, bookingPets, bookingVehicles, prisma);
 

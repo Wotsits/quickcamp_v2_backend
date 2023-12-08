@@ -10,8 +10,10 @@ export function registerUnitTypeRoutes(app: Express, prisma: PrismaClient) {
     validateProvidedData,
     loggedIn,
     async (req: Request, res: Response) => {
-      if (!req.user) {
-        res.status(401).json({ message: "Not logged in." });
+      // check if user is logged in
+      const { user } = req;
+      if (!user) {
+        res.status(401).json({ message: "Unauthorized." });
         return;
       }
 
@@ -25,10 +27,10 @@ export function registerUnitTypeRoutes(app: Express, prisma: PrismaClient) {
         includeSite = req.query.includeSite === "true";
       }
 
-      const tenantId = req.user.tenantId;
+      const { tenantId } = user;
 
       if (!tenantId) {
-        res.status(401).json({ message: "Not logged in." });
+        res.status(401).json({ message: "Tenant id not accessible on user object.  This is a backend issue." });
         return;
       }
 
@@ -67,7 +69,7 @@ export function registerUnitTypeRoutes(app: Express, prisma: PrismaClient) {
     `${urls.UNITTYPES}/:id`,
     loggedIn,
     async (req: Request, res: Response) => {
-      return res.status(200).json({ message: "Not implemented" });
+      return res.status(501).json({ message: "Not implemented" });
     }
   );
 }

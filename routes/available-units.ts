@@ -30,17 +30,8 @@ export function registerUnitRoutes(app: Express, prisma: PrismaClient) {
       }
 
       // convert the startDate and endDate to Date objects
-      let startDateObj: Date;
-      let endDateObj: Date;
-
-      try {
-        startDateObj = new Date(startDate as string);
-        endDateObj = new Date(endDate as string);
-      } catch (e) {
-        return res.status(400).json({
-          message: "Bad request",
-        });
-      }
+      const startDateObj = new Date(startDate as string);
+      const endDateObj = new Date(endDate as string);
 
       // check that the startDate is before the endDate
       if (startDateObj > endDateObj) {

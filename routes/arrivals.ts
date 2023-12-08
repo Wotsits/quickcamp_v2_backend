@@ -7,7 +7,6 @@ import {
 import { PrismaClient } from "@prisma/client";
 import { raiseConsoleErrorWithListOfMissingData } from "../utilities/raiseErrorWithListOfMissingData.js";
 import { isGuestDue } from "../utilities/isGuestDue.js";
-import { validate } from "../utilities/middleware/validation/helpers.js";
 import { validateProvidedData } from "../utilities/middleware/validation/middleware.js";
 
 export function registerArrivalsRoutes(app: Express, prisma: PrismaClient) {

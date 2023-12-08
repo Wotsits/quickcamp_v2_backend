@@ -9,17 +9,16 @@ export function registerSiteRoutes(app: Express, prisma: PrismaClient) {
     // confirm that the user is logged in and has a tenantId
     const { user } = req;
     if (!user) {
-      res.status(401).json({ message: "Not logged in" });
+      res.status(401).json({ message: "Unauthorized" });
       return;
     }
 
-    if (!user.tenantId) {
-      res.status(401).json({ message: "Not logged in" });
-      return;
-    }
-
-    // get the tenantId from the user
     const { tenantId } = user;
+
+    if (!tenantId) {
+      res.status(401).json({ message: "Tenant id not accessible on user object.  This is a backend issue." });
+      return;
+    }
 
     // get all sites for that tenantId
     const sites = await prisma.site.findMany({
