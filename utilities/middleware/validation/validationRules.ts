@@ -205,4 +205,9 @@ export const validationRulesMap: ValidationRules = {
     type: "number",
     min: 0,
   },
+  q: {
+    type: "string",
+    minLength: 0,
+    maxLength: 100,
+  },
 };

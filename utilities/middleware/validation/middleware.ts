@@ -25,6 +25,8 @@ export function validateProvidedData(
   // this array contains the params, body, and query object keys
   const queue = Object.keys(obj) as ("params" | "query" | "body") [];
 
+  let overallIsValid = true;
+
   // iterate over the queue
   queue.forEach((queueItem) => {
     const queueItemNames = obj[queueItem];
@@ -35,13 +37,10 @@ export function validateProvidedData(
 
       // if there is no validation rule for the queueItemName, return a 400
       if (!validationRule) {
-        console.warn("*************************")
-        console.warn("*************************")
+        overallIsValid = false;
         console.warn(
           `No validation rule found for ${queueItem} ${queueItemName}`
         );
-        console.warn("*************************")
-        console.warn("*************************")
         return res
           .status(400)
           .json({ message: `Invalid ${queueItem} ${queueItemName}` });
@@ -50,13 +49,10 @@ export function validateProvidedData(
       else {
         const isValid = validate(queueItemValue, validationRule);
         if (!isValid) {
-          console.warn("*************************")
-          console.warn("*************************")
+          overallIsValid = false;
           console.warn(
             `Supplied data failed validation.  In particular, ${queueItem} ${queueItemName} failed validation.`
           );
-          console.warn("*************************")
-          console.warn("*************************")
           return res
             .status(400)
             .json({ message: `Invalid ${queueItem} ${queueItemName}` });
@@ -65,7 +61,7 @@ export function validateProvidedData(
     });
   });
 
-  next();
+  if (overallIsValid) next();
 }
 
 // ----------------
