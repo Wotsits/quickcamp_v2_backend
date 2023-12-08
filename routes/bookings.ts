@@ -3,7 +3,7 @@ import { urls } from "../enums.js";
 import {
   hasAccessToRequestedSite,
   loggedIn,
-} from "../utilities/userManagement/middleware.js";
+} from "../utilities/middleware/userManagement/middleware.js";
 import {
   BookingGuest,
   BookingPet,

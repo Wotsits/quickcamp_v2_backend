@@ -1,6 +1,6 @@
 import { Express, Request, Response } from "express";
 import { urls } from "../enums.js";
-import { loggedIn } from "../utilities/userManagement/middleware.js";
+import { loggedIn } from "../utilities/middleware/userManagement/middleware.js";
 import { PrismaClient } from "@prisma/client";
 
 export function registerTenantRoutes(app: Express, prisma: PrismaClient) {

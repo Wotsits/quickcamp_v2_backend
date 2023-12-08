@@ -1,6 +1,6 @@
 import { Express, Request, Response } from "express";
 import { urls } from "../enums.js";
-import { loggedIn } from "../utilities/userManagement/middleware.js";
+import { loggedIn } from "../utilities/middleware/userManagement/middleware.js";
 import { PrismaClient } from "@prisma/client";
 import { calculateFee } from "../utilities/calculateFee.js";
 import { BookingProcessGuest, BookingProcessPet, BookingProcessVehicle } from "../types.js";

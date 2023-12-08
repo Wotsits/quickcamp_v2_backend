@@ -3,7 +3,7 @@ import { urls } from "../enums.js";
 import {
   hasAccessToRequestedSite,
   loggedIn,
-} from "../utilities/userManagement/middleware.js";
+} from "../utilities/middleware/userManagement/middleware.js";
 import { PrismaClient } from "@prisma/client";
 import { raiseConsoleErrorWithListOfMissingData } from "../utilities/raiseErrorWithListOfMissingData.js";
 import { isGuestDue } from "../utilities/isGuestDue.js";
