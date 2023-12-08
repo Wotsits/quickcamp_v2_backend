@@ -8,10 +8,10 @@ export function validate(paramValue: any, validationRule: ValidationRule) {
       if (isNaN(paramValueAsNumber)) {
         return false;
       }
-      if (min && paramValueAsNumber < min) {
+      if (min !== undefined && paramValueAsNumber < min) {
         return false;
       }
-      if (max && paramValueAsNumber > max) {
+      if (max !== undefined && paramValueAsNumber > max) {
         return false;
       }
     }
@@ -46,7 +46,7 @@ export function validate(paramValue: any, validationRule: ValidationRule) {
         if (!Array.isArray(paramValue)) {
             return false;
         }
-        if (minLength && paramValue.length < minLength) {
+        if (minLength !== undefined && paramValue.length < minLength) {
             return false;
         }
     }

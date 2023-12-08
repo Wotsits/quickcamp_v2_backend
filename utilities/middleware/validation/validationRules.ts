@@ -1,3 +1,5 @@
+import { maxPageLength } from "../../../settings.js";
+
 export type ValidationRule = {
   type: "number" | "string" | "boolean" | "date" | "array";
   min?: number;
@@ -87,6 +89,7 @@ export const validationRulesMap: ValidationRules = {
   take: {
     type: "number",
     min: 1,
+    max: maxPageLength
   },
   skip: {
     type: "number",

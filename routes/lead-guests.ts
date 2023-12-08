@@ -22,10 +22,42 @@ export function registerLeadGuestRoutes(app: Express, prisma: PrismaClient) {
       });
     }
 
-    const { q } = req.query;
+    const { q, skip, take } = req.query;
+
+    // parse the skip and take query params
+    let parsedSkip = skip ? parseInt(skip as string) : 0;
+    let parsedTake = take ? parseInt(take as string) : 10;
 
     // if the request has a query string, search for guests that match the query string
     if (q) {
+      const count = await prisma.leadGuest.count({
+        where: {
+          tenantId: tenantId,
+          OR: [
+            {
+              firstName: {
+                contains: q as string,
+              }
+            },
+            {
+              lastName: {
+                contains: q as string,
+              }
+            },
+            {
+              email: {
+                contains: q as string,
+              }
+            },
+            {
+              tel: {
+                contains: q as string,
+              }
+            },
+          ],
+        },
+      });
+
       const data = await prisma.leadGuest.findMany({
         where: {
           tenantId: tenantId,
@@ -60,16 +92,33 @@ export function registerLeadGuestRoutes(app: Express, prisma: PrismaClient) {
             },
           ],
         },
+        skip: parsedSkip,
+        take: parsedTake,
+        orderBy: {
+          id: "desc",
+        },
       });
-      return res.status(200).json({ data });
+      return res.status(200).json({ data, count });
     }
 
-    // return all guests here, paginated.
-    const data = await prisma.leadGuest.findMany({
+    // if the request does not have a query string, return all guests
+    const count = await prisma.leadGuest.count({
       where: {
         tenantId: tenantId,
       },
     });
-    res.status(200).json({ data });
+
+    const data = await prisma.leadGuest.findMany({
+      where: {
+        tenantId: tenantId,
+      },
+      skip: parsedSkip,
+      take: parsedTake,
+      orderBy: {
+        id: "desc",
+      },
+    });
+
+    return res.status(200).json({ data, count });
   });
 }
