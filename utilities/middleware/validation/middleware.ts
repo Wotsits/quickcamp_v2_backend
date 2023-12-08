@@ -40,18 +40,13 @@ export function validateProvidedData(
       // if there is no validation rule for the queueItemName, return a 400
       if (!validationRule) {
         issues.push({paramsBodyOrQuery: queueItem as ReqKey, key: queueItemName, cause: "NO_RULE_SPECIFIED"})
-        return res
-          .status(400)
-          .json({ message: `Invalid ${queueItem} ${queueItemName}` });
+  
       }
       // if there is a validation rule for the queueItemName, validate the queueItemValue against the validation rule
       else {
         const isValid = validate(queueItemValue, validationRule);
         if (!isValid) {
           issues.push({paramsBodyOrQuery: queueItem as ReqKey, key: queueItemName, cause: "FAILED_VALIDATION_AGAINST_RULE"})
-          return res
-            .status(400)
-            .json({ message: `Invalid ${queueItem} ${queueItemName}` });
         }
       }
     });
