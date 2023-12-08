@@ -25,8 +25,8 @@ export function registerLeadGuestRoutes(app: Express, prisma: PrismaClient) {
     const { q, skip, take } = req.query;
 
     // parse the skip and take query params
-    let parsedSkip = skip ? parseInt(skip as string) : 0;
-    let parsedTake = take ? parseInt(take as string) : 10;
+    let parsedSkip = skip ? parseInt(skip as string) : 0 // default to 0 if skip is not provided;
+    let parsedTake = take ? parseInt(take as string) : 10 // default to 10 if take is not provided; 
 
     // if the request has a query string, search for guests that match the query string
     if (q) {
