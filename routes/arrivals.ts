@@ -262,13 +262,22 @@ export function registerCheckInRoutes(app: Express, prisma: PrismaClient) {
         });
       }
 
-      res.status(200).json({ data: updatedThing });
+      return res.status(200).json({ data: updatedThing });
     }
   );
 
   // ****************************************************
 
   app.post(urls.CHECK_IN_MANY_GUESTS, validateProvidedData, loggedIn, async (req, res) => {
+
+    // check that the user is logged in
+    const { user } = req;
+    if (!user) {
+      return res.status(401).json({
+        message: "Unauthorized",
+      });
+    }
+
     // unpack the request body
     const { guests, reverse } = req.body;
 
@@ -309,20 +318,6 @@ export function registerCheckInRoutes(app: Express, prisma: PrismaClient) {
     if (!isValid) {
       return res.status(400).json({
         message: "Bad request - invalid guests data",
-      });
-    }
-
-    if (typeof reverse !== "boolean") {
-      return res.status(400).json({
-        message: "Bad request - invalid datatype for supplied 'reverse' field",
-      });
-    }
-
-    // check that the user is logged in
-    const user = req.user;
-    if (!user) {
-      return res.status(401).json({
-        message: "Unauthorized",
       });
     }
 
@@ -449,7 +444,7 @@ export function registerCheckInRoutes(app: Express, prisma: PrismaClient) {
         }
       }
     );
-
+    
     const [checkedInGuests, checkedInPets, checkedInVehicles] =
       await prisma.$transaction([
         prisma.bookingGuest.updateMany({
@@ -484,7 +479,7 @@ export function registerCheckInRoutes(app: Express, prisma: PrismaClient) {
         }),
       ]);
 
-    res.status(200).json({
+    return res.status(200).json({
       data: {
         guestsUpdated: checkedInGuests,
         petsUpdated: checkedInPets,
