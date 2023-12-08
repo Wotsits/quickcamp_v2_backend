@@ -2,6 +2,8 @@ import { NextFunction, Request, Response } from "express";
 import { validationRulesMap } from "./validationRules.js";
 import { validate } from "./helpers.js";
 
+type ReqKey = "params" | "body" | "query";
+
 /* Herein lies the gatekeeper to the backend.  All requests which pass data via params, body, or query
  * must pass through this middleware.  This middleware will validate the data against the validationRulesMap
  * and return a 400 if the data is invalid.  The validationRulesMap is defined in validationRules.ts and contains
@@ -23,12 +25,12 @@ export function validateProvidedData(
   };
 
   // this array contains the params, body, and query object keys
-  const queue = Object.keys(obj) as ("params" | "query" | "body") [];
+  const queue = Object.keys(obj) as ReqKey[];
 
-  let overallIsValid = true;
+  let issues: {paramsBodyOrQuery: ReqKey, key: string, cause: "NO_RULE_SPECIFIED" | "FAILED_VALIDATION_AGAINST_RULE"}[] = []
 
   // iterate over the queue
-  queue.forEach((queueItem) => {
+  queue.forEach(async (queueItem) => {
     const queueItemNames = obj[queueItem];
     // iterate over the params, body, and query object keys
     queueItemNames.forEach((queueItemName) => {
@@ -37,10 +39,7 @@ export function validateProvidedData(
 
       // if there is no validation rule for the queueItemName, return a 400
       if (!validationRule) {
-        overallIsValid = false;
-        console.warn(
-          `No validation rule found for ${queueItem} ${queueItemName}`
-        );
+        issues.push({paramsBodyOrQuery: queueItem as ReqKey, key: queueItemName, cause: "NO_RULE_SPECIFIED"})
         return res
           .status(400)
           .json({ message: `Invalid ${queueItem} ${queueItemName}` });
@@ -49,10 +48,7 @@ export function validateProvidedData(
       else {
         const isValid = validate(queueItemValue, validationRule);
         if (!isValid) {
-          overallIsValid = false;
-          console.warn(
-            `Supplied data failed validation.  In particular, ${queueItem} ${queueItemName} failed validation.`
-          );
+          issues.push({paramsBodyOrQuery: queueItem as ReqKey, key: queueItemName, cause: "FAILED_VALIDATION_AGAINST_RULE"})
           return res
             .status(400)
             .json({ message: `Invalid ${queueItem} ${queueItemName}` });
@@ -61,7 +57,15 @@ export function validateProvidedData(
     });
   });
 
-  if (overallIsValid) next();
+  // if there are no issues, call next()
+  if (issues.length === 0) next();
+
+  // if there are issues, return a 400
+  else {
+    // print each validation issue to the console
+    issues.forEach(issue => console.warn(`Validation of user input failed.  Issue in ${issue.paramsBodyOrQuery} at key ${issue.key}.  Cause of issue is ${issue.cause}`))
+    return res.status(400).json({ message: `Invalid ${issues[0].paramsBodyOrQuery} ${issues[0].key}` });
+  }
 }
 
 // ----------------

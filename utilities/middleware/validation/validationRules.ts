@@ -125,7 +125,7 @@ export const validationRulesMap: ValidationRules = {
     minLength: 0,
     maxLength: 100,
   },
-  city: {
+  townCity: {
     type: "string",
     minLength: 0,
     maxLength: 100,
@@ -174,7 +174,7 @@ export const validationRulesMap: ValidationRules = {
     type: "string",
     minLength: 0,
     maxLength: 100,
-    validEnum: ["CASH", "CARD"]
+    validEnum: ["CASH", "CARD", "BANK TRANSFER"]
   },
   paymentDate: {
     type: "date",
