@@ -22,36 +22,38 @@ export function registerLeadGuestRoutes(app: Express, prisma: PrismaClient) {
       });
     }
 
+    const { q } = req.query;
+
     // if the request has a query string, search for guests that match the query string
-    if (req.query.q) {
+    if (q) {
       const data = await prisma.leadGuest.findMany({
         where: {
           tenantId: tenantId,
           OR: [
             {
               firstName: {
-                contains: req.query.q as string,
+                contains: q as string,
                 // TODO: When I switch to postgres, I can use the following:
                 // mode: "insensitive",
               },
             },
             {
               lastName: {
-                contains: req.query.q as string,
+                contains: q as string,
                 // TODO: When I switch to postgres, I can use the following:
                 // mode: "insensitive",
               },
             },
             {
               email: {
-                contains: req.query.q as string,
+                contains: q as string,
                 // TODO: When I switch to postgres, I can use the following:
                 // mode: "insensitive",
               },
             },
             {
               tel: {
-                contains: req.query.q as string,
+                contains: q as string,
                 // TODO: When I switch to postgres, I can use the following:
                 // mode: "insensitive",
               },
