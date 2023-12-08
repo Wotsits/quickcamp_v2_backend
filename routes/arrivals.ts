@@ -95,6 +95,15 @@ export function registerCheckInRoutes(app: Express, prisma: PrismaClient) {
     validateProvidedData,
     loggedIn,
     async (req: Request, res: Response) => {
+
+      // check that the user is logged in
+      const { user } = req;
+      if (!user) {
+        return res.status(401).json({
+          message: "Unauthorized",
+        });
+      }
+
       // unpack the request body
       const { id, type, reverse } = req.body;
 
@@ -122,14 +131,6 @@ export function registerCheckInRoutes(app: Express, prisma: PrismaClient) {
         return res.status(400).json({
           message:
             "Bad request - invalid datatype for supplied 'reverse' field",
-        });
-      }
-
-      // check that the user is logged in
-      const user = req.user;
-      if (!user) {
-        return res.status(401).json({
-          message: "Unauthorized",
         });
       }
 
@@ -342,89 +343,89 @@ export function registerCheckInRoutes(app: Express, prisma: PrismaClient) {
     };
 
     // validate each of the guests.
-    guests.forEach(
-      async (guest: { id: number; type: "GUEST" | "PET" | "VEHICLE" }) => {
-        let thing = null;
+    for (const guest of guests) {
+      let thing = null;
+      
+      if (guest.type === "GUEST")
+        thing = await prisma.bookingGuest.findUnique({
+          where: {
+            id: guest.id,
+          },
+          ...reusableIncludeBlock,
+        });
 
-        if (guest.type === "GUEST")
-          thing = await prisma.bookingGuest.findUnique({
-            where: {
-              id: guest.id,
-            },
-            ...reusableIncludeBlock,
-          });
-        if (guest.type === "PET")
-          thing = await prisma.bookingPet.findUnique({
-            where: {
-              id: guest.id,
-            },
-            ...reusableIncludeBlock,
-          });
-        if (guest.type === "VEHICLE")
-          thing = await prisma.bookingVehicle.findUnique({
-            where: {
-              id: guest.id,
-            },
-            ...reusableIncludeBlock,
-          });
+      if (guest.type === "PET")
+        thing = await prisma.bookingPet.findUnique({
+          where: {
+            id: guest.id,
+          },
+          ...reusableIncludeBlock,
+        });
+      
+      if (guest.type === "VEHICLE")
+        thing = await prisma.bookingVehicle.findUnique({
+          where: {
+            id: guest.id,
+          },
+          ...reusableIncludeBlock,
+        });
+      
+      // check that the guest exists
+      if (!thing || thing === null) {
+        return res.status(404).json({
+          message: "Not found",
+        });
+      }
 
-        // check that the guest exists
-        if (!thing || thing === null) {
-          return res.status(404).json({
-            message: "Not found",
-          });
-        }
+      // check that the user has access to the siteId for which the guest is being checked in
+      const userSites = user.sites;
+      const targetSite = userSites.find(
+        (site) => site.id === thing!.booking.unit.unitType.site.id
+      );
 
-        // check that the user has access to the siteId for which the guest is being checked in
-        const userSites = user.sites;
-        const targetSite = userSites.find(
-          (site) => site.id === thing!.booking.unit.unitType.site.id
-        );
+      if (!targetSite) {
+        return res.status(403).json({
+          message: "Forbidden",
+        });
+      }
 
-        if (!targetSite) {
-          return res.status(403).json({
-            message: "Forbidden",
-          });
-        }
-
-        if (!reverse) {
-          // check that the guest is not already checked in
-          if (thing.checkedIn) {
-            return res.status(400).json({
-              message: "Bad request - guest already checked in",
-            });
-          }
-        } else {
-          // check that the guest is already checked in
-          if (!thing.checkedIn) {
-            return res.status(400).json({
-              message: "Bad request - guest not checked in",
-            });
-          }
-        }
-
-        // check that the guest is not already checked out
-        if (thing.checkedOut) {
+      if (!reverse) {
+        // check that the guest is not already checked in
+        if (thing.checkedIn) {
           return res.status(400).json({
-            message: "Bad request - guest already checked out",
+            message: "Bad request - guest already checked in",
           });
         }
-
-        // check that the guest is due to check in
-        if (!isGuestDue(thing)) {
+      } else {
+        // check that the guest is already checked in
+        if (!thing.checkedIn) {
           return res.status(400).json({
-            message: "Bad request - guest not due",
-          });
-        }
-
-        // check that the booking is not cancelled
-        if (thing.booking.status !== "CONFIRMED") {
-          return res.status(400).json({
-            message: "Bad request - booking cancelled",
+            message: "Bad request - guest not checked in",
           });
         }
       }
-    );
+
+      // check that the guest is not already checked out
+      if (thing.checkedOut) {
+        return res.status(400).json({
+          message: "Bad request - guest already checked out",
+        });
+      }
+
+      // check that the guest is due to check in
+      if (!isGuestDue(thing)) {
+        return res.status(400).json({
+          message: "Bad request - guest not due",
+        });
+      }
+
+      // check that the booking is not cancelled
+      if (thing.booking.status !== "CONFIRMED") {
+        return res.status(400).json({
+          message: "Bad request - booking cancelled",
+        });
+      }
+    }
 
     let now = new Date();
     let guestsToUpdate: number[] = [];

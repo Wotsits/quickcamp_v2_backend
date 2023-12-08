@@ -35,10 +35,10 @@ export function validateProvidedData(
   }[] = [];
 
   // iterate over the queue
-  queue.forEach(async (queueItem) => {
+  for (const queueItem of queue) {
     const queueItemNames = obj[queueItem];
     // iterate over the params, body, and query object keys
-    queueItemNames.forEach((queueItemName) => {
+    for (const queueItemName of queueItemNames) {
       const validationRule = validationRulesMap[queueItemName];
       const queueItemValue = req[queueItem][queueItemName];
 
@@ -63,8 +63,8 @@ export function validateProvidedData(
           });
         }
       }
-    });
-  });
+    };
+  };
 
   // if there are no issues, call next()
   if (issues.length === 0) next();

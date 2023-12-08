@@ -110,7 +110,6 @@ export function registerCheckOutRoutes(app: Express, prisma: PrismaClient) {
     validateProvidedData,
     loggedIn,
     async (req: Request, res: Response) => {
-
       // check that the user is logged in
       const { user } = req;
       if (!user) {
@@ -263,88 +262,91 @@ export function registerCheckOutRoutes(app: Express, prisma: PrismaClient) {
 
   // ****************************************************
 
-  app.post(urls.CHECK_OUT_MANY_GUESTS, validateProvidedData, loggedIn, async (req, res) => {
-    
-    // check that the user is logged in
-    const { user } = req;
-    if (!user) {
-      return res.status(401).json({
-        message: "Unauthorized",
-      });
-    }
-
-    // unpack the request body
-    const { guests, reverse } = req.body;
-
-    // check that the required data is present
-    if (!guests) {
-      const requiredData = {
-        guests,
-      };
-      raiseConsoleErrorWithListOfMissingData(requiredData);
-      return res.status(400).json({
-        message: "Bad request - missing guests to check in",
-      });
-    }
-
-    // check that the guests data is valid
-    let isValid = true;
-    for (let i = 0; i < guests.length; i++) {
-      const guest = guests[i];
-      if (!guest.id || !guest.type) {
-        isValid = false;
-        break;
+  app.post(
+    urls.CHECK_OUT_MANY_GUESTS,
+    validateProvidedData,
+    loggedIn,
+    async (req, res) => {
+      // check that the user is logged in
+      const { user } = req;
+      if (!user) {
+        return res.status(401).json({
+          message: "Unauthorized",
+        });
       }
-      try {
-        parseInt(guest.id);
-      } catch (err) {
-        isValid = false;
-        break;
+
+      // unpack the request body
+      const { guests, reverse } = req.body;
+
+      // check that the required data is present
+      if (!guests) {
+        const requiredData = {
+          guests,
+        };
+        raiseConsoleErrorWithListOfMissingData(requiredData);
+        return res.status(400).json({
+          message: "Bad request - missing guests to check in",
+        });
       }
-      if (
-        guest.type !== "GUEST" &&
-        guest.type !== "PET" &&
-        guest.type !== "VEHICLE"
-      ) {
-        isValid = false;
-        break;
+
+      // check that the guests data is valid
+      let isValid = true;
+      for (let i = 0; i < guests.length; i++) {
+        const guest = guests[i];
+        if (!guest.id || !guest.type) {
+          isValid = false;
+          break;
+        }
+        try {
+          parseInt(guest.id);
+        } catch (err) {
+          isValid = false;
+          break;
+        }
+        if (
+          guest.type !== "GUEST" &&
+          guest.type !== "PET" &&
+          guest.type !== "VEHICLE"
+        ) {
+          isValid = false;
+          break;
+        }
       }
-    }
-    if (!isValid) {
-      return res.status(400).json({
-        message: "Bad request - invalid guests data",
-      });
-    }
+      if (!isValid) {
+        return res.status(400).json({
+          message: "Bad request - invalid guests data",
+        });
+      }
 
-    if (typeof reverse !== "boolean") {
-      return res.status(400).json({
-        message: "Bad request - invalid datatype for supplied 'reverse' field",
-      });
-    }
+      if (typeof reverse !== "boolean") {
+        return res.status(400).json({
+          message:
+            "Bad request - invalid datatype for supplied 'reverse' field",
+        });
+      }
 
-    // check that the user has access to the siteId for which the guest is being checked in
+      // check that the user has access to the siteId for which the guest is being checked in
 
-    const reusableIncludeBlock = {
-      include: {
-        booking: {
-          include: {
-            unit: {
-              include: {
-                unitType: {
-                  include: {
-                    site: true,
+      const reusableIncludeBlock = {
+        include: {
+          booking: {
+            include: {
+              unit: {
+                include: {
+                  unitType: {
+                    include: {
+                      site: true,
+                    },
                   },
                 },
               },
             },
           },
         },
-      },
-    };
+      };
 
-    // validate each of the guests.
-    guests.forEach(
-      async (guest: { id: number; type: "GUEST" | "PET" | "VEHICLE" }) => {
+      // validate each of the guests.
+      for (const guest of guests) {
         let thing = null;
 
         if (guest.type === "GUEST")
@@ -418,67 +420,67 @@ export function registerCheckOutRoutes(app: Express, prisma: PrismaClient) {
           });
         }
       }
-    );
 
-    let now = new Date();
-    let guestsToUpdate: number[] = [];
-    let petsToUpdate: number[] = [];
-    let vehiclesToUpdate: number[] = [];
+      let now = new Date();
+      let guestsToUpdate: number[] = [];
+      let petsToUpdate: number[] = [];
+      let vehiclesToUpdate: number[] = [];
 
-    guests.forEach(
-      (guest: { id: number; type: "GUEST" | "PET" | "VEHICLE" }) => {
-        if (guest.type === "GUEST") {
-          guestsToUpdate.push(guest.id);
+      guests.forEach(
+        (guest: { id: number; type: "GUEST" | "PET" | "VEHICLE" }) => {
+          if (guest.type === "GUEST") {
+            guestsToUpdate.push(guest.id);
+          }
+          if (guest.type === "PET") {
+            petsToUpdate.push(guest.id);
+          }
+          if (guest.type === "VEHICLE") {
+            vehiclesToUpdate.push(guest.id);
+          }
         }
-        if (guest.type === "PET") {
-          petsToUpdate.push(guest.id);
-        }
-        if (guest.type === "VEHICLE") {
-          vehiclesToUpdate.push(guest.id);
-        }
-      }
-    );
+      );
 
-    const [checkedOutGuests, checkedOutPets, checkedOutVehicles] =
-      await prisma.$transaction([
-        prisma.bookingGuest.updateMany({
-          where: {
-            id: {
-              in: guestsToUpdate,
+      const [checkedOutGuests, checkedOutPets, checkedOutVehicles] =
+        await prisma.$transaction([
+          prisma.bookingGuest.updateMany({
+            where: {
+              id: {
+                in: guestsToUpdate,
+              },
             },
-          },
-          data: {
-            checkedOut: !reverse ? now : null,
-          },
-        }),
-        prisma.bookingPet.updateMany({
-          where: {
-            id: {
-              in: petsToUpdate,
+            data: {
+              checkedOut: !reverse ? now : null,
             },
-          },
-          data: {
-            checkedOut: !reverse ? now : null,
-          },
-        }),
-        prisma.bookingVehicle.updateMany({
-          where: {
-            id: {
-              in: vehiclesToUpdate,
+          }),
+          prisma.bookingPet.updateMany({
+            where: {
+              id: {
+                in: petsToUpdate,
+              },
             },
-          },
-          data: {
-            checkedOut: !reverse ? now : null,
-          },
-        }),
-      ]);
+            data: {
+              checkedOut: !reverse ? now : null,
+            },
+          }),
+          prisma.bookingVehicle.updateMany({
+            where: {
+              id: {
+                in: vehiclesToUpdate,
+              },
+            },
+            data: {
+              checkedOut: !reverse ? now : null,
+            },
+          }),
+        ]);
 
-    return res.status(200).json({
-      data: {
-        guestsUpdated: checkedOutGuests,
-        petsUpdated: checkedOutPets,
-        vehiclesUpdated: checkedOutVehicles,
-      },
-    });
-  });
+      return res.status(200).json({
+        data: {
+          guestsUpdated: checkedOutGuests,
+          petsUpdated: checkedOutPets,
+          vehiclesUpdated: checkedOutVehicles,
+        },
+      });
+    }
+  );
 }
