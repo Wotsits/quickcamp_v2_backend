@@ -17,7 +17,7 @@ export function validate(paramValue: any, validationRule: ValidationRule) {
     }
   
     if (type === "boolean") {
-      return paramValue === true || paramValue === false;
+      return paramValue === true || paramValue === false || paramValue === "true" || paramValue === "false";
     }
   
     if (type === "string") {
