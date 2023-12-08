@@ -27,7 +27,12 @@ export function validateProvidedData(
   // this array contains the params, body, and query object keys
   const queue = Object.keys(obj) as ReqKey[];
 
-  let issues: {paramsBodyOrQuery: ReqKey, key: string, cause: "NO_RULE_SPECIFIED" | "FAILED_VALIDATION_AGAINST_RULE"}[] = []
+  let issues: {
+    paramsBodyOrQuery: ReqKey;
+    key: string;
+    value: any;
+    cause: "NO_RULE_SPECIFIED" | "FAILED_VALIDATION_AGAINST_RULE";
+  }[] = [];
 
   // iterate over the queue
   queue.forEach(async (queueItem) => {
@@ -39,14 +44,23 @@ export function validateProvidedData(
 
       // if there is no validation rule for the queueItemName, return a 400
       if (!validationRule) {
-        issues.push({paramsBodyOrQuery: queueItem as ReqKey, key: queueItemName, cause: "NO_RULE_SPECIFIED"})
-  
+        issues.push({
+          paramsBodyOrQuery: queueItem as ReqKey,
+          key: queueItemName,
+          value: queueItemValue,
+          cause: "NO_RULE_SPECIFIED",
+        });
       }
       // if there is a validation rule for the queueItemName, validate the queueItemValue against the validation rule
       else {
         const isValid = validate(queueItemValue, validationRule);
         if (!isValid) {
-          issues.push({paramsBodyOrQuery: queueItem as ReqKey, key: queueItemName, cause: "FAILED_VALIDATION_AGAINST_RULE"})
+          issues.push({
+            paramsBodyOrQuery: queueItem as ReqKey,
+            key: queueItemName,
+            value: queueItemValue,
+            cause: "FAILED_VALIDATION_AGAINST_RULE",
+          });
         }
       }
     });
@@ -54,12 +68,19 @@ export function validateProvidedData(
 
   // if there are no issues, call next()
   if (issues.length === 0) next();
-
   // if there are issues, return a 400
   else {
     // print each validation issue to the console
-    issues.forEach(issue => console.warn(`Validation of user input failed.  Issue in ${issue.paramsBodyOrQuery} at key ${issue.key}.  Cause of issue is ${issue.cause}`))
-    return res.status(400).json({ message: `Invalid ${issues[0].paramsBodyOrQuery} ${issues[0].key}` });
+    issues.forEach(({ paramsBodyOrQuery, key, value, cause }) =>
+      console.warn(
+        `Validation of user input failed.  Issue in ${paramsBodyOrQuery} at key ${key}.  Cause of issue is ${cause}.  The supplied value was: ${value}`
+      )
+    );
+    return res
+      .status(400)
+      .json({
+        message: `Invalid ${issues[0].paramsBodyOrQuery} ${issues[0].key}`,
+      });
   }
 }
 

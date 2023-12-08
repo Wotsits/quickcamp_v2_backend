@@ -17,9 +17,7 @@ export function validate(paramValue: any, validationRule: ValidationRule) {
     }
   
     if (type === "boolean") {
-      if (paramValue !== "true" && paramValue !== "false") {
-        return false;
-      }
+      return paramValue === true || paramValue === false;
     }
   
     if (type === "string") {
