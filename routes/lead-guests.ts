@@ -22,11 +22,47 @@ export function registerLeadGuestRoutes(app: Express, prisma: PrismaClient) {
       });
     }
 
-    const { q, skip, take } = req.query;
+    const { q, id, skip, take } = req.query;
 
     // parse the skip and take query params
     let parsedSkip = skip ? parseInt(skip as string) : 0 // default to 0 if skip is not provided;
     let parsedTake = take ? parseInt(take as string) : 10 // default to 10 if take is not provided; 
+    let parsedId = id ? parseInt(id as string) : -1 // default to -1 if id is not provided;
+
+    // if the request has an id string, search for the guest that matches the id
+    if (id) {
+      const data = await prisma.leadGuest.findUnique({
+        where: {
+          id: parsedId,
+        },
+        include: {
+          tenant: true, 
+          bookings: {
+            include: {
+              unit: {
+                include: {
+                  unitType: true,
+                }
+              },
+            }
+          }
+        }
+      });
+      // if the guest is not found, return a 404
+      if (!data) {
+        return res.status(404).json({
+          message: "Lead guest not found",
+        });
+      }
+      // if the guest is found, check that the guest belongs to the tenant
+      if (data.tenantId !== tenantId) {
+        return res.status(401).json({
+          message: "Unauthorized",
+        });
+      }
+      // if the guest belongs to the tenant, return the guest
+      return res.status(200).json({ data });
+    }
 
     // if the request has a query string, search for guests that match the query string
     if (q) {
