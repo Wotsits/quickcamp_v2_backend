@@ -37,8 +37,18 @@ export function registerLeadGuestRoutes(app: Express, prisma: PrismaClient) {
         },
         include: {
           tenant: true, 
-          notes: true,
+          notes: {
+            orderBy: {
+              id: "desc"
+            },
+            include: {
+              user: true
+            }
+          },
           bookings: {
+            orderBy: {
+              id: "desc"
+            },
             include: {
               unit: {
                 include: {
