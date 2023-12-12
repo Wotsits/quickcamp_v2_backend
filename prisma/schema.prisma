@@ -36,7 +36,8 @@ model User {
   tenant          Tenant    @relation(fields: [tenantId], references: [id])
   tenantId        Int
   email           String    @unique
-  roles           Role[]             
+  roles           Role[]  
+  notes           Note[]           
 }
 
 model Role {
@@ -47,15 +48,15 @@ model Role {
 }
 
 model UnitType {
-    id            Int       @id @default(autoincrement())
-    name          String  
-    description   String
-    site          Site      @relation(fields:[siteId], references: [id])       
-    siteId        Int
-    units         Unit[]
-    equipmentTypes  EquipmentType[]
-    extraTypes      ExtraType[]
-    unitTypeFeesCalendarEntries UnitTypeFeesCalendar[]
+  id                          Int       @id @default(autoincrement())
+  name                        String  
+  description                 String
+  site                        Site      @relation(fields:[siteId], references: [id])       
+  siteId                      Int
+  units                       Unit[]
+  equipmentTypes              EquipmentType[]
+  extraTypes                  ExtraType[]
+  unitTypeFeesCalendarEntries UnitTypeFeesCalendar[]
 }
 
 model Unit {
@@ -83,6 +84,7 @@ model LeadGuest {
   tenant        Tenant    @relation(fields: [tenantId], references: [id])
   tenantId      Int
   bookings      Booking[]
+  notes         Note[]
 }
 
 model GuestType {
@@ -133,6 +135,7 @@ model Booking {
   extras            ExtraType[]
   calendarEntries   Calendar[]
   status            String
+  notes             Note[]
 }
 
 model Calendar {
@@ -155,6 +158,7 @@ model BookingGuest {
   end           DateTime
   checkedIn     DateTime?
   checkedOut    DateTime?
+  notes         Note[]
 }
 
 model BookingVehicle {
@@ -167,6 +171,7 @@ model BookingVehicle {
   checkedIn     DateTime?
   checkedOut    DateTime?
   expectedArrival  String?
+  notes         Note[]
 }
 
 model BookingPet {
@@ -178,6 +183,7 @@ model BookingPet {
   end           DateTime
   checkedIn     DateTime?
   checkedOut    DateTime?
+  notes         Note[]
 }
 
 model UnitTypeFeesCalendar {
@@ -228,8 +234,30 @@ model Payment {
   bookingId     Int         
   paymentAmount Float
   paymentMethod String
+  Notes         Note[]
 }
 
 model Token {
   id         String    @id @unique
+}
+
+model Note {
+  id                Int             @id @default(autoincrement())
+  content           String    
+  leadGuestId       Int?
+  leadGuest         LeadGuest?      @relation(fields: [leadGuestId], references: [id])
+  bookingId         Int?
+  booking           Booking?        @relation(fields: [bookingId], references: [id])
+  paymentId         Int?
+  payment           Payment?        @relation(fields: [paymentId], references: [id])
+  bookingGuestId    Int?
+  bookingGuest      BookingGuest?   @relation(fields: [bookingGuestId], references: [id])
+  bookingPetId      Int?
+  bookingPet        BookingPet?     @relation(fields: [bookingPetId], references: [id])
+  bookingVehicleId  Int?        
+  bookingVehicle    BookingVehicle?   @relation(fields: [bookingVehicleId], references: [id])
+  createdOn         DateTime
+  userId            Int     
+  user              User            @relation(fields: [userId], references: [id])
+  noteType          String  
 }
