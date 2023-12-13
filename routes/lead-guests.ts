@@ -215,6 +215,27 @@ export function registerLeadGuestRoutes(app: Express, prisma: PrismaClient) {
 
       const parsedId = parseInt(id);
 
+      const existingLeadGuest = await prisma.leadGuest.findFirst(
+        {
+          where: {
+            id: parsedId
+          }
+        }
+      )
+
+      if (!existingLeadGuest) {
+        return res.status(404).json({
+          message: "Lead guest not found",
+        });
+      }
+
+      // check that the user has access to the guest
+      if (existingLeadGuest.tenantId !== tenantId) {
+        return res.status(401).json({
+          message: "Unauthorized",
+        });
+      }
+
       const updatedLeadGuest = await prisma.leadGuest.update({
         where: {
           id: parsedId,
