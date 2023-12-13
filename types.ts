@@ -156,6 +156,7 @@ export type UserResponse = {
   tenantId: number;
   token: string;
   username: string;
+  id: number;
 };
 
 export type FeeCalcResponse = {

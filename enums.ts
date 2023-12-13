@@ -30,5 +30,6 @@ export const urls: { [key: string]: string } = {
   ON_SITE: "/total-on-site",
   UPDATE_BOOKING_LEAD_GUEST_EXISTING: "/update-booking-lead-guest-existing",
   UPDATE_BOOKING_LEAD_GUEST_NEW: "/update-booking-lead-guest-new",
-  UPDATE_LEAD_GUEST: "/update-lead-guest"
+  UPDATE_LEAD_GUEST: "/update-lead-guest",
+  NEW_NOTE: "/new-note",
 };

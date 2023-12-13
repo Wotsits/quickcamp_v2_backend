@@ -213,4 +213,34 @@ export const validationRulesMap: ValidationRules = {
     minLength: 0,
     maxLength: 100,
   },
+  bookingId: {
+    type: "number",
+    min: 0,
+  },
+  paymentId: {
+    type: "number",
+    min: 0,
+  },
+  bookingGuestId: {
+    type: "number",
+    min: 0,
+  },
+  bookingPetId: {
+    type: "number",
+    min: 0,
+  },
+  bookingVehicleId: {
+    type: "number",
+    min: 0,
+  },
+  content: {
+    type: "string",
+    minLength: 0,
+    maxLength: 5000,
+  },
+  noteType: {
+    type: "string",
+    minLength: 0,
+    validEnum: ["PUBLIC", "PRIVATE"],
+  }
 };
