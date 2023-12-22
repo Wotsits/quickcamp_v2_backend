@@ -87,7 +87,8 @@ async function readCsvFileToJson(fileName: string, notification: string) {
           userId: data.userId && parseInt(data.userId),
           siteId: data.siteId && parseInt(data.siteId),
           unitTypeId: data.unitTypeId && parseInt(data.unitTypeId),
-
+          latitude: data.latitude && parseFloat(data.latitude),
+          longitude: data.longitude && parseFloat(data.longitude),
         });
       })
       .on("error", (err) => {

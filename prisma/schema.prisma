@@ -21,6 +21,18 @@ model Tenant {
 model Site {
   id              Int       @id @default(autoincrement())
   name            String  
+  description     String
+  address1        String
+  address2        String?
+  townCity        String
+  county          String
+  postcode        String
+  country         String
+  tel             String
+  email           String
+  website         String
+  latitude        Float
+  longitude       Float
   tenant          Tenant    @relation(fields: [tenantId], references: [id])
   tenantId        Int
   unitTypes       UnitType[]

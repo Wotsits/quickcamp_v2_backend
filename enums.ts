@@ -32,4 +32,5 @@ export const urls: { [key: string]: string } = {
   UPDATE_BOOKING_LEAD_GUEST_NEW: "/update-booking-lead-guest-new",
   UPDATE_LEAD_GUEST: "/update-lead-guest",
   NEW_NOTE: "/new-note",
+  NEW_SITE: "/new-site",
 };

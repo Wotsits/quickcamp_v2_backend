@@ -242,5 +242,25 @@ export const validationRulesMap: ValidationRules = {
     type: "string",
     minLength: 0,
     validEnum: ["PUBLIC", "PRIVATE"],
-  }
+  },
+  description: {
+    type: "string",
+    minLength: 0,
+    maxLength: 500,
+  },
+  website: {
+    type: "string",
+    minLength: 0,
+    maxLength: 100,
+  },
+  latitude: {
+    type: "number",
+    min: -90,
+    max: 90,
+  },
+  longitude: {
+    type: "number",
+    min: -180,
+    max: 180,
+  },
 };
