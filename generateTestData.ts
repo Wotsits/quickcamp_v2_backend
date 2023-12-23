@@ -21,6 +21,7 @@ import {
   PetFeesCalendar,
   VehicleFeesCalendar,
   ExtraFeesCalendar,
+  UnitTypeFeesCalendar,
 } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import fs, { read } from "fs";
@@ -80,16 +81,18 @@ async function readCsvFileToJson(fileName: string, notification: string) {
     fs.createReadStream(fileName)
       .pipe(csvParser())
       .on("data", async (data) => {
-        arr.push(await {
-          ...data,
-          id: parseInt(data.id),
-          tenantId: data.tenantId && parseInt(data.tenantId),
-          userId: data.userId && parseInt(data.userId),
-          siteId: data.siteId && parseInt(data.siteId),
-          unitTypeId: data.unitTypeId && parseInt(data.unitTypeId),
-          latitude: data.latitude && parseFloat(data.latitude),
-          longitude: data.longitude && parseFloat(data.longitude),
-        });
+        arr.push(
+          await {
+            ...data,
+            id: parseInt(data.id),
+            tenantId: data.tenantId && parseInt(data.tenantId),
+            userId: data.userId && parseInt(data.userId),
+            siteId: data.siteId && parseInt(data.siteId),
+            unitTypeId: data.unitTypeId && parseInt(data.unitTypeId),
+            latitude: data.latitude && parseFloat(data.latitude),
+            longitude: data.longitude && parseFloat(data.longitude),
+          }
+        );
       })
       .on("error", (err) => {
         console.log(err);
@@ -141,47 +144,50 @@ async function main() {
 
   // built stock data
 
-  const tenants: Tenant[] = await readCsvFileToJson(
+  const tenants: Tenant[] = (await readCsvFileToJson(
     "./mockData/tenants.csv",
     "Tenants Built"
-  ) as Tenant[];
+  )) as Tenant[];
 
-  const sites: Site[] = await readCsvFileToJson(
+  const sites: Site[] = (await readCsvFileToJson(
     "./mockData/sites.csv",
     "Sites Built"
-  ) as Site[];
+  )) as Site[];
 
-  const users: User[] = await readUsersCSVFileToJson(
+  const users: User[] = (await readUsersCSVFileToJson(
     "./mockData/users.csv",
     "Users Built"
-  ) as User[];
+  )) as User[];
 
-  const roles = await readCsvFileToJson("./mockData/roles.csv", "Roles Built") as Role[];
+  const roles = (await readCsvFileToJson(
+    "./mockData/roles.csv",
+    "Roles Built"
+  )) as Role[];
 
-  const unitTypes = await readCsvFileToJson(
+  const unitTypes = (await readCsvFileToJson(
     "./mockData/unitTypes.csv",
     "Unit Types Built"
-  ) as UnitType[];
+  )) as UnitType[];
 
-  const units: Unit[] = await readCsvFileToJson(
+  const units: Unit[] = (await readCsvFileToJson(
     "./mockData/units.csv",
     "Units Built"
-  ) as Unit[];
+  )) as Unit[];
 
-  const guestTypes: GuestType[] = await readCsvFileToJson(
+  const guestTypes: GuestType[] = (await readCsvFileToJson(
     "./mockData/guestTypes.csv",
     "Guest Types Built"
-  ) as GuestType[];
+  )) as GuestType[];
 
-  const equipmentTypes: EquipmentType[] = await readCsvFileToJson(
+  const equipmentTypes: EquipmentType[] = (await readCsvFileToJson(
     "./mockData/equipmentTypes.csv",
     "Equipment Types Built"
-  ) as EquipmentType[];
+  )) as EquipmentType[];
 
-  const extraTypes: ExtraType[] = await readCsvFileToJson(
+  const extraTypes: ExtraType[] = (await readCsvFileToJson(
     "./mockData/extraTypes.csv",
     "Extra Types Built"
-  ) as ExtraType[];
+  )) as ExtraType[];
 
   // build calendarTable
   const calendarTable: Calendar[] = [];
@@ -224,19 +230,19 @@ async function main() {
   console.log("Lead Guests built");
 
   //build fees
+  const unitTypeFeesCalendar: UnitTypeFeesCalendar[] = [];
   const feesCalendar: GuestFeesCalendar[] = [];
   const petFeesCalendar: PetFeesCalendar[] = [];
   const vehicleFeesCalendar: VehicleFeesCalendar[] = [];
   const extraFeesCalendar: ExtraFeesCalendar[] = [];
 
   let counter = 1;
-
   dates.forEach((date) => {
-    guestTypes.forEach((guestType) => {
-      feesCalendar.push({
+    unitTypes.forEach((unitType) => {
+      unitTypeFeesCalendar.push({
         id: counter,
         date,
-        guestTypeId: guestType.id,
+        unitTypeId: unitType.id,
         feePerNight: 10,
         feePerStay: 0,
       });
@@ -247,25 +253,67 @@ async function main() {
   counter = 1;
 
   dates.forEach((date) => {
-    petFeesCalendar.push({
-      id: counter,
-      date,
-      feePerNight: 5,
-      feePerStay: 0,
+    guestTypes.forEach((guestType) => {
+      unitTypes.forEach((unitType) => {
+        feesCalendar.push({
+          id: counter,
+          date,
+          guestTypeId: guestType.id,
+          unitTypeId: unitType.id,
+          feePerNight: 10,
+          feePerStay: 0,
+        });
+        counter++;
+      });
     });
-    counter++;
   });
 
   counter = 1;
 
   dates.forEach((date) => {
-    vehicleFeesCalendar.push({
-      id: counter,
-      date,
-      feePerNight: 5,
-      feePerStay: 0,
+    unitTypes.forEach((unitType) => {
+      petFeesCalendar.push({
+        id: counter,
+        date,
+        unitTypeId: unitType.id,
+        feePerNight: 5,
+        feePerStay: 0,
+      });
+      counter++;
     });
-    counter++;
+  });
+
+  counter = 1;
+
+  dates.forEach((date) => {
+    unitTypes.forEach((unitType) => {
+      vehicleFeesCalendar.push({
+        id: counter,
+        date,
+        unitTypeId: unitType.id,
+        feePerNight: 5,
+        feePerStay: 0,
+      });
+      counter++;
+    });
+  });
+
+  counter = 1;
+
+  dates.forEach((date) => {
+    unitTypes.forEach((unitType) => {
+      extraTypes.forEach((extraType) => {
+        extraFeesCalendar.push({
+          id: counter,
+          date,
+          extraTypeId: extraType.id,
+          unitTypeId: unitType.id,
+          feePerNight: 5,
+          feePerStay: 0,
+        });
+        counter++;
+      });
+    });
   });
 
   console.log("Fee calendars built");
@@ -298,7 +346,7 @@ async function main() {
       unitId: randomUnitId,
       totalFee: 100,
       leadGuestId: randomGuestId,
-      status: "CONFIRMED"
+      status: "CONFIRMED",
     };
 
     bookings.push(newBooking);
@@ -340,7 +388,10 @@ async function main() {
     for (let i = 1; i <= randomVehicleNo; i++) {
       const expectedArrivalHour = Math.floor(Math.random() * 24);
       const expectedArrivalMinute = 0;
-      const expectedArrivalTime = expectedArrivalHour.toString().padStart(2, "0") + ":" + expectedArrivalMinute.toString().padStart(2, "0");
+      const expectedArrivalTime =
+        expectedArrivalHour.toString().padStart(2, "0") +
+        ":" +
+        expectedArrivalMinute.toString().padStart(2, "0");
       const newMap = {
         id: vehicleId,
         bookingId: booking.id,
@@ -446,6 +497,12 @@ async function main() {
     });
   }
   console.log("Lead Guests created");
+  for await (let unitTypeFee of unitTypeFeesCalendar) {
+    await prisma.unitTypeFeesCalendar.create({
+      data: unitTypeFee,
+    });
+  }
+  console.log("Unit Type Fees created");
   for await (let guestType of guestTypes) {
     await prisma.guestType.create({
       data: guestType,

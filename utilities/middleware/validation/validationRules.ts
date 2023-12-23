@@ -263,4 +263,7 @@ export const validationRulesMap: ValidationRules = {
     min: -180,
     max: 180,
   },
+  includeRates: {
+    type: "boolean",
+  },
 };

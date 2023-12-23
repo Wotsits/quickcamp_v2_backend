@@ -69,6 +69,10 @@ model UnitType {
   equipmentTypes              EquipmentType[]
   extraTypes                  ExtraType[]
   unitTypeFeesCalendarEntries UnitTypeFeesCalendar[]
+  guestFeesCalendarEntries    GuestFeesCalendar[]
+  petFeesCalendarEntries      PetFeesCalendar[]
+  vehicleFeesCalendarEntries  VehicleFeesCalendar[]
+  extraFeesCalendarEntries    ExtraFeesCalendar[]
 }
 
 model Unit {
@@ -212,6 +216,8 @@ model GuestFeesCalendar {
   date            DateTime
   guestType       GuestType @relation(fields: [guestTypeId], references: [id])
   guestTypeId     Int
+  unitType        UnitType  @relation(fields: [unitTypeId], references: [id])
+  unitTypeId      Int
   feePerNight     Float
   feePerStay      Float     
 }
@@ -219,6 +225,8 @@ model GuestFeesCalendar {
 model PetFeesCalendar {
   id              Int       @id @default(autoincrement())
   date            DateTime
+  unitType        UnitType  @relation(fields: [unitTypeId], references: [id])
+  unitTypeId      Int
   feePerNight     Float
   feePerStay      Float     
 }
@@ -226,6 +234,8 @@ model PetFeesCalendar {
 model VehicleFeesCalendar {
   id              Int       @id @default(autoincrement())
   date            DateTime
+  unitType        UnitType  @relation(fields: [unitTypeId], references: [id])
+  unitTypeId      Int
   feePerNight     Float
   feePerStay      Float  
 }
@@ -235,6 +245,8 @@ model ExtraFeesCalendar {
   date            DateTime
   extraType       ExtraType @relation(fields: [extraTypeId], references: [id])
   extraTypeId     Int
+  unitType        UnitType  @relation(fields: [unitTypeId], references: [id])
+  unitTypeId      Int
   feePerNight     Float
   feePerStay      Float     
 }
