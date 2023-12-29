@@ -231,7 +231,7 @@ async function main() {
 
   //build fees
   const unitTypeFeesCalendar: UnitTypeFeesCalendar[] = [];
-  const feesCalendar: GuestFeesCalendar[] = [];
+  const guestTypeFeesCalendar: GuestFeesCalendar[] = [];
   const petFeesCalendar: PetFeesCalendar[] = [];
   const vehicleFeesCalendar: VehicleFeesCalendar[] = [];
   const extraFeesCalendar: ExtraFeesCalendar[] = [];
@@ -253,19 +253,23 @@ async function main() {
   counter = 1;
 
   dates.forEach((date) => {
-    guestTypes.forEach((guestType) => {
-      unitTypes.forEach((unitType) => {
-        feesCalendar.push({
-          id: counter,
-          date,
-          guestTypeId: guestType.id,
-          unitTypeId: unitType.id,
-          feePerNight: 10,
-          feePerStay: 0,
+    sites.forEach(site => {
+      const guestTypesForSite = guestTypes.filter(guestType => guestType.siteId === site.id);
+      const unitTypesForSite = unitTypes.filter(unitType => unitType.siteId === site.id);
+      guestTypesForSite.forEach((guestType) => {
+        unitTypesForSite.forEach((unitType) => {
+          guestTypeFeesCalendar.push({
+            id: counter,
+            date,
+            guestTypeId: guestType.id,
+            unitTypeId: unitType.id,
+            feePerNight: 10,
+            feePerStay: 0,
+          });
+          counter++;
         });
-        counter++;
-      });
-    });
+      })
+    })
   });
 
   counter = 1;
@@ -518,7 +522,7 @@ async function main() {
     });
   }
   console.log("Extra Types created");
-  for await (let fees of feesCalendar) {
+  for await (let fees of guestTypeFeesCalendar) {
     await prisma.guestFeesCalendar.create({
       data: fees,
     });

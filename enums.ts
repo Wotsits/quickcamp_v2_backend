@@ -33,4 +33,5 @@ export const urls: { [key: string]: string } = {
   UPDATE_LEAD_GUEST: "/update-lead-guest",
   NEW_NOTE: "/new-note",
   NEW_SITE: "/new-site",
+  UPDATE_RATES: "/update-rates",
 };

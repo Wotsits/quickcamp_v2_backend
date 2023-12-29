@@ -22,6 +22,7 @@ import { registerUserRoutes } from "./users.js";
 import { registerCheckOutRoutes, registerDeparturesRoutes } from "./departures.js";
 import { registerStatsRoutes } from "./stats.js";
 import { registerNoteRoutes } from "./notes.js";
+import { registerRatesRoutes } from "./rates.js";
 
 export function routesInit(app: Express, prisma: PrismaClient) {
   registerRegisterRoute(app, prisma);
@@ -46,4 +47,5 @@ export function routesInit(app: Express, prisma: PrismaClient) {
   registerUserRoutes(app, prisma);
   registerStatsRoutes(app, prisma);
   registerNoteRoutes(app, prisma);
+  registerRatesRoutes(app, prisma);
 }

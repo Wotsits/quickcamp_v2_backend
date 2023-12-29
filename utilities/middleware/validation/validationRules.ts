@@ -266,4 +266,8 @@ export const validationRulesMap: ValidationRules = {
   includeRates: {
     type: "boolean",
   },
+  changedItems: {
+    type: "array",
+    minLength: 1,
+  },
 };
