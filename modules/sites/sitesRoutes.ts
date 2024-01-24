@@ -1,10 +1,10 @@
-import { Express, Request, Response } from "express";
+import { Request, Response } from "express";
 import { urls } from "../../enums.js";
 import { loggedIn } from "../../utilities/middleware/userManagement/middleware.js";
-import { PrismaClient } from "@prisma/client";
 import { validateProvidedData } from "../../utilities/middleware/validation/middleware.js";
+import { app, prisma } from "../../index.js";
 
-export function registerSiteRoutes(app: Express, prisma: PrismaClient) {
+export function registerSiteRoutes() {
   app.get(
     urls.SITES,
     validateProvidedData,

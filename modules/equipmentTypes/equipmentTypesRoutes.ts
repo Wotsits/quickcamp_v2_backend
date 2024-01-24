@@ -1,17 +1,13 @@
-import { Express, Request, Response } from "express";
+import { Request, Response } from "express";
 import { urls } from "../../enums.js";
 import {
   hasAccessToRequestedSite,
   loggedIn,
 } from "../../utilities/middleware/userManagement/middleware.js";
-import { PrismaClient } from "@prisma/client";
-import { UserResponse } from "../../types.js";
 import { validateProvidedData } from "../../utilities/middleware/validation/middleware.js";
+import { app, prisma } from "../../index.js";
 
-export function registerEquipmentTypeRoutes(
-  app: Express,
-  prisma: PrismaClient
-) {
+export function registerEquipmentTypeRoutes() {
   app.get(
     `${urls.EQUIPMENT_TYPES}`,
     validateProvidedData,

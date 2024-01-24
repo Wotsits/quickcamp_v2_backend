@@ -1,6 +1,5 @@
 import dotenv from "dotenv";
-import { PrismaClient } from "@prisma/client";
-import { Express, Request, Response, NextFunction } from "express";
+import { Request, Response, NextFunction } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { jwtMaxAge } from "../../settings.js";
@@ -8,6 +7,7 @@ import { isPasswordOk } from "../../utilities/middleware/userManagement/helpers.
 import { User } from "../../types.js";
 import { loggedIn } from "../../utilities/middleware/userManagement/middleware.js";
 import { validateProvidedData } from "../../utilities/middleware/validation/middleware.js";
+import { app, prisma } from "../../index.js";
 
 // ----------------
 
@@ -50,7 +50,7 @@ function generateToken(
 
 // ----------------
 
-export function registerLoginRoute(app: Express, prisma: PrismaClient) {
+export function registerLoginRoute() {
   app.post(
     "/login",
     validateProvidedData,
@@ -134,7 +134,7 @@ export function registerLoginRoute(app: Express, prisma: PrismaClient) {
   );
 }
 
-export function registerRegisterRoute(app: Express, prisma: PrismaClient) {
+export function registerRegisterRoute() {
   app.post(
     "/register", validateProvidedData, loggedIn,
     async (req: Request, res: Response, next: NextFunction) => {
@@ -179,7 +179,7 @@ export function registerRegisterRoute(app: Express, prisma: PrismaClient) {
   );
 }
 
-export function registerTokenRoute(app: Express, prisma: PrismaClient) {
+export function registerTokenRoute() {
   app.post("/token", validateProvidedData, async (req: Request, res: Response) => {
     const refreshToken = req.body.token;
     if (!refreshToken) return res.sendStatus(401);
@@ -204,7 +204,7 @@ export function registerTokenRoute(app: Express, prisma: PrismaClient) {
   });
 }
 
-export function registerLogoutRoute(app: Express, prisma: PrismaClient) {
+export function registerLogoutRoute() {
   app.delete("/logout", validateProvidedData, async (req: Request, res: Response) => {
     const refreshToken = req.body.token;
     if (!refreshToken) return res.sendStatus(401);

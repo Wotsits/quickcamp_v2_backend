@@ -7,8 +7,9 @@ import {
 } from "../../utilities/middleware/userManagement/middleware.js";
 import { UserResponse } from "../../types.js";
 import { validateProvidedData } from "../../utilities/middleware/validation/middleware.js";
+import { app, prisma } from "../../index.js";
 
-export function registerExtraTypeRoutes(app: Express, prisma: PrismaClient) {
+export function registerExtraTypeRoutes() {
   app.get(
     urls.EXTRATYPES,
     validateProvidedData,

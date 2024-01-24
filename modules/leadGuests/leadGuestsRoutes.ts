@@ -1,10 +1,10 @@
-import { PrismaClient } from "@prisma/client";
-import { Express, Request, Response } from "express";
+import { Request, Response } from "express";
 import { urls } from "../../enums.js";
 import { loggedIn } from "../../utilities/middleware/userManagement/middleware.js";
 import { validateProvidedData } from "../../utilities/middleware/validation/middleware.js";
+import { app, prisma } from "../../index.js";
 
-export function registerLeadGuestRoutes(app: Express, prisma: PrismaClient) {
+export function registerLeadGuestRoutes() {
   app.get(
     urls.LEADGUESTS,
     validateProvidedData,

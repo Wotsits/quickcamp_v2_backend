@@ -1,4 +1,4 @@
-import express, { Request, Response } from "express";
+import express from "express";
 import dotenv from "dotenv";
 import { routesInit } from "./routesInit.js";
 import { PrismaClient } from "@prisma/client";
@@ -9,19 +9,23 @@ import cookieParser from "cookie-parser";
 // APP SETUP
 // -----------------
 
-dotenv.config();
-const app = express();
-
-// Instantiate Prisma instance with logging
-const prisma = new PrismaClient({ log: ["query", "info", "warn", "error"] });
-
 // Get env vars
+dotenv.config();
+
 const { PORT: port, JWTSECRET: jwtSecret, REFRESHTOKENSECRET: refreshTokenSecret } = process.env;
 
 if (!jwtSecret || !refreshTokenSecret)
   throw new Error(
     "JWTSecret or RefreshTokenSecret undefined in env.  Define jwtSecret as JWTSECRET={jwtsecret} and refreshTokenSecret as REFRESHTOKENSECRET={refreshTokenSecret} in .env"
   );
+
+// Setup App
+export const app = express();
+export const router = express.Router();
+
+// Instantiate Prisma instance with logging
+export const prisma = new PrismaClient({ log: ["query", "info", "warn", "error"] });
+
 
 // -----------------
 // MIDDLEWARE SETUP
@@ -38,7 +42,7 @@ app.use(cookieParser());
 // ROUTES
 // ----------------
 
-routesInit(app, prisma);
+routesInit();
 
 // ----------------
 // LISTEN

@@ -1,5 +1,3 @@
-import { Express } from "express";
-import { PrismaClient } from "@prisma/client";
 import {
   registerLoginRoute,
   registerLogoutRoute,
@@ -23,27 +21,27 @@ import { registerStatsRoutes } from "./modules/stats/statsRoutes.js";
 import { registerNoteRoutes } from "./modules/notes/notesRoutes.js";
 import { registerRatesRoutes } from "./modules/rates/ratesRoutes.js";
 
-export function routesInit(app: Express, prisma: PrismaClient) {
-  registerRegisterRoute(app, prisma);
-  registerLoginRoute(app, prisma);
-  registerTokenRoute(app, prisma);
-  registerLogoutRoute(app, prisma);
-  registerTenantRoutes(app, prisma);
-  registerSiteRoutes(app, prisma);
-  registerUnitTypeRoutes(app, prisma);
-  registerEquipmentTypeRoutes(app, prisma);
-  registerGuestTypeRoutes(app, prisma);
-  registerUnitRoutes(app, prisma);
-  registerExtraTypeRoutes(app, prisma);
-  registerLeadGuestRoutes(app, prisma);
-  registerBookingRoutes(app, prisma);
-  registerArrivalsRoutes(app, prisma);
-  registerCheckInRoutes(app, prisma);
-  registerDeparturesRoutes(app, prisma);
-  registerCheckOutRoutes(app, prisma);
-  registerPaymentRoutes(app, prisma);
-  registerUserRoutes(app, prisma);
-  registerStatsRoutes(app, prisma);
-  registerNoteRoutes(app, prisma);
-  registerRatesRoutes(app, prisma);
+export function routesInit() {
+  registerRegisterRoute();
+  registerLoginRoute();
+  registerTokenRoute();
+  registerLogoutRoute();
+  registerTenantRoutes();
+  registerSiteRoutes();
+  registerUnitTypeRoutes();
+  registerEquipmentTypeRoutes();
+  registerGuestTypeRoutes();
+  registerUnitRoutes();
+  registerExtraTypeRoutes();
+  registerLeadGuestRoutes();
+  registerBookingRoutes();
+  registerArrivalsRoutes();
+  registerCheckInRoutes();
+  registerDeparturesRoutes();
+  registerCheckOutRoutes();
+  registerPaymentRoutes();
+  registerUserRoutes();
+  registerStatsRoutes();
+  registerNoteRoutes();
+  registerRatesRoutes();
 }

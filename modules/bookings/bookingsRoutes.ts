@@ -1,4 +1,4 @@
-import { Express, Request, Response } from "express";
+import { Request, Response } from "express";
 import { urls } from "../../enums.js";
 import {
   hasAccessToRequestedSite,
@@ -8,17 +8,16 @@ import {
   BookingGuest,
   BookingPet,
   BookingVehicle,
-  PrismaClient,
 } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { raiseConsoleErrorWithListOfMissingData } from "../../utilities/raiseErrorWithListOfMissingData.js";
 import { bookingPaymentsTotal } from "../../utilities/bookingPaymentsTotal.js";
 import { calculateFee } from "../../utilities/calculateFee.js";
 import { validateProvidedData } from "../../utilities/middleware/validation/middleware.js";
-import { parse } from "path";
 import { BookingProcessGuest, BookingProcessPet, BookingProcessVehicle } from "../../types.js";
+import { app, prisma } from "../../index.js";
 
-export function registerBookingRoutes(app: Express, prisma: PrismaClient) {
+export function registerBookingRoutes() {
   // ****************************************************
 
   app.get(
