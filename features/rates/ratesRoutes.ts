@@ -1,8 +1,8 @@
 import { PrismaClient } from "@prisma/client";
 import { Express, Request, Response } from "express";
-import { urls } from "../enums.js";
-import { loggedIn } from "../utilities/middleware/userManagement/middleware.js";
-import { validateProvidedData } from "../utilities/middleware/validation/middleware.js";
+import { urls } from "../../enums.js";
+import { loggedIn } from "../../utilities/middleware/userManagement/middleware.js";
+import { validateProvidedData } from "../../utilities/middleware/validation/middleware.js";
 
 enum RateType {
   BASE = "BASE",

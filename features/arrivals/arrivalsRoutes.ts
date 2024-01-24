@@ -1,13 +1,13 @@
 import { Express, Request, Response } from "express";
-import { urls } from "../enums.js";
+import { urls } from "../../enums.js";
 import {
   hasAccessToRequestedSite,
   loggedIn,
-} from "../utilities/middleware/userManagement/middleware.js";
+} from "../../utilities/middleware/userManagement/middleware.js";
 import { PrismaClient } from "@prisma/client";
-import { raiseConsoleErrorWithListOfMissingData } from "../utilities/raiseErrorWithListOfMissingData.js";
-import { isGuestDue } from "../utilities/isGuestDue.js";
-import { validateProvidedData } from "../utilities/middleware/validation/middleware.js";
+import { raiseConsoleErrorWithListOfMissingData } from "../../utilities/raiseErrorWithListOfMissingData.js";
+import { isGuestDue } from "../../utilities/isGuestDue.js";
+import { validateProvidedData } from "../../utilities/middleware/validation/middleware.js";
 
 export function registerArrivalsRoutes(app: Express, prisma: PrismaClient) {
   // ****************************************************

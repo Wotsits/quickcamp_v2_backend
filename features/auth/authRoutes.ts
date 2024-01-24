@@ -3,11 +3,11 @@ import { PrismaClient } from "@prisma/client";
 import { Express, Request, Response, NextFunction } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { jwtMaxAge } from "../settings.js";
-import { isPasswordOk } from "../utilities/middleware/userManagement/helpers.js";
-import { User } from "../types.js";
-import { loggedIn } from "../utilities/middleware/userManagement/middleware.js";
-import { validateProvidedData } from "../utilities/middleware/validation/middleware.js";
+import { jwtMaxAge } from "../../settings.js";
+import { isPasswordOk } from "../../utilities/middleware/userManagement/helpers.js";
+import { User } from "../../types.js";
+import { loggedIn } from "../../utilities/middleware/userManagement/middleware.js";
+import { validateProvidedData } from "../../utilities/middleware/validation/middleware.js";
 
 // ----------------
 
