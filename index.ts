@@ -1,8 +1,9 @@
 import express, { Request, Response } from "express";
 import dotenv from "dotenv";
-import { middlewareInit } from "./middlewareInit.js";
 import { routesInit } from "./routesInit.js";
 import { PrismaClient } from "@prisma/client";
+import cors from "cors";
+import cookieParser from "cookie-parser";
 
 // -----------------
 // APP SETUP
@@ -26,7 +27,12 @@ if (!jwtSecret || !refreshTokenSecret)
 // MIDDLEWARE SETUP
 // -----------------
 
-middlewareInit(app, express);
+app.use(cors());
+// parse requests of content-type - application/json
+app.use(express.json())
+// parse requests of content-type - application/x-www-form-urlencoded
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 // ----------------
 // ROUTES
