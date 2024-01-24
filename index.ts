@@ -14,11 +14,13 @@ const app = express();
 // Instantiate Prisma instance with logging
 const prisma = new PrismaClient({ log: ["query", "info", "warn", "error"] });
 
-// -----------------
-// ENV VARS
-// -----------------
-
+// Get env vars
 const { PORT: port, JWTSECRET: jwtSecret, REFRESHTOKENSECRET: refreshTokenSecret } = process.env;
+
+if (!jwtSecret || !refreshTokenSecret)
+  throw new Error(
+    "JWTSecret or RefreshTokenSecret undefined in env.  Define jwtSecret as JWTSECRET={jwtsecret} and refreshTokenSecret as REFRESHTOKENSECRET={refreshTokenSecret} in .env"
+  );
 
 // -----------------
 // MIDDLEWARE SETUP
@@ -30,10 +32,6 @@ middlewareInit(app, express);
 // ROUTES
 // ----------------
 
-if (!jwtSecret || !refreshTokenSecret)
-  throw new Error(
-    "JWTSecret or RefreshTokenSecret undefined in env.  Define jwtSecret as JWTSECRET={jwtsecret} and refreshTokenSecret as REFRESHTOKENSECRET={refreshTokenSecret} in .env"
-  );
 routesInit(app, prisma);
 
 // ----------------
