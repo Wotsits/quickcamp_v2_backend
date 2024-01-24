@@ -5,23 +5,23 @@ import {
   registerLogoutRoute,
   registerRegisterRoute,
   registerTokenRoute,
-} from "./features/auth/authRoutes.js";
-import { registerTenantRoutes } from "./features/tenants/tenantsRoutes.js";
-import { registerSiteRoutes } from "./features/sites/sitesRoutes.js";
-import { registerUnitTypeRoutes } from "./features/unitTypes/unitTypesRoutes.js";
-import { registerUnitRoutes } from "./features/units/unitsRoutes.js";
-import { registerLeadGuestRoutes } from "./features/leadGuests/leadGuestsRoutes.js";
-import { registerBookingRoutes } from "./features/bookings/bookingsRoutes.js";
-import { registerPaymentRoutes } from "./features/payments/paymentsRoutes.js";
-import { registerExtraTypeRoutes } from "./features/extraTypes/extraTypesRoutes.js";
-import { registerArrivalsRoutes, registerCheckInRoutes } from "./features/arrivals/arrivalsRoutes.js";
-import { registerGuestTypeRoutes } from "./features/guestTypes/guestTypesRoutes.js";
-import { registerEquipmentTypeRoutes } from "./features/equipmentTypes/equipmentTypesRoutes.js";
-import { registerUserRoutes } from "./features/users/usersRoutes.js";
-import { registerCheckOutRoutes, registerDeparturesRoutes } from "./features/departures/departuresRoutes.js";
-import { registerStatsRoutes } from "./features/stats/statsRoutes.js";
-import { registerNoteRoutes } from "./features/notes/notesRoutes.js";
-import { registerRatesRoutes } from "./features/rates/ratesRoutes.js";
+} from "./modules/auth/authRoutes.js";
+import { registerTenantRoutes } from "./modules/tenants/tenantsRoutes.js";
+import { registerSiteRoutes } from "./modules/sites/sitesRoutes.js";
+import { registerUnitTypeRoutes } from "./modules/unitTypes/unitTypesRoutes.js";
+import { registerUnitRoutes } from "./modules/units/unitsRoutes.js";
+import { registerLeadGuestRoutes } from "./modules/leadGuests/leadGuestsRoutes.js";
+import { registerBookingRoutes } from "./modules/bookings/bookingsRoutes.js";
+import { registerPaymentRoutes } from "./modules/payments/paymentsRoutes.js";
+import { registerExtraTypeRoutes } from "./modules/extraTypes/extraTypesRoutes.js";
+import { registerArrivalsRoutes, registerCheckInRoutes } from "./modules/arrivals/arrivalsRoutes.js";
+import { registerGuestTypeRoutes } from "./modules/guestTypes/guestTypesRoutes.js";
+import { registerEquipmentTypeRoutes } from "./modules/equipmentTypes/equipmentTypesRoutes.js";
+import { registerUserRoutes } from "./modules/users/usersRoutes.js";
+import { registerCheckOutRoutes, registerDeparturesRoutes } from "./modules/departures/departuresRoutes.js";
+import { registerStatsRoutes } from "./modules/stats/statsRoutes.js";
+import { registerNoteRoutes } from "./modules/notes/notesRoutes.js";
+import { registerRatesRoutes } from "./modules/rates/ratesRoutes.js";
 
 export function routesInit(app: Express, prisma: PrismaClient) {
   registerRegisterRoute(app, prisma);
