@@ -42,9 +42,15 @@ export function registerUnitTypeRoutes(app: Express, prisma: PrismaClient) {
         return;
       }
 
-      const parsedincludeSite = Boolean(includeSite);
-      const parsedincludeUnits = Boolean(includeUnits);
-      const parsedincludeRates = Boolean(includeRates);
+      console.log("includeSite", includeSite);
+      const parsedincludeSite = includeSite === "true";
+      console.log("parsedincludeSite", parsedincludeSite);
+      console.log("includeUnits", includeUnits);
+      const parsedincludeUnits = includeUnits === "true";
+      console.log("parsedincludeUnits", parsedincludeUnits);
+      console.log("includeRates", includeRates);
+      const parsedincludeRates = includeRates === "true";
+      console.log("parsedincludeRates", parsedincludeRates);
 
       // if siteId is not provided, return all unit-types for the tenant.
       if (!siteId) {
@@ -63,7 +69,8 @@ export function registerUnitTypeRoutes(app: Express, prisma: PrismaClient) {
 
       // if siteId is provided, return all unit-types for the site.
       else {
-        if (includeRates && (!startDate || !endDate)) {
+
+        if (parsedincludeRates && (!startDate || !endDate)) {
           return res
             .status(400)
             .json({

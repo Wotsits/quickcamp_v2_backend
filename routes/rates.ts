@@ -150,4 +150,6 @@ export function registerRatesRoutes(app: Express, prisma: PrismaClient) {
       });
     }
   );
+
+  // TODO - add a route to update rates for a date range
 }
