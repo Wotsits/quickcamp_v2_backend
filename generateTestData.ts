@@ -41,7 +41,7 @@ function generateSequentialDates(): Date[] {
 
   const dates = [];
 
-  for (let i = -365; i <= 365 * 5; i++) {
+  for (let i = -7; i <= 60 * 5; i++) {
     const newDate = new Date(currentDate);
     newDate.setDate(currentDate.getDate() + i);
     dates.push(newDate);
@@ -140,7 +140,7 @@ async function readUsersCSVFileToJson(fileName: string, notification: string) {
 
 async function main() {
   // settings
-  const bookingNo = 300;
+  const bookingNo = 5000;
 
   // built stock data
 
@@ -581,7 +581,8 @@ async function main() {
       data: payment,
     });
   }
-  console.log("Payments created");
+  console.log("Payments created")
+  console.log('\u0007') // system bell noise
   console.log("Woohoo!  Test data has been generated.  Have at it!");
 }
 
