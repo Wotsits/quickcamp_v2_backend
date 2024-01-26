@@ -1,11 +1,10 @@
 import { Request, Response } from "express";
 import { prisma } from "../../index.js";
-import { bookingPaymentsTotal } from "../../utilities/bookingPaymentsTotal.js";
 import { raiseConsoleErrorWithListOfMissingData } from "../../utilities/raiseErrorWithListOfMissingData.js";
 import { BookingGuest, BookingPet, BookingVehicle } from "@prisma/client";
-import { calculateFee } from "../../utilities/calculateFee.js";
 import bcrypt from "bcryptjs";
 import { BookingProcessGuest, BookingProcessPet, BookingProcessVehicle } from "../../types";
+import { bookingPaymentsTotal, calculateFee } from "./bookingsHelpers.js";
 
 export async function bookingsBySite(req: Request, res: Response) {
     const { user } = req;
