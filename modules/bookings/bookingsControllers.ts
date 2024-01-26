@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { prisma } from "../../index.js";
-import { raiseConsoleErrorWithListOfMissingData } from "../../utilities/raiseErrorWithListOfMissingData.js";
+import { raiseConsoleErrorWithListOfMissingData } from "../../utilities/commonHelpers/raiseErrorWithListOfMissingData.js";
 import { BookingGuest, BookingPet, BookingVehicle } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { BookingProcessGuest, BookingProcessPet, BookingProcessVehicle } from "../../types";

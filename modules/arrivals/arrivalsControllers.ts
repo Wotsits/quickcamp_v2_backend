@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { prisma } from "../../index.js";
-import { raiseConsoleErrorWithListOfMissingData } from "../../utilities/raiseErrorWithListOfMissingData.js";
+import { raiseConsoleErrorWithListOfMissingData } from "../../utilities/commonHelpers/raiseErrorWithListOfMissingData.js";
 import { isGuestDue } from "./arrivalsHelpers.js";
 
 export async function getArrivalsByDate(req: Request, res: Response) {
