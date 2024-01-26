@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { prisma } from "../..";
+import { prisma } from "../../index.js";
 
 export async function getSites(req: Request, res: Response) {
   // confirm that the user is logged in and has a tenantId

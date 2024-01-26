@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
-import { prisma } from "../..";
-import { bookingPaymentsTotal } from "../../utilities/bookingPaymentsTotal";
-import { raiseConsoleErrorWithListOfMissingData } from "../../utilities/raiseErrorWithListOfMissingData";
+import { prisma } from "../../index.js";
+import { bookingPaymentsTotal } from "../../utilities/bookingPaymentsTotal.js";
+import { raiseConsoleErrorWithListOfMissingData } from "../../utilities/raiseErrorWithListOfMissingData.js";
 import { BookingGuest, BookingPet, BookingVehicle } from "@prisma/client";
-import { calculateFee } from "../../utilities/calculateFee";
+import { calculateFee } from "../../utilities/calculateFee.js";
 import bcrypt from "bcryptjs";
 import { BookingProcessGuest, BookingProcessPet, BookingProcessVehicle } from "../../types";
 

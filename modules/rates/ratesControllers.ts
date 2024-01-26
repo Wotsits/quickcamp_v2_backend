@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { prisma } from "../..";
+import { prisma } from "../../index.js";
 
 enum RateType {
     BASE = "BASE",

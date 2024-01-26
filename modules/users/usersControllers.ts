@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { prisma } from "../..";
+import { prisma } from "../../index.js";
 
 export async function getUsers(req: Request, res: Response) {
   const { user } = req;

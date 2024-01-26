@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { prisma } from "../..";
+import { prisma } from "../../index.js";
 
 export async function getAvailableUnits(req: Request, res: Response) {
   // check that the user is logged in

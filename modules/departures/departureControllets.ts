@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { prisma } from "../..";
-import { raiseConsoleErrorWithListOfMissingData } from "../../utilities/raiseErrorWithListOfMissingData";
+import { prisma } from "../../index.js";
+import { raiseConsoleErrorWithListOfMissingData } from "../../utilities/raiseErrorWithListOfMissingData.js";
 
 export async function getDeparturesByDate(req: Request, res: Response) {
   if (!req.user) {

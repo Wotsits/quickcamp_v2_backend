@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { prisma } from "../..";
+import { prisma } from "../../index.js";
 import dotenv from "dotenv";
 import { jwtMaxAge } from "../../settings.js";
 import bcrypt from "bcryptjs";
