@@ -12,8 +12,6 @@ import {
 } from "./arrivalsControllers.js";
 
 export function registerArrivalsRoutes() {
-  // ****************************************************
-
   app.get(
     urls.ARRIVALS_BY_DATE,
     validateProvidedData,
@@ -24,12 +22,7 @@ export function registerArrivalsRoutes() {
 }
 
 export function registerCheckInRoutes() {
-  // ****************************************************
-
   app.post(urls.CHECK_IN_GUEST, validateProvidedData, loggedIn, checkInGuest);
-
-  // ****************************************************
-
   app.post(
     urls.CHECK_IN_MANY_GUESTS,
     validateProvidedData,

@@ -15,6 +15,5 @@ export function registerUnitTypeRoutes() {
     hasAccessToRequestedSite,
     getUnitTypes
   );
-
   app.get(`${urls.UNITTYPES}/:id`, loggedIn, getUnitTypeById);
 }

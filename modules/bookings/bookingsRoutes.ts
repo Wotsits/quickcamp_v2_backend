@@ -5,11 +5,17 @@ import {
 } from "../../utilities/middleware/userManagement/middleware.js";
 import { validateProvidedData } from "../../utilities/middleware/validation/middleware.js";
 import { app } from "../../index.js";
-import { bookingById, bookingsBySite, bookingsBySiteAndDateRange, createBooking, generateFeeCalcs, updateBookingLeadGuestExisting, updateBookingLeadGuestNew } from "./bookingsControllers.js";
+import {
+  bookingById,
+  bookingsBySite,
+  bookingsBySiteAndDateRange,
+  createBooking,
+  generateFeeCalcs,
+  updateBookingLeadGuestExisting,
+  updateBookingLeadGuestNew,
+} from "./bookingsControllers.js";
 
 export function registerBookingRoutes() {
-  // ****************************************************
-
   app.get(
     urls.BOOKINGS_BY_SITE,
     validateProvidedData,
@@ -17,9 +23,6 @@ export function registerBookingRoutes() {
     hasAccessToRequestedSite,
     bookingsBySite
   );
-
-  // ****************************************************
-
   app.get(
     urls.BOOKINGS_BY_SITE_AND_DATE_RANGE,
     validateProvidedData,
@@ -27,18 +30,7 @@ export function registerBookingRoutes() {
     hasAccessToRequestedSite,
     bookingsBySiteAndDateRange
   );
-
-  // ****************************************************
-
-  app.get(
-    `${urls.BOOKING_BY_ID}`,
-    validateProvidedData,
-    loggedIn,
-    bookingById
-  );
-
-  // ****************************************************
-
+  app.get(`${urls.BOOKING_BY_ID}`, validateProvidedData, loggedIn, bookingById);
   app.post(
     urls.NEW_BOOKING,
     validateProvidedData,
@@ -46,22 +38,17 @@ export function registerBookingRoutes() {
     hasAccessToRequestedSite,
     createBooking
   );
-
-  // ****************************************************
-
   app.post(
     urls.UPDATE_BOOKING_LEAD_GUEST_EXISTING,
     validateProvidedData,
     loggedIn,
     updateBookingLeadGuestExisting
   );
-
-  // ****************************************************
-
-  app.post(urls.UPDATE_BOOKING_LEAD_GUEST_NEW, validateProvidedData, loggedIn, updateBookingLeadGuestNew);
-
-  // ****************************************************
-
-  app.get(urls.FEECALCS, validateProvidedData, loggedIn, generateFeeCalcs)
-
+  app.post(
+    urls.UPDATE_BOOKING_LEAD_GUEST_NEW,
+    validateProvidedData,
+    loggedIn,
+    updateBookingLeadGuestNew
+  );
+  app.get(urls.FEECALCS, validateProvidedData, loggedIn, generateFeeCalcs);
 }

@@ -11,8 +11,6 @@ import {
 
 export function registerPaymentRoutes() {
   app.get(urls.PAYMENTS, validateProvidedData, loggedIn, getPayments);
-
   app.get(`${urls.PAYMENTS}/:id`, loggedIn, getPaymentById);
-
   app.get(`${urls.PAYMENTS}/:bookingId`, loggedIn, getPaymentsByBookingId);
 }

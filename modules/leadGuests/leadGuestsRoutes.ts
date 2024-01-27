@@ -12,9 +12,6 @@ export function registerLeadGuestRoutes() {
     loggedIn,
     getLeadGuests
   );
-
-  // ------------------------
-
   app.put(
     urls.UPDATE_LEAD_GUEST,
     validateProvidedData,
