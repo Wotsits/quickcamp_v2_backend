@@ -1,19 +1,16 @@
 import { NextFunction, Request, Response } from "express";
 import { prisma } from "../../index.js";
-import dotenv from "dotenv";
 import { jwtMaxAge } from "../../settings.js";
 import bcrypt from "bcryptjs";
 import { User } from "../../types.js";
 import jwt from "jsonwebtoken";
 import { isPasswordOk } from "../../utilities/middleware/userManagement/helpers.js";
-
-// ----------------
+import { generateToken } from "./authHelpers.js";
+import dotenv from "dotenv";
 
 dotenv.config();
-const { JWTSECRET: jwtSecret, REFRESHTOKENSECRET: refreshTokenSecret } =
+const { REFRESHTOKENSECRET: refreshTokenSecret } =
   process.env;
-
-// ----------------
 
 const messages = {
   NO_USERNAME_OR_PASSWORD: "Username or password not present",
@@ -23,30 +20,6 @@ const messages = {
   AN_ERROR_OCCURRED: "An error occurred",
   LOGIN_SUCCESSFUL: "Login successful",
 };
-
-// ----------------
-// HELPER FUNCTIONS
-// ----------------
-
-function generateToken(user: User, options?: any) {
-  if (!jwtSecret)
-    throw new Error(
-      "JWTSecret undefined in env.  Define JWTSecret as JWTSECRET={jwtsecret} in .env"
-    );
-  return jwt.sign(
-    {
-      id: user.id,
-      username: user.username,
-      tenantId: user.tenantId,
-      roles: user.roles,
-      sites: user.tenant.sites,
-    },
-    jwtSecret,
-    options
-  );
-}
-
-// ----------------
 
 export async function login(req: Request, res: Response, next: NextFunction) {
   // ----------------
