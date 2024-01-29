@@ -22,8 +22,10 @@ export async function getGuestTypes (req: Request, res: Response) {
     if (!siteId) {
       const data = await prisma.guestType.findMany({
         where: {
-          site: {
-            tenantId: tenantId,
+          guestTypeGroup: {
+            site: {
+              tenantId: tenantId,
+            },
           },
         },
       });
@@ -33,7 +35,9 @@ export async function getGuestTypes (req: Request, res: Response) {
     else {
       const data = await prisma.guestType.findMany({
         where: {
-          siteId: parseInt(siteId as string),
+          guestTypeGroup: {
+            siteId: parseInt(siteId as string),
+          },
         },
       });
       return res.status(200).json({ data });
