@@ -44,7 +44,11 @@ export async function login(req: Request, res: Response, next: NextFunction) {
           include: {
             sites: {
               include: {
-                guestTypes: true,
+                guestTypeGroups: {
+                  include: {
+                    guestTypes: true,
+                  }
+                },
                 equipmentTypes: true,
               },
             },
