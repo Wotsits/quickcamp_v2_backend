@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { prisma } from "../../index.js";
 import { raiseConsoleErrorWithListOfMissingData } from "../../utilities/commonHelpers/raiseErrorWithListOfMissingData.js";
-import { BookingGuest, BookingPet, BookingVehicle } from "@prisma/client";
+import { BookingGuest } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { BookingProcessGuest, BookingProcessPet, BookingProcessVehicle } from "../../types";
 import { bookingPaymentsTotal, calculateFee } from "./bookingsHelpers.js";
@@ -63,11 +63,13 @@ export async function bookingsBySite(req: Request, res: Response) {
         leadGuest: true,
         guests: {
           include: {
-            guestType: true,
+            guestType: {
+              include: {
+                guestTypeGroup: true,
+              },
+            },
           },
         },
-        pets: true,
-        vehicles: true,
         payments: true,
       },
     });
@@ -88,18 +90,12 @@ export async function bookingsBySite(req: Request, res: Response) {
         },
         {}
       ),
-      pets: booking.pets!.length,
-      vehicles: booking.vehicles!.length,
       unit: booking.unitId,
       start: booking.start.toString(),
       end: booking.end.toString(),
       paid: bookingPaymentsTotal(booking.payments) >= booking.totalFee,
-      peopleCheckedIn: booking.guests.filter((guest) => guest.checkedIn)
+      guestsCheckedIn: booking.guests.filter((guest) => guest.checkedIn)
         .length,
-      petsCheckedIn: booking.pets.filter((pet) => pet.checkedIn).length,
-      vehiclesCheckedIn: booking.vehicles.filter(
-        (vehicle) => vehicle.checkedIn
-      ).length,
     }));
 
     // TODO return the booking summaries instead of the full booking
@@ -181,14 +177,13 @@ export async function bookingsBySite(req: Request, res: Response) {
           select: {
             checkedIn: true,
             guestType: {
-              select: {
-                name: true,
+              include: {
+                guestTypeGroup: true,
               },
             },
           },
         },
-        pets: true,
-        vehicles: true,
+
         payments: true,
       },
     });
@@ -209,18 +204,12 @@ export async function bookingsBySite(req: Request, res: Response) {
         },
         {}
       ),
-      pets: booking.pets!.length,
-      vehicles: booking.vehicles!.length,
       unit: booking.unitId,
       start: booking.start.toString(),
       end: booking.end.toString(),
       paid: bookingPaymentsTotal(booking.payments) >= booking.totalFee,
-      peopleCheckedIn: booking.guests.filter((guest) => guest.checkedIn)
+      guestsCheckedIn: booking.guests.filter((guest) => guest.checkedIn)
         .length,
-      petsCheckedIn: booking.pets.filter((pet) => pet.checkedIn).length,
-      vehiclesCheckedIn: booking.vehicles.filter(
-        (vehicle) => vehicle.checkedIn
-      ).length,
     }));
 
     return res.status(200).json({ data: bookingSummaries });
@@ -265,11 +254,13 @@ export async function bookingsBySite(req: Request, res: Response) {
         leadGuest: true,
         guests: {
           include: {
-            guestType: true,
+            guestType: {
+              include: {
+                guestTypeGroup: true,
+              },
+            }
           },
         },
-        pets: true,
-        vehicles: true,
         payments: true,
       },
     });
@@ -434,23 +425,9 @@ export async function bookingsBySite(req: Request, res: Response) {
     const everyGuestHasName = bookingGuests.every((guest: BookingGuest) => {
       return guest.name !== "";
     });
-    const everyGuestHasType = bookingGuests.every((guest: BookingGuest) => {
-      return guest.guestTypeId !== -1;
-    });
-    const everyPetHasName = bookingPets.every((pet: BookingPet) => {
-      return pet.name !== "";
-    });
-    const everyVehicleHasVehicleReg = bookingVehicles.every(
-      (vehicle: BookingVehicle) => {
-        return vehicle.vehicleReg !== "";
-      }
-    );
 
     if (
-      !everyGuestHasName ||
-      !everyGuestHasType ||
-      !everyPetHasName ||
-      !everyVehicleHasVehicleReg
+      !everyGuestHasName
     ) {
       return res.status(400).json({
         message:
@@ -494,28 +471,6 @@ export async function bookingsBySite(req: Request, res: Response) {
         checkedIn: null,
       };
     });
-
-    // convert the bookingPets to BookingPet objects
-    const bookingPetsMapped = bookingPets.map((pet: BookingPet) => {
-      return {
-        name: pet.name,
-        start: pet.start,
-        end: pet.end,
-        checkedIn: null,
-      };
-    });
-
-    // convert the bookingVehicles to BookingVehicle objects
-    const bookingVehiclesMapped = bookingVehicles.map(
-      (vehicle: BookingVehicle) => {
-        return {
-          vehicleReg: vehicle.vehicleReg,
-          start: vehicle.start,
-          end: vehicle.end,
-          checkedIn: null,
-        };
-      }
-    );
 
     // convert the extras to Extras objects
     const extrasMap = extras.map((extra: any) => {
@@ -576,12 +531,6 @@ export async function bookingsBySite(req: Request, res: Response) {
             ),
             guests: {
               create: bookingGuestsMapped,
-            },
-            pets: {
-              create: bookingPetsMapped,
-            },
-            vehicles: {
-              create: bookingVehiclesMapped,
             },
             extras: {
               connect: extrasMap,
@@ -651,12 +600,6 @@ export async function bookingsBySite(req: Request, res: Response) {
             ),
             guests: {
               create: bookingGuestsMapped,
-            },
-            pets: {
-              create: bookingPetsMapped,
-            },
-            vehicles: {
-              create: bookingVehiclesMapped,
             },
             extras: {
               connect: extrasMap,

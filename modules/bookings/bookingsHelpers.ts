@@ -2,10 +2,8 @@ import {
   ExtraFeesCalendar,
   GuestFeesCalendar,
   Payment,
-  PetFeesCalendar,
   PrismaClient,
   UnitTypeFeesCalendar,
-  VehicleFeesCalendar,
 } from "@prisma/client";
 import {
   BookingProcessGuest,
@@ -64,26 +62,6 @@ export async function calculateFee(
     },
   });
 
-  // get the rates for the pets
-  const ratesForPets = await prisma.petFeesCalendar.findMany({
-    where: {
-      date: {
-        gte: startDate,
-        lt: endDate,
-      },
-    },
-  });
-
-  // get the rates for the vehicles
-  const ratesForVehicles = await prisma.vehicleFeesCalendar.findMany({
-    where: {
-      date: {
-        gte: startDate,
-        lt: endDate,
-      },
-    },
-  });
-
   // get the rates for the extras
   const ratesForExtras = await prisma.extraFeesCalendar.findMany({
     where: {
@@ -123,8 +101,6 @@ export async function calculateFee(
 
   let rateForUnitType: UnitTypeFeesCalendar | undefined;
   let rateForGuests: GuestFeesCalendar[];
-  let rateForPets: PetFeesCalendar | undefined;
-  let rateForVehicles: VehicleFeesCalendar | undefined;
   let rateForExtras: ExtraFeesCalendar[];
 
   // for each date, calculate the rate
@@ -137,16 +113,6 @@ export async function calculateFee(
     // get the rate for the guests
     rateForGuests = ratesForGuests.filter(
       (rate: GuestFeesCalendar) => rate.date.getTime() === date.getTime()
-    );
-
-    // get the rate for the pets
-    rateForPets = ratesForPets.find(
-      (rate: PetFeesCalendar) => rate.date.getTime() === date.getTime()
-    );
-
-    // get the rate for the vehicles
-    rateForVehicles = ratesForVehicles.find(
-      (rate: VehicleFeesCalendar) => rate.date.getTime() === date.getTime()
     );
 
     // get the rate for the extras
@@ -166,10 +132,6 @@ export async function calculateFee(
           rateForDate += applicableRate.feePerNight * guestTypeCounts[key];
       }
     }
-    if (rateForPets)
-      rateForDate += rateForPets.feePerNight * bookingPets.length;
-    if (rateForVehicles)
-      rateForDate += rateForVehicles.feePerNight * bookingVehicles.length;
     if (rateForExtras) {
       extras.forEach((extra: number) => {
         const applicableRate = ratesForExtras.find(
@@ -192,8 +154,6 @@ export async function calculateFee(
     if (applicableRate)
       total += applicableRate.feePerStay * guestTypeCounts[key];
   }
-  if (rateForPets) total += rateForPets.feePerStay;
-  if (rateForVehicles) total += rateForVehicles.feePerStay;
   for (const extra in extras) {
     const applicableRate = ratesForExtras.find(
       (rate: ExtraFeesCalendar) => rate.extraTypeId === parseInt(extra)
