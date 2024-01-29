@@ -2,8 +2,6 @@ import { faker } from "@faker-js/faker";
 import {
   Booking,
   BookingGuest,
-  BookingPet,
-  BookingVehicle,
   Calendar,
   LeadGuest,
   Payment,
@@ -14,125 +12,20 @@ import {
   Unit,
   UnitType,
   User,
+  GuestTypeGroup,
   GuestType,
   EquipmentType,
   ExtraType,
   GuestFeesCalendar,
-  PetFeesCalendar,
-  VehicleFeesCalendar,
   ExtraFeesCalendar,
   UnitTypeFeesCalendar,
 } from "@prisma/client";
 import bcrypt from "bcryptjs";
-import fs, { read } from "fs";
-import csvParser from "csv-parser";
+import { generateRandomUKRegistrationNumber, generateSequentialDates, readCsvFileToJson, readUsersCSVFileToJson } from "./helpers/helpers";
 
 // Instantiate Prisma instance
 
 const prisma = new PrismaClient();
-
-// -------------
-// HELPERS
-// -------------
-
-function generateSequentialDates(): Date[] {
-  const currentDate = new Date();
-  currentDate.setHours(12, 0, 0, 0); // Set time to 12:00:00
-
-  const dates = [];
-
-  for (let i = -7; i <= 60 * 5; i++) {
-    const newDate = new Date(currentDate);
-    newDate.setDate(currentDate.getDate() + i);
-    dates.push(newDate);
-  }
-
-  return dates;
-}
-
-function generateRandomUKRegistrationNumber() {
-  // Define an array of all possible letters for UK registration numbers
-  const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-
-  // Generate random letters for the registration number
-  const randomLetters = `${letters.charAt(
-    Math.floor(Math.random() * letters.length)
-  )}${letters.charAt(Math.floor(Math.random() * letters.length))}`;
-
-  // Generate random numbers for the registration number (between 10 and 99)
-  const randomNumbers = Math.floor(Math.random() * 90) + 10;
-
-  // Generate random letters for the last part of the registration number
-  const randomLetters2 = `${letters.charAt(
-    Math.floor(Math.random() * letters.length)
-  )}${letters.charAt(
-    Math.floor(Math.random() * letters.length)
-  )}${letters.charAt(Math.floor(Math.random() * letters.length))}`;
-
-  // Combine the parts to form the registration number
-  const registrationNumber = `${randomLetters}${randomNumbers} ${randomLetters2}`;
-
-  return registrationNumber;
-}
-
-async function readCsvFileToJson(fileName: string, notification: string) {
-  return new Promise((resolve, reject) => {
-    const arr: any[] = [];
-    fs.createReadStream(fileName)
-      .pipe(csvParser())
-      .on("data", async (data) => {
-        arr.push(
-          await {
-            ...data,
-            id: parseInt(data.id),
-            tenantId: data.tenantId && parseInt(data.tenantId),
-            userId: data.userId && parseInt(data.userId),
-            siteId: data.siteId && parseInt(data.siteId),
-            unitTypeId: data.unitTypeId && parseInt(data.unitTypeId),
-            latitude: data.latitude && parseFloat(data.latitude),
-            longitude: data.longitude && parseFloat(data.longitude),
-          }
-        );
-      })
-      .on("error", (err) => {
-        console.log(err);
-        reject(err);
-      })
-      .on("end", () => {
-        console.log(notification);
-        resolve(arr);
-      });
-  });
-}
-
-async function readUsersCSVFileToJson(fileName: string, notification: string) {
-  return new Promise((resolve, reject) => {
-    const arr: any[] = [];
-    fs.createReadStream(fileName)
-      .pipe(csvParser())
-      .on("data", async (data) => {
-        const hash = await bcrypt.hash(data.password, 10);
-        const newUser = {
-          id: parseInt(data.id),
-          username: data.username,
-          password: hash,
-          tenantId: parseInt(data.tenantId),
-          name: data.name,
-          email: data.email,
-        };
-        arr.push(newUser);
-      })
-      .on("error", (err) => {
-        console.log(err);
-        reject(err);
-      })
-      .on("end", () => {
-        console.log(notification);
-        resolve(arr);
-      });
-    return arr;
-  });
-}
 
 // --------------
 // Main
@@ -145,47 +38,52 @@ async function main() {
   // built stock data
 
   const tenants: Tenant[] = (await readCsvFileToJson(
-    "./mockData/tenants.csv",
+    "./mockData/data/tenants.csv",
     "Tenants Built"
   )) as Tenant[];
 
   const sites: Site[] = (await readCsvFileToJson(
-    "./mockData/sites.csv",
+    "./mockData/data/sites.csv",
     "Sites Built"
   )) as Site[];
 
   const users: User[] = (await readUsersCSVFileToJson(
-    "./mockData/users.csv",
+    "./mockData/data/users.csv",
     "Users Built"
   )) as User[];
 
   const roles = (await readCsvFileToJson(
-    "./mockData/roles.csv",
+    "./mockData/data/roles.csv",
     "Roles Built"
   )) as Role[];
 
   const unitTypes = (await readCsvFileToJson(
-    "./mockData/unitTypes.csv",
+    "./mockData/data/unitTypes.csv",
     "Unit Types Built"
   )) as UnitType[];
 
   const units: Unit[] = (await readCsvFileToJson(
-    "./mockData/units.csv",
+    "./mockData/data/units.csv",
     "Units Built"
   )) as Unit[];
 
+  const guestTypesGroups: GuestTypeGroup[] = (await readCsvFileToJson(
+    "./mockData/data/guestTypeGroups.csv",
+    "Guest Type Groups Built"
+  )) as GuestTypeGroup[];
+
   const guestTypes: GuestType[] = (await readCsvFileToJson(
-    "./mockData/guestTypes.csv",
+    "./mockData/data/guestTypes.csv",
     "Guest Types Built"
   )) as GuestType[];
 
   const equipmentTypes: EquipmentType[] = (await readCsvFileToJson(
-    "./mockData/equipmentTypes.csv",
+    "./mockData/data/equipmentTypes.csv",
     "Equipment Types Built"
   )) as EquipmentType[];
 
   const extraTypes: ExtraType[] = (await readCsvFileToJson(
-    "./mockData/extraTypes.csv",
+    "./mockData/data/extraTypes.csv",
     "Extra Types Built"
   )) as ExtraType[];
 
@@ -232,8 +130,6 @@ async function main() {
   //build fees
   const unitTypeFeesCalendar: UnitTypeFeesCalendar[] = [];
   const guestTypeFeesCalendar: GuestFeesCalendar[] = [];
-  const petFeesCalendar: PetFeesCalendar[] = [];
-  const vehicleFeesCalendar: VehicleFeesCalendar[] = [];
   const extraFeesCalendar: ExtraFeesCalendar[] = [];
 
   let counter = 1;
@@ -254,52 +150,29 @@ async function main() {
 
   dates.forEach((date) => {
     sites.forEach(site => {
-      const guestTypesForSite = guestTypes.filter(guestType => guestType.siteId === site.id);
+      
       const unitTypesForSite = unitTypes.filter(unitType => unitType.siteId === site.id);
-      guestTypesForSite.forEach((guestType) => {
-        unitTypesForSite.forEach((unitType) => {
-          guestTypeFeesCalendar.push({
-            id: counter,
-            date,
-            guestTypeId: guestType.id,
-            unitTypeId: unitType.id,
-            feePerNight: 10,
-            feePerStay: 0,
+      const guestTypeGroupsForSite = guestTypesGroups.filter(guestTypeGroup => guestTypeGroup.siteId === site.id);
+      
+      guestTypeGroupsForSite.forEach((guestTypeGroup) => {
+        
+        const guestTypesForGroup = guestTypes.filter(guestType => guestType.guestTypeGroupId === guestTypeGroup.id);
+        
+        guestTypesForGroup.forEach((guestType) => {
+          unitTypesForSite.forEach((unitType) => {
+            guestTypeFeesCalendar.push({
+              id: counter,
+              date,
+              guestTypeId: guestType.id,
+              unitTypeId: unitType.id,
+              feePerNight: 10,
+              feePerStay: 0,
+            });
+            counter++;
           });
-          counter++;
         });
       })
     })
-  });
-
-  counter = 1;
-
-  dates.forEach((date) => {
-    unitTypes.forEach((unitType) => {
-      petFeesCalendar.push({
-        id: counter,
-        date,
-        unitTypeId: unitType.id,
-        feePerNight: 5,
-        feePerStay: 0,
-      });
-      counter++;
-    });
-  });
-
-  counter = 1;
-
-  dates.forEach((date) => {
-    unitTypes.forEach((unitType) => {
-      vehicleFeesCalendar.push({
-        id: counter,
-        date,
-        unitTypeId: unitType.id,
-        feePerNight: 5,
-        feePerStay: 0,
-      });
-      counter++;
-    });
   });
 
   counter = 1;
@@ -326,9 +199,16 @@ async function main() {
   const bookings: Booking[] = [];
   let successfulBookingCount = 0;
   while (successfulBookingCount < bookingNo) {
+    const unitTypesForSite = unitTypes.filter(unitType => unitType.siteId === 1);
+    const unitsForSite: Unit[]= [];
+    unitTypesForSite.forEach(unitType => {
+      const unitsForType = units.filter(unit => unit.unitTypeId === unitType.id);
+      unitsForSite.push(...unitsForType);
+    })
+
     // make bookings
     const randomGuestId = Math.ceil(Math.random() * leadGuests.length);
-    const randomUnitIndex = Math.floor(Math.random() * units.length);
+    const randomUnitIndex = Math.floor(Math.random() * unitsForSite.length);
     const randomUnitId = units[randomUnitIndex].id;
     const unitsAvailableDates = calendarTable.filter(
       (entry) => entry.unitId === randomUnitId && !entry.bookingId
@@ -364,14 +244,37 @@ async function main() {
   const bookingGuests: BookingGuest[] = [];
   let bookingId = 1;
   bookings.forEach((booking, bookingIndex) => {
-    const randomGuestNo = Math.ceil(Math.random() * 6);
-    const guestType = Math.ceil(Math.random() * 4);
+    const randomGuestNo = Math.ceil(Math.random() * 8);
+    // figure out which site the booking is for
+    const unitId = booking.unitId;
+    const unitTypeId = units.find((unit) => unit.id === unitId)!.unitTypeId;
+    const siteId = unitTypes.find((unitType) => unitType.id === unitTypeId)!.siteId;
+    const guestTypesGroupsForSite = guestTypesGroups.filter(guestTypeGroup => guestTypeGroup.siteId === siteId);
+    const guestTypesForSite: GuestType[] = [];
+    guestTypesGroupsForSite.forEach(guestTypeGroup => {
+      const guestTypesForGroup = guestTypes.filter(guestType => guestType.guestTypeGroupId === guestTypeGroup.id);
+      guestTypesForSite.push(...guestTypesForGroup);
+    })
     for (let i = 1; i <= randomGuestNo; i++) {
+      // generate a random guest type
+      const randomGuestTypeIndex = Math.floor(Math.random() * guestTypesForSite.length);
+      const guestType = guestTypesForSite[randomGuestTypeIndex];
+      const guestTypeGroup = guestTypesGroupsForSite.find(guestTypeGroup => guestTypeGroup.id === guestType.guestTypeGroupId)!;
+      let name = "";
+      if (guestTypeGroup.name === "People" || guestTypeGroup.name === "Wedding Guests") {
+        name = faker.person.firstName() + " " + faker.person.lastName();
+      }
+      else if (guestTypeGroup.name === "Pets") {
+        name = faker.person.firstName();
+      }
+      else if (guestTypeGroup.name === "Vehicles") {
+        name = generateRandomUKRegistrationNumber();
+      }
       const newMap = {
         id: bookingId,
         bookingId: booking.id,
-        name: faker.person.firstName() + " " + faker.person.lastName(),
-        guestTypeId: guestTypes[guestType].id,
+        name: name,
+        guestTypeId: guestType.id,
         start: booking.start,
         end: booking.end,
         checkedIn: null,
@@ -383,57 +286,6 @@ async function main() {
   });
 
   console.log("Booking Guests built");
-
-  // build BookingVehicles,
-  const bookingVehicles: BookingVehicle[] = [];
-  let vehicleId = 1;
-  bookings.forEach((booking) => {
-    const randomVehicleNo = Math.ceil(Math.random() * 2);
-    for (let i = 1; i <= randomVehicleNo; i++) {
-      const expectedArrivalHour = Math.floor(Math.random() * 24);
-      const expectedArrivalMinute = 0;
-      const expectedArrivalTime =
-        expectedArrivalHour.toString().padStart(2, "0") +
-        ":" +
-        expectedArrivalMinute.toString().padStart(2, "0");
-      const newMap = {
-        id: vehicleId,
-        bookingId: booking.id,
-        vehicleReg: generateRandomUKRegistrationNumber(),
-        start: booking.start,
-        end: booking.end,
-        checkedIn: null,
-        checkedOut: null,
-        expectedArrival: expectedArrivalTime,
-      };
-      bookingVehicles.push(newMap);
-      vehicleId++;
-    }
-  });
-
-  console.log("Booking Vehicles built");
-
-  // build BookingPetMaps,
-  const bookingPets: BookingPet[] = [];
-  let petId = 1;
-  bookings.forEach((booking) => {
-    const randomPetNo = Math.ceil(Math.random() * 2);
-    for (let i = 1; i <= randomPetNo; i++) {
-      const newMap = {
-        id: petId,
-        bookingId: booking.id,
-        name: faker.person.firstName(),
-        start: booking.start,
-        end: booking.end,
-        checkedIn: null,
-        checkedOut: null,
-      };
-      bookingPets.push(newMap);
-      petId++;
-    }
-  });
-
-  console.log("Booking Pets built");
 
   // build Payments
   const payments: Payment[] = [];
@@ -528,18 +380,6 @@ async function main() {
     });
   }
   console.log("Guest Fees created");
-  for await (let fees of petFeesCalendar) {
-    await prisma.petFeesCalendar.create({
-      data: fees,
-    });
-  }
-  console.log("Pet Fees created");
-  for await (let fees of vehicleFeesCalendar) {
-    await prisma.vehicleFeesCalendar.create({
-      data: fees,
-    });
-  }
-  console.log("Vehicle Fees created");
   for await (let fees of extraFeesCalendar) {
     await prisma.extraFeesCalendar.create({
       data: fees,
@@ -564,18 +404,6 @@ async function main() {
     });
   }
   console.log("Booking Guests created");
-  for await (let bookingPetObj of bookingPets) {
-    await prisma.bookingPet.create({
-      data: bookingPetObj,
-    });
-  }
-  console.log("Booking Pets created");
-  for await (let bookingVehicleObj of bookingVehicles) {
-    await prisma.bookingVehicle.create({
-      data: bookingVehicleObj,
-    });
-  }
-  console.log("Booking Vehicles created");
   for await (let payment of payments) {
     await prisma.payment.create({
       data: payment,

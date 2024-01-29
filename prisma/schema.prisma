@@ -36,7 +36,7 @@ model Site {
   tenant          Tenant    @relation(fields: [tenantId], references: [id])
   tenantId        Int
   unitTypes       UnitType[]
-  guestTypes      GuestType[]
+  guestTypeGroups GuestTypeGroup[]
   equipmentTypes  EquipmentType[]
 }
 
@@ -70,8 +70,6 @@ model UnitType {
   extraTypes                  ExtraType[]
   unitTypeFeesCalendarEntries UnitTypeFeesCalendar[]
   guestFeesCalendarEntries    GuestFeesCalendar[]
-  petFeesCalendarEntries      PetFeesCalendar[]
-  vehicleFeesCalendarEntries  VehicleFeesCalendar[]
   extraFeesCalendarEntries    ExtraFeesCalendar[]
 }
 
@@ -103,16 +101,27 @@ model LeadGuest {
   notes         Note[]
 }
 
+model GuestTypeGroup {
+  id          Int         @id @default(autoincrement())
+  name        String
+  siteId      Int
+  site        Site        @relation(fields: [siteId], references: [id])
+  order       Int         @default(0)  
+  GuestTypes  GuestType[]
+}
+
 model GuestType {
-  id                  Int       @id @default(autoincrement())
-  name                String    
+  id                  Int                 @id @default(autoincrement())
+  name                String              @unique
   description         String
   icon                String
-  siteId              Int 
-  site                Site      @relation(fields: [siteId], references: [id])
+  identifierLabel     String              // this is the label to be applied to the field which identies the guest.  For example, in the case of an adult, this would be "Name", for a vehicle, this would be "Registration Number"
+  guestTypeGroupId    Int
+  guestTypeGroup      GuestTypeGroup      @relation(fields: [guestTypeGroupId], references: [id])
   bookingGuests       BookingGuest[]
   feesCalendarEntries GuestFeesCalendar[]
-  @@unique([siteId, name], name: "siteGuestTypeNameCombo")
+
+  @@unique([guestTypeGroupId, name], name: "GuestTypeGroupGuestTypeNameCombo")
 }
 
 model EquipmentType {
@@ -145,9 +154,7 @@ model Booking {
   leadGuest         LeadGuest         @relation(fields: [leadGuestId], references: [id])
   leadGuestId       Int
   payments          Payment[]
-  guests            BookingGuest[]
-  pets              BookingPet[]
-  vehicles          BookingVehicle[]     
+  guests            BookingGuest[]   
   extras            ExtraType[]
   calendarEntries   Calendar[]
   status            String
@@ -177,31 +184,6 @@ model BookingGuest {
   notes         Note[]
 }
 
-model BookingVehicle {
-  id            Int       @id @default(autoincrement())
-  booking       Booking   @relation(fields:[bookingId], references: [id])     
-  bookingId     Int
-  vehicleReg    String
-  start         DateTime
-  end           DateTime
-  checkedIn     DateTime?
-  checkedOut    DateTime?
-  expectedArrival  String?
-  notes         Note[]
-}
-
-model BookingPet {
-  id            Int       @id @default(autoincrement())
-  booking       Booking   @relation(fields:[bookingId], references: [id])     
-  bookingId     Int
-  name          String      
-  start         DateTime         
-  end           DateTime
-  checkedIn     DateTime?
-  checkedOut    DateTime?
-  notes         Note[]
-}
-
 model UnitTypeFeesCalendar {
   id              Int       @id @default(autoincrement())
   date            DateTime
@@ -220,24 +202,6 @@ model GuestFeesCalendar {
   unitTypeId      Int
   feePerNight     Float
   feePerStay      Float     
-}
-
-model PetFeesCalendar {
-  id              Int       @id @default(autoincrement())
-  date            DateTime
-  unitType        UnitType  @relation(fields: [unitTypeId], references: [id])
-  unitTypeId      Int
-  feePerNight     Float
-  feePerStay      Float     
-}
-
-model VehicleFeesCalendar {
-  id              Int       @id @default(autoincrement())
-  date            DateTime
-  unitType        UnitType  @relation(fields: [unitTypeId], references: [id])
-  unitTypeId      Int
-  feePerNight     Float
-  feePerStay      Float  
 }
 
 model ExtraFeesCalendar {
@@ -276,10 +240,6 @@ model Note {
   payment           Payment?        @relation(fields: [paymentId], references: [id])
   bookingGuestId    Int?
   bookingGuest      BookingGuest?   @relation(fields: [bookingGuestId], references: [id])
-  bookingPetId      Int?
-  bookingPet        BookingPet?     @relation(fields: [bookingPetId], references: [id])
-  bookingVehicleId  Int?        
-  bookingVehicle    BookingVehicle?   @relation(fields: [bookingVehicleId], references: [id])
   createdOn         DateTime
   userId            Int     
   user              User            @relation(fields: [userId], references: [id])
