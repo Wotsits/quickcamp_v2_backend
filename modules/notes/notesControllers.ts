@@ -65,16 +65,6 @@ export async function createNewNote (req: Request, res: Response) {
             id: parsedBookingGuestId,
           },
         },
-        bookingPet: parsedBookingPetId && {
-          connect: {
-            id: parsedBookingPetId,
-          },
-        },
-        bookingVehicle: parsedBookingVehicleId && {
-          connect: {
-            id: parsedBookingVehicleId,
-          },
-        },
         content: content,
         createdOn: new Date(),
         noteType: noteType,
