@@ -1,6 +1,6 @@
-import { BookingGuest, BookingPet, BookingVehicle } from "@prisma/client";
+import { BookingGuest} from "@prisma/client";
 
-export function isGuestDue(guest: BookingGuest | BookingPet | BookingVehicle) {
+export function isGuestDue(guest: BookingGuest) {
   const now = new Date();
 
   const start = new Date(guest.start);
