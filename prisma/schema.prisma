@@ -107,7 +107,7 @@ model GuestTypeGroup {
   siteId      Int
   site        Site        @relation(fields: [siteId], references: [id])
   order       Int         @default(0)  
-  GuestTypes  GuestType[]
+  guestTypes  GuestType[]
 }
 
 model GuestType {
