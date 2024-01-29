@@ -9,7 +9,7 @@ import {
   checkOutGuest,
   checkoutManyGuests,
   getDeparturesByDate,
-} from "./departureControllets.js";
+} from "./departureControllers.js";
 
 export function registerDeparturesRoutes() {
   app.get(
