@@ -13,7 +13,7 @@ import {
 
 export function registerArrivalsRoutes() {
   app.get(
-    urls.ARRIVALS_BY_DATE,
+    urls.ARRIVALS,
     validateProvidedData,
     loggedIn,
     hasAccessToRequestedSite,
