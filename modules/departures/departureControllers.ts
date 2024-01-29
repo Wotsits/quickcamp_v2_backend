@@ -45,20 +45,6 @@ export async function getDeparturesByDate(req: Request, res: Response) {
             },
           },
         },
-        {
-          pets: {
-            some: {
-              end: parsedDate,
-            },
-          },
-        },
-        {
-          vehicles: {
-            some: {
-              end: parsedDate,
-            },
-          },
-        },
       ],
     },
     orderBy: [
@@ -77,8 +63,6 @@ export async function getDeparturesByDate(req: Request, res: Response) {
       unit: true,
       leadGuest: true,
       guests: true,
-      pets: true,
-      vehicles: true,
       payments: true,
     },
   });
@@ -96,13 +80,12 @@ export async function checkOutGuest(req: Request, res: Response) {
   }
 
   // unpack the request body
-  const { id, type, reverse } = req.body;
+  const { id, reverse } = req.body;
 
   // check that the required data is present
-  if (!id || !type || reverse === undefined) {
+  if (!id || reverse === undefined) {
     const requiredData = {
       id,
-      type,
       reverse,
     };
     raiseConsoleErrorWithListOfMissingData(requiredData);
@@ -111,9 +94,7 @@ export async function checkOutGuest(req: Request, res: Response) {
     });
   }
 
-  let thing = null;
-
-  const reusableWhereAndIncludeBlock = {
+  const guest = await prisma.bookingGuest.findUnique({
     where: {
       id: id,
     },
@@ -132,19 +113,10 @@ export async function checkOutGuest(req: Request, res: Response) {
         },
       },
     },
-  };
-
-  if (type === "GUEST")
-    thing = await prisma.bookingGuest.findUnique(reusableWhereAndIncludeBlock);
-  if (type === "PET")
-    thing = await prisma.bookingPet.findUnique(reusableWhereAndIncludeBlock);
-  if (type === "VEHICLE")
-    thing = await prisma.bookingVehicle.findUnique(
-      reusableWhereAndIncludeBlock
-    );
+  });
 
   // check that the guest exists
-  if (!thing || thing === null) {
+  if (!guest || guest === null) {
     return res.status(404).json({
       message: "Not found",
     });
@@ -153,7 +125,7 @@ export async function checkOutGuest(req: Request, res: Response) {
   // check that the user has access to the siteId for which the guest is being checked in
   const userSites = user.sites;
   const targetSite = userSites.find(
-    (site) => site.id === thing!.booking.unit.unitType.site.id
+    (site) => site.id === guest!.booking.unit.unitType.site.id
   );
 
   if (!targetSite) {
@@ -164,14 +136,14 @@ export async function checkOutGuest(req: Request, res: Response) {
 
   if (!reverse) {
     // check that the guest is not already checked out
-    if (thing.checkedOut) {
+    if (guest.checkedOut) {
       return res.status(400).json({
         message: "Bad request - guest already checked out",
       });
     }
   } else {
     // check that the guest is already checked in
-    if (!thing.checkedOut) {
+    if (!guest.checkedOut) {
       return res.status(400).json({
         message: "Bad request - guest not checked out",
       });
@@ -179,57 +151,30 @@ export async function checkOutGuest(req: Request, res: Response) {
   }
 
   // check that the guest is checked in
-  if (!thing.checkedIn) {
+  if (!guest.checkedIn) {
     return res.status(400).json({
       message: "Bad request - guest is not checked in",
     });
   }
 
   // check that the booking is not cancelled
-  if (thing.booking.status !== "CONFIRMED") {
+  if (guest.booking.status !== "CONFIRMED") {
     return res.status(400).json({
       message: "Bad request - booking cancelled",
     });
   }
 
-  let updatedThing;
-  if (type === "GUEST") {
-    // check the guest in
-    updatedThing = await prisma.bookingGuest.update({
-      where: {
-        id: id,
-      },
-      data: {
-        checkedOut: !reverse ? new Date() : null,
-      },
-    });
-  }
+  // check the guest in
+  const updatedGuest = await prisma.bookingGuest.update({
+    where: {
+      id: id,
+    },
+    data: {
+      checkedOut: !reverse ? new Date() : null,
+    },
+  });
 
-  if (type === "PET") {
-    // check the pet in
-    updatedThing = await prisma.bookingPet.update({
-      where: {
-        id: id,
-      },
-      data: {
-        checkedOut: !reverse ? new Date() : null,
-      },
-    });
-  }
-
-  if (type === "VEHICLE") {
-    // check the vehicle in
-    updatedThing = await prisma.bookingVehicle.update({
-      where: {
-        id: id,
-      },
-      data: {
-        checkedOut: !reverse ? new Date() : null,
-      },
-    });
-  }
-
-  return res.status(200).json({ data: updatedThing });
+  return res.status(200).json({ data: updatedGuest });
 }
 
 export async function checkoutManyGuests(req: Request, res: Response) {
@@ -259,21 +204,13 @@ export async function checkoutManyGuests(req: Request, res: Response) {
   let isValid = true;
   for (let i = 0; i < guests.length; i++) {
     const guest = guests[i];
-    if (!guest.id || !guest.type) {
+    if (!guest.id) {
       isValid = false;
       break;
     }
     try {
       parseInt(guest.id);
     } catch (err) {
-      isValid = false;
-      break;
-    }
-    if (
-      guest.type !== "GUEST" &&
-      guest.type !== "PET" &&
-      guest.type !== "VEHICLE"
-    ) {
       isValid = false;
       break;
     }
@@ -312,32 +249,15 @@ export async function checkoutManyGuests(req: Request, res: Response) {
 
   // validate each of the guests.
   for (const guest of guests) {
-    let thing = null;
-
-    if (guest.type === "GUEST")
-      thing = await prisma.bookingGuest.findUnique({
-        where: {
-          id: guest.id,
-        },
-        ...reusableIncludeBlock,
-      });
-    if (guest.type === "PET")
-      thing = await prisma.bookingPet.findUnique({
-        where: {
-          id: guest.id,
-        },
-        ...reusableIncludeBlock,
-      });
-    if (guest.type === "VEHICLE")
-      thing = await prisma.bookingVehicle.findUnique({
-        where: {
-          id: guest.id,
-        },
-        ...reusableIncludeBlock,
-      });
+    const targetGuest = await prisma.bookingGuest.findUnique({
+      where: {
+        id: guest.id,
+      },
+      ...reusableIncludeBlock,
+    });
 
     // check that the guest exists
-    if (!thing || thing === null) {
+    if (!targetGuest || targetGuest === null) {
       return res.status(404).json({
         message: "Not found",
       });
@@ -346,7 +266,7 @@ export async function checkoutManyGuests(req: Request, res: Response) {
     // check that the user has access to the siteId for which the guest is being checked in
     const userSites = user.sites;
     const targetSite = userSites.find(
-      (site) => site.id === thing!.booking.unit.unitType.site.id
+      (site) => site.id === targetGuest!.booking.unit.unitType.site.id
     );
 
     if (!targetSite) {
@@ -357,14 +277,14 @@ export async function checkoutManyGuests(req: Request, res: Response) {
 
     if (!reverse) {
       // check that the guest is not already checked out
-      if (thing.checkedOut) {
+      if (targetGuest.checkedOut) {
         return res.status(400).json({
           message: "Bad request - guest already checked in",
         });
       }
     } else {
       // check that the guest is already checked out
-      if (!thing.checkedOut) {
+      if (!targetGuest.checkedOut) {
         return res.status(400).json({
           message: "Bad request - guest not checked in",
         });
@@ -372,14 +292,14 @@ export async function checkoutManyGuests(req: Request, res: Response) {
     }
 
     // check that the guest is checked in
-    if (!thing.checkedIn) {
+    if (!targetGuest.checkedIn) {
       return res.status(400).json({
         message: "Bad request - guest no checked in",
       });
     }
 
     // check that the booking is not cancelled
-    if (thing.booking.status !== "CONFIRMED") {
+    if (targetGuest.booking.status !== "CONFIRMED") {
       return res.status(400).json({
         message: "Bad request - booking cancelled",
       });
@@ -387,61 +307,24 @@ export async function checkoutManyGuests(req: Request, res: Response) {
   }
 
   let now = new Date();
-  let guestsToUpdate: number[] = [];
-  let petsToUpdate: number[] = [];
-  let vehiclesToUpdate: number[] = [];
+  let guestsToUpdate: number[] = guests.map(
+    (guest: { id: number }) => guest.id
+  );
 
-  guests.forEach((guest: { id: number; type: "GUEST" | "PET" | "VEHICLE" }) => {
-    if (guest.type === "GUEST") {
-      guestsToUpdate.push(guest.id);
-    }
-    if (guest.type === "PET") {
-      petsToUpdate.push(guest.id);
-    }
-    if (guest.type === "VEHICLE") {
-      vehiclesToUpdate.push(guest.id);
-    }
+  const checkedOutGuests = await prisma.bookingGuest.updateMany({
+    where: {
+      id: {
+        in: guestsToUpdate,
+      },
+    },
+    data: {
+      checkedOut: !reverse ? now : null,
+    },
   });
-
-  const [checkedOutGuests, checkedOutPets, checkedOutVehicles] =
-    await prisma.$transaction([
-      prisma.bookingGuest.updateMany({
-        where: {
-          id: {
-            in: guestsToUpdate,
-          },
-        },
-        data: {
-          checkedOut: !reverse ? now : null,
-        },
-      }),
-      prisma.bookingPet.updateMany({
-        where: {
-          id: {
-            in: petsToUpdate,
-          },
-        },
-        data: {
-          checkedOut: !reverse ? now : null,
-        },
-      }),
-      prisma.bookingVehicle.updateMany({
-        where: {
-          id: {
-            in: vehiclesToUpdate,
-          },
-        },
-        data: {
-          checkedOut: !reverse ? now : null,
-        },
-      }),
-    ]);
 
   return res.status(200).json({
     data: {
       guestsUpdated: checkedOutGuests,
-      petsUpdated: checkedOutPets,
-      vehiclesUpdated: checkedOutVehicles,
     },
   });
 }
