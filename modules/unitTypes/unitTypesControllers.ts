@@ -81,22 +81,6 @@ export async function getUnitTypes(req: Request, res: Response) {
             guestType: true,
           },
         },
-        petFeesCalendarEntries: parsedincludeRates && {
-          where: {
-            date: {
-              lte: new Date(endDate as string),
-              gte: new Date(startDate as string),
-            },
-          },
-        },
-        vehicleFeesCalendarEntries: parsedincludeRates && {
-          where: {
-            date: {
-              lte: new Date(endDate as string),
-              gte: new Date(startDate as string),
-            },
-          },
-        },
         extraFeesCalendarEntries: parsedincludeRates && {
           where: {
             date: {
