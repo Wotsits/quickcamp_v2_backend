@@ -33,7 +33,7 @@ const prisma = new PrismaClient();
 
 async function main() {
   // settings
-  const bookingNo = 4000;
+  const bookingNo = 1000;
 
   // built stock data
 
@@ -260,14 +260,17 @@ async function main() {
       const guestType = guestTypesForSite[randomGuestTypeIndex];
       const guestTypeGroup = guestTypesGroupsForSite.find(guestTypeGroup => guestTypeGroup.id === guestType.guestTypeGroupId)!;
       let name = "";
+      let arrivalTime: string | null = null;
       if (guestTypeGroup.name === "People" || guestTypeGroup.name === "Wedding Guests") {
         name = faker.person.firstName() + " " + faker.person.lastName();
       }
       else if (guestTypeGroup.name === "Pets") {
         name = faker.person.firstName();
+
       }
       else if (guestTypeGroup.name === "Vehicles") {
         name = generateRandomUKRegistrationNumber();
+        arrivalTime = generateRandomTime();
       }
       const newMap = {
         id: bookingId,
@@ -278,6 +281,7 @@ async function main() {
         end: booking.end,
         checkedIn: null,
         checkedOut: null,
+        arrivalTime: arrivalTime
       };
       bookingGuests.push(newMap);
       bookingId++;
@@ -428,3 +432,7 @@ main()
     await prisma.$disconnect();
     process.exit(1);
   });
+function generateRandomTime(): string | null {
+  throw new Error("Function not implemented.");
+}
+

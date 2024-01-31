@@ -59,6 +59,7 @@ export function generateSequentialDates(): Date[] {
               latitude: data.latitude && parseFloat(data.latitude),
               longitude: data.longitude && parseFloat(data.longitude),
               guestTypeGroupId: data.guestTypeGroupId && parseInt(data.guestTypeGroupId),
+              getAndReportArrivalTime: data.getAndReportArrivalTime && data.getAndReportArrivalTime === "true"
             }
           );
         })
@@ -100,4 +101,9 @@ export function generateSequentialDates(): Date[] {
         });
       return arr;
     });
+  }
+
+  export function generateRandomTimeBetween0800And0200AndReturnAsStringInHHMMFormat() {
+    const hours = Math.floor(Math.random() * 18) + 8;
+    return String(hours).padStart(2, "0")
   }

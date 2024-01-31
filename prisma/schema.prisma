@@ -102,12 +102,13 @@ model LeadGuest {
 }
 
 model GuestTypeGroup {
-  id          Int         @id @default(autoincrement())
-  name        String
-  siteId      Int
-  site        Site        @relation(fields: [siteId], references: [id])
-  order       Int         @default(0)  
-  guestTypes  GuestType[]
+  id                      Int         @id @default(autoincrement())
+  name                    String
+  siteId                  Int
+  site                    Site        @relation(fields: [siteId], references: [id])
+  order                   Int         @default(0)  
+  getAndReportArrivalTime Boolean     @default(false)
+  guestTypes              GuestType[]
 }
 
 model GuestType {
@@ -179,6 +180,7 @@ model BookingGuest {
   guestTypeId   Int
   start         DateTime         
   end           DateTime
+  arrivalTime   String?
   checkedIn     DateTime?
   checkedOut    DateTime?
   notes         Note[]
