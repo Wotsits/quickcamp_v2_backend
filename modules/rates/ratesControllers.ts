@@ -42,18 +42,12 @@ export async function updateRates(req: Request, res: Response) {
     // parse the changedRates array
     const baseRates: ChangedItems = [];
     const guestRates: ChangedItems = [];
-    const petRates: ChangedItems = [];
-    const vehicleRates: ChangedItems = [];
 
     (changedItems as ChangedItems).forEach((rate) => {
       if (rate.type === RATE_TYPES.BASE) {
         baseRates.push(rate);
       } else if (rate.type === RATE_TYPES.GUEST) {
         guestRates.push(rate);
-      } else if (rate.type === RATE_TYPES.PET) {
-        petRates.push(rate);
-      } else if (rate.type === RATE_TYPES.VEHICLE) {
-        vehicleRates.push(rate);
       }
     });
 
@@ -84,41 +78,6 @@ export async function updateRates(req: Request, res: Response) {
         prisma.guestFeesCalendar.update({
           where: {
             id: guestRateUpdate.id,
-          },
-          data: {
-            feePerNight: newValuePerNight,
-            feePerStay: newValuePerStay,
-          },
-        })
-      );
-    });
-
-    petRates.forEach((petRateUpdate) => {
-      const newValuePerNight = petRateUpdate.newValuePerNight || undefined;
-      const newValuePerStay = petRateUpdate.newValuePerStay || undefined;
-
-      updateQueries.push(
-        prisma.petFeesCalendar.update({
-          where: {
-            id: petRateUpdate.id,
-          },
-          data: {
-            feePerNight: newValuePerNight,
-            feePerStay: newValuePerStay,
-          },
-        })
-      );
-    });
-
-    vehicleRates.forEach((vehicleRateUpdate) => {
-      const newValuePerNight =
-        vehicleRateUpdate.newValuePerNight || undefined;
-      const newValuePerStay = vehicleRateUpdate.newValuePerStay || undefined;
-
-      updateQueries.push(
-        prisma.vehicleFeesCalendar.update({
-          where: {
-            id: vehicleRateUpdate.id,
           },
           data: {
             feePerNight: newValuePerNight,
