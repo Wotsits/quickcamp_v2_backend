@@ -34,7 +34,11 @@ export async function getSites(req: Request, res: Response) {
       where: { id: parsedId },
       include: {
         unitTypes: true,
-        guestTypes: true,
+        guestTypeGroups: {
+          include: {
+            guestTypes: true,
+          },
+        },
         equipmentTypes: true,
       },
     });
