@@ -21,7 +21,7 @@ import {
   UnitTypeFeesCalendar,
 } from "@prisma/client";
 import bcrypt from "bcryptjs";
-import { generateRandomUKRegistrationNumber, generateSequentialDates, readCsvFileToJson, readUsersCSVFileToJson } from "./helpers/helpers";
+import { generateRandomUKRegistrationNumber, generateSequentialDates, readCsvFileToJson, readUsersCSVFileToJson } from "./helpers/helpers.js";
 
 // Instantiate Prisma instance
 
@@ -33,7 +33,7 @@ const prisma = new PrismaClient();
 
 async function main() {
   // settings
-  const bookingNo = 5000;
+  const bookingNo = 4000;
 
   // built stock data
 
@@ -155,7 +155,6 @@ async function main() {
       const guestTypeGroupsForSite = guestTypesGroups.filter(guestTypeGroup => guestTypeGroup.siteId === site.id);
       
       guestTypeGroupsForSite.forEach((guestTypeGroup) => {
-        
         const guestTypesForGroup = guestTypes.filter(guestType => guestType.guestTypeGroupId === guestTypeGroup.id);
         
         guestTypesForGroup.forEach((guestType) => {
@@ -359,6 +358,12 @@ async function main() {
     });
   }
   console.log("Unit Type Fees created");
+  for await (let guestTypeGroup of guestTypesGroups) {
+    await prisma.guestTypeGroup.create({
+      data: guestTypeGroup,
+    });
+  }
+  console.log("Guest Type Groups created");
   for await (let guestType of guestTypes) {
     await prisma.guestType.create({
       data: guestType,

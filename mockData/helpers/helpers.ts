@@ -58,6 +58,7 @@ export function generateSequentialDates(): Date[] {
               unitTypeId: data.unitTypeId && parseInt(data.unitTypeId),
               latitude: data.latitude && parseFloat(data.latitude),
               longitude: data.longitude && parseFloat(data.longitude),
+              guestTypeGroupId: data.guestTypeGroupId && parseInt(data.guestTypeGroupId),
             }
           );
         })
