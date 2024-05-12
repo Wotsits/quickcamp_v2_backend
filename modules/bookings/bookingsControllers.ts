@@ -303,8 +303,6 @@ export async function bookingsBySite(req: Request, res: Response) {
       endDate,
       extras,
       bookingGuests,
-      bookingPets,
-      bookingVehicles,
       paymentAmount,
       paymentMethod,
       paymentDate,
@@ -318,8 +316,6 @@ export async function bookingsBySite(req: Request, res: Response) {
       !endDate ||
       !extras ||
       !bookingGuests ||
-      !bookingPets ||
-      !bookingVehicles ||
       !paymentAmount ||
       !paymentMethod ||
       !paymentDate
@@ -332,8 +328,6 @@ export async function bookingsBySite(req: Request, res: Response) {
         endDate,
         extras,
         bookingGuests,
-        bookingPets,
-        bookingVehicles,
         paymentAmount,
         paymentMethod,
         paymentDate,
@@ -525,8 +519,6 @@ export async function bookingsBySite(req: Request, res: Response) {
               new Date(endDate),
               extras,
               bookingGuests,
-              bookingPets,
-              bookingVehicles,
               prisma
             ),
             guests: {
@@ -594,8 +586,6 @@ export async function bookingsBySite(req: Request, res: Response) {
               new Date(endDate),
               extras,
               bookingGuests,
-              bookingPets,
-              bookingVehicles,
               prisma
             ),
             guests: {
@@ -869,15 +859,13 @@ export async function bookingsBySite(req: Request, res: Response) {
         const endDate = req.query.endDate as string;
         const extras = req.query.extras as string[];
         const bookingGuests = req.query.bookingGuests as unknown as BookingProcessGuest[];
-        const bookingPets = req.query.bookingPets as unknown as BookingProcessPet[];
-        const bookingVehicles = req.query.bookingVehicles as unknown as BookingProcessVehicle[];
     
         let parsedUnitTypeId = parseInt(unitTypeId);
         let parsedStartDate = new Date(startDate);
         let parsedEndDate = new Date(endDate);
         let parsedExtras = extras ? extras.map((extra) => parseInt(extra as unknown as string)) : [];
     
-        const totalFee = await calculateFee(parsedUnitTypeId, parsedStartDate, parsedEndDate, parsedExtras, bookingGuests, bookingPets, bookingVehicles, prisma);
+        const totalFee = await calculateFee(parsedUnitTypeId, parsedStartDate, parsedEndDate, parsedExtras, bookingGuests, prisma);
     
         return res.json({ data: { status: "SUCCESS", message: "Fee calculated", totalFee: totalFee } } );
       };

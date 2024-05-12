@@ -26,8 +26,6 @@ export async function calculateFee(
   endDate: Date,
   extras: number[],
   bookingGuests: BookingProcessGuest[],
-  bookingPets: BookingProcessPet[],
-  bookingVehicles: BookingProcessVehicle[],
   prisma: PrismaClient
 ) {
   const guestTypes: number[] = [];
