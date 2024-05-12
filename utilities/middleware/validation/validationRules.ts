@@ -68,7 +68,7 @@ export const validationRulesMap: ValidationRules = {
   token: {
     type: "string",
     minLength: 0,
-    maxLength: 5000,
+    maxLength: 10000,
   },
   startDate: {
     type: "date",
