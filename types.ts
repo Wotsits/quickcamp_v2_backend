@@ -8,11 +8,23 @@ export type Tenant = {
 export type Site = {
   id: number;
   name: string;
+  description: string;
+  address1: string;
+  address2?: string | null;
+  townCity: string;
+  county: string;
+  postcode: string;
+  country: string;
+  email: string;
+  tel: string;
+  website: string;
+  latitude: number;
+  longitude: number;
   tenantId: number;
   tenant?: Tenant;
   unitTypes?: UnitType[];
   equipmentTypes?: EquipmentType[];
-  guestTypes?: GuestType[];
+  guestTypeGroups?: GuestTypeGroup[];
 };
 
 export type User = {
@@ -35,8 +47,15 @@ export type Role = {
 export type UnitType = {
   id: number;
   name: string;
+  description: string;
   siteId: number;
   units?: Unit[];
+  extraTypes?: ExtraType[];
+  unitTypeFeesCalendarEntries?: UnitTypeFeesCalendar[];
+  guestFeesCalendarEntries?: GuestFeesCalendar[];
+  petFeesCalendarEntries?: PetFeesCalendar[];
+  vehicleFeesCalendarEntries?: VehicleFeesCalendar[];
+  extraFeesCalendarEntries?: ExtraFeesCalendar[];
 };
 
 export type Unit = {
@@ -51,7 +70,7 @@ export type LeadGuest = {
   firstName: string;
   lastName: string;
   address1: string;
-  address2: string;
+  address2?: string;
   townCity: string;
   county: string;
   postcode: string;
@@ -61,15 +80,30 @@ export type LeadGuest = {
   password: string;
   tenantId: number;
   tenant?: Tenant;
+  bookings?: Booking[];
+  notes?: Note[];
 };
+
+export type GuestTypeGroup = {
+  id: number;
+  name: string;
+  siteId: number;
+  site?: Site;
+  order: number;
+  getAndReportArrivalTime: boolean;
+  guestTypes: GuestType[]
+}
 
 export type GuestType = {
   id: number;
   name: string;
   description: string;
-  siteId: number;
-  site?: Site;
-  guests?: LeadGuest[];
+  icon: string;
+  identifierLabel: string;
+  guestTypeGroupId: number;
+  guestTypeGroup?: GuestTypeGroup;
+  bookingGuests?: BookingGuest[];
+  feesCalendarEntries: GuestFeesCalendar[];
 };
 
 export type EquipmentType = {
@@ -81,20 +115,27 @@ export type EquipmentType = {
   site?: Site;
 };
 
+export type ExtraType = {
+  id: number;
+  name: string;
+  description: string;
+  icon: string;
+  unitTypeId: number;
+  unitTypes?: UnitType[];
+};
+
 export type Booking = {
   id: number;
   start: Date;
   end: Date;
   unitId: number;
-  unit?: Unit;
+  unit: Unit;
   totalFee: number;
   leadGuestId: number;
   leadGuest: LeadGuest;
   guests?: BookingGuest[];
-  vehicles?: BookingVehicle[];
-  pets?: BookingPet[];
   payments?: Payment[];
-  status: "UNCONFIRMED" | "CONFIRMED" | "CANCELLED";
+  status: string;
 };
 
 export type Calendar = {
@@ -109,41 +150,91 @@ export type BookingGuest = {
   bookingId: number;
   booking?: Booking;
   name: string;
-  age: number;
+  guestTypeId: number;
+  guestType?: GuestType;
   start: Date;
   end: Date;
-  checkedIn: Date | null;
-  checkedOut: Date | null;
-};
-
-export type BookingVehicle = {
-  id: number;
-  bookingId: number;
-  booking?: Booking;
-  vehicleReg: string;
-  start: Date;
-  end: Date;
-  checkedIn: Date | null;
-  checkedOut: Date | null;
-};
-
-export type BookingPet = {
-  id: number;
-  bookingId: number;
-  booking?: Booking;
-  name: string;
-  start: Date;
+  arrivalTime?: string;
   checkedIn: Date | null;
   checkedOut: Date | null;
 };
 
 export type Payment = {
   id: number;
-  createdAt: Date;
+  paymentDate: Date;
+  paymentAmount: number;
+  paymentMethod: string;
+  paymentNotes: string;
   bookingId: number;
   booking?: Booking;
-  amount: number;
 };
+
+export type UnitTypeFeesCalendar = {
+  id: number;
+  date: Date;
+  unitType: UnitType;
+  unitTypeId: number;
+  feePerNight: number;
+  feePerStay: number;
+};
+
+export type GuestFeesCalendar = {
+  id: number;
+  date: Date;
+  guestType: GuestType;
+  guestTypeId: number;
+  unitType: UnitType;
+  unitTypeId: number;
+  feePerNight: number;
+  feePerStay: number;
+};
+
+export type PetFeesCalendar = {
+  id: number;
+  date: Date;
+  unitType: UnitType;
+  unitTypeId: number;
+  feePerNight: number;
+  feePerStay: number;
+};
+
+export type VehicleFeesCalendar = {
+  id: number;
+  date: Date;
+  unitType: UnitType;
+  unitTypeId: number;
+  feePerNight: number;
+  feePerStay: number;
+};
+
+export type ExtraFeesCalendar = {
+  id: number;
+  date: Date;
+  extraType: ExtraType;
+  extraTypeId: number;
+  unitType: UnitType;
+  unitTypeId: number;
+  feePerNight: number;
+  feePerStay: number;
+};
+
+export type Note = {
+  id: number;
+  content: string;
+  leadGuestId?: number;
+  leadGuest?: LeadGuest;
+  bookingId?: number;
+  booking?: Booking;
+  paymentId?: number;
+  payment?: Payment;
+  bookingGuestId?: number;
+  bookingGuest?: BookingGuest;
+  createdOn: Date;
+  userId: number;
+  user: User;
+  noteType: "PUBLIC" | "PRIVATE";
+};
+
 
 // ----------------- RESPONSES -----------------
 

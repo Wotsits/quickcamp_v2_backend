@@ -3,7 +3,7 @@ id,name,description,icon,guestTypeGroupId,identifierLabel
 2,Child,A person aged 5 to 17 years old.,Child,1,Name
 3,Infant,A person aged 0 to 4 years old.,Infant,1,Name
 4,Youth,A person aged 18 to 24 years old and travelling as part of an organsiated group such as Scouts or DofE.,Youth,1,Name
-5,Dog,A dog.,Pet,1,Name
-6,Car,A car.,Car,1,Registration
-7,Motorbike,A motorbike.,Motorbike,1,Registration
-8,Wedding Guest,A person attending a wedding.,WeddingGuest,2,Name
+5,Dog,A dog.,Pet,2,Name
+6,Car,A car.,Car,3,Registration
+7,Motorbike,A motorbike.,Motorbike,3,Registration
+8,Wedding Guest,A person attending a wedding.,WeddingGuest,4,Name

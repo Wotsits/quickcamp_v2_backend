@@ -1,6 +1,6 @@
-import { User } from "../../types";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
+import { User } from "../../types";
 
 dotenv.config();
 const { JWTSECRET: jwtSecret } =

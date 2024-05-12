@@ -2,4 +2,4 @@ id,name,siteId,getAndReportArrivalTime
 1,People,1,false
 2,Pets,1,false
 3,Vehicles,1,true
-4,Wedding Guest,2,false
+4,Wedding Guests,2,false

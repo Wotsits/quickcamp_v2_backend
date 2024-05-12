@@ -21,7 +21,7 @@ import {
   UnitTypeFeesCalendar,
 } from "@prisma/client";
 import bcrypt from "bcryptjs";
-import { generateRandomUKRegistrationNumber, generateSequentialDates, readCsvFileToJson, readUsersCSVFileToJson } from "./helpers/helpers.js";
+import { generateRandomTime, generateRandomUKRegistrationNumber, generateSequentialDates, readCsvFileToJson, readUsersCSVFileToJson } from "./helpers/helpers.js";
 
 // Instantiate Prisma instance
 
@@ -256,21 +256,22 @@ async function main() {
     })
     for (let i = 1; i <= randomGuestNo; i++) {
       // generate a random guest type
-      const randomGuestTypeIndex = Math.floor(Math.random() * guestTypesForSite.length);
+      const randomGuestTypeIndex = Math.floor(Math.random() * (guestTypesForSite.length));
       const guestType = guestTypesForSite[randomGuestTypeIndex];
       const guestTypeGroup = guestTypesGroupsForSite.find(guestTypeGroup => guestTypeGroup.id === guestType.guestTypeGroupId)!;
       let name = "";
       let arrivalTime: string | null = null;
+      if (guestTypeGroup.getAndReportArrivalTime) {
+        arrivalTime = generateRandomTime();
+      }
       if (guestTypeGroup.name === "People" || guestTypeGroup.name === "Wedding Guests") {
         name = faker.person.firstName() + " " + faker.person.lastName();
       }
       else if (guestTypeGroup.name === "Pets") {
         name = faker.person.firstName();
-
       }
       else if (guestTypeGroup.name === "Vehicles") {
         name = generateRandomUKRegistrationNumber();
-        arrivalTime = generateRandomTime();
       }
       const newMap = {
         id: bookingId,
@@ -432,7 +433,6 @@ main()
     await prisma.$disconnect();
     process.exit(1);
   });
-function generateRandomTime(): string | null {
-  throw new Error("Function not implemented.");
-}
+
+
 
