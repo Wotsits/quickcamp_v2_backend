@@ -62,7 +62,15 @@ export async function getDeparturesByDate(req: Request, res: Response) {
     include: {
       unit: true,
       leadGuest: true,
-      guests: true,
+      guests: {
+        include: {
+          guestType: {
+            include: {
+              guestTypeGroup: true
+            }
+          }
+        }
+      },
       payments: true,
     },
   });
