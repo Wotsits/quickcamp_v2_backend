@@ -108,6 +108,8 @@ model GuestTypeGroup {
   site                    Site        @relation(fields: [siteId], references: [id])
   order                   Int         @default(0)  
   getAndReportArrivalTime Boolean     @default(false)
+  reportOnSiteTonight     Boolean     @default(false)
+  reportOnSiteNow         Boolean     @default(false)
   guestTypes              GuestType[]
 }
 

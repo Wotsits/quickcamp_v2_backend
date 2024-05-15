@@ -1,5 +1,5 @@
-id,name,siteId,getAndReportArrivalTime
-1,People,1,false
-2,Pets,1,false
-3,Vehicles,1,true
-4,Wedding Guests,2,false
+id,name,siteId,getAndReportArrivalTime,reportOnSiteTonight,reportOnSiteNow
+1,People,1,false,true,true
+2,Pets,1,false,false,false
+3,Vehicles,1,true,true,true
+4,Wedding Guests,2,false,true,true

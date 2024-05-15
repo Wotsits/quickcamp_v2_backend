@@ -59,7 +59,9 @@ export function generateSequentialDates(): Date[] {
               latitude: data.latitude && parseFloat(data.latitude),
               longitude: data.longitude && parseFloat(data.longitude),
               guestTypeGroupId: data.guestTypeGroupId && parseInt(data.guestTypeGroupId),
-              getAndReportArrivalTime: data.getAndReportArrivalTime && data.getAndReportArrivalTime === "true"
+              getAndReportArrivalTime: data.getAndReportArrivalTime && data.getAndReportArrivalTime === "true",
+              reportOnSiteTonight: data.reportOnSiteTonight && data.reportOnSiteTonight === "true",
+              reportOnSiteNow: data.reportOnSiteNow && data.reportOnSiteNow === "true"
             }
           );
         })
