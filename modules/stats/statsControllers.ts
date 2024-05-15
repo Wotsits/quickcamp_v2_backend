@@ -19,28 +19,56 @@ export async function getTotalOnSiteNow(req: Request, res: Response) {
   }
 
   // parse the siteId
-  const parsedSiteId = parseInt(siteId as string);
+  let parsedSiteId = -1
+  try {
+    parsedSiteId = parseInt(siteId as string);
+  } catch (err) {
+    return res.status(400).json({
+      message: "Bad request - invalid parameters.  You must provide a siteId to which you have access."
+    })
+  }
 
-  // get the total number of guests on site now
-  const totalOnSiteNow = await prisma.bookingGuest.count({
+  // get the guestTypeGroups we should return stats for.
+  const guestTypeGroups = await prisma.guestTypeGroup.findMany({
     where: {
-      booking: {
-        unit: {
-          unitType: {
-            siteId: parsedSiteId,
+      reportOnSiteNow: true,
+      siteId: parsedSiteId
+    }
+  })
+
+  let totalOnSiteNow = []
+
+  for (const guestTypeGroup of guestTypeGroups) {
+    const count = await prisma.bookingGuest.count({
+      where: {
+        booking: {
+          unit: {
+            unitType: {
+              siteId: parsedSiteId,
+            },
           },
         },
-      },
-      NOT: {
-        checkedIn: null,
-      },
-      checkedOut: null,
-    },
-  });
+        guestType: {
+          guestTypeGroup: {
+            id: guestTypeGroup.id
+          }
+        },
+        NOT: {
+          checkedIn: null,
+        },
+        checkedOut: null,
+      }
+    })
+    totalOnSiteNow.push({ guestTypeGroupName: guestTypeGroup.name, count })
+  }
 
   return res.status(200).json({ data: { totalOnSiteNow } });
+
 }
 
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
 
 export async function getTotalOnSiteTonight(req: Request, res: Response) {
   const { user } = req;
@@ -83,10 +111,10 @@ export async function getTotalOnSiteTonight(req: Request, res: Response) {
     const count = await prisma.bookingGuest.count({
       where: {
         start: {
-          lte: new Date(new Date().setHours(14,0,0,0))
+          lte: new Date(new Date().setHours(14, 0, 0, 0))
         },
         end: {
-          gte: new Date(new Date().setHours(14,0,0,0))
+          gte: new Date(new Date().setHours(14, 0, 0, 0))
         },
         booking: {
           unit: {
@@ -102,7 +130,7 @@ export async function getTotalOnSiteTonight(req: Request, res: Response) {
         }
       }
     })
-    totalOnSiteTonight.push({guestTypeGroupName: guestTypeGroup.name, count})
+    totalOnSiteTonight.push({ guestTypeGroupName: guestTypeGroup.name, count })
   }
 
   return res.status(200).json({ data: { totalOnSiteTonight } });

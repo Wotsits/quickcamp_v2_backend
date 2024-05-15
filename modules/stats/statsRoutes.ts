@@ -9,14 +9,14 @@ import { getTotalOnSiteNow, getTotalOnSiteTonight } from "./statsControllers.js"
 
 export function registerStatsRoutes() {
   app.get(
-    urls.STATS + urls.ON_SITE,
+    urls.STATS + urls.TOTAL_ON_SITE,
     validateProvidedData,
     loggedIn,
     hasAccessToRequestedSite,
     getTotalOnSiteNow
   );
   app.get(
-    urls.STATS + urls.ON_SITE_TONIGHT,
+    urls.STATS + urls.TOTAL_ON_SITE_TONIGHT,
     validateProvidedData,
     loggedIn,
     hasAccessToRequestedSite,
