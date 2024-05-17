@@ -223,6 +223,14 @@ async function main() {
     const startDate: Date = new Date(randomAvailableDate.date);
     let endDate: Date = new Date(startDate);
     endDate = new Date(endDate.setDate(endDate.getDate() + 1));
+    
+    const availableBookingStatuses = [BOOKING_STATUSES.CONFIRMED, BOOKING_STATUSES.UNCONFIRMED, BOOKING_STATUSES.CANCELLED]
+    const randomNumber = Math.floor(Math.random() * 10)
+    let randomIndex = 0
+    if (randomNumber < 7) randomIndex = 0
+    else if (randomNumber < 9) randomIndex = 1
+    else randomIndex = 2
+    
     const newBooking = {
       id: newBookingId,
       start: startDate,
@@ -230,7 +238,7 @@ async function main() {
       unitId: randomUnitId,
       totalFee: 100,
       leadGuestId: randomGuestId,
-      status: BOOKING_STATUSES.CONFIRMED,
+      status: availableBookingStatuses[randomIndex],
     };
 
     bookings.push(newBooking);

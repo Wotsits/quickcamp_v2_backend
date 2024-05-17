@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { prisma } from "../../index.js";
+import { BOOKING_STATUSES } from "../../enums.js";
 
 export async function getTotalOnSiteNow(req: Request, res: Response) {
   const { user } = req;
@@ -168,6 +169,13 @@ export async function getTotalPaymentsToday(req: Request, res: Response) {
       paymentAmount: true
     },
     where: {
+      booking: {
+        unit: {
+          unitType: {
+            siteId: parsedSiteId,
+          },
+        },
+      },
       paymentDate: {
         gte: new Date(new Date().setHours(0,0,0,0)),
         lte: new Date(new Date().setHours(23,59,59,59))
@@ -211,10 +219,59 @@ export async function getPaymentsBreakdownToday(req: Request, res: Response) {
       paymentAmount: true
     },
     where: {
+      booking: {
+        unit: {
+          unitType: {
+            siteId: parsedSiteId,
+          },
+        },
+      },
       paymentDate: {
         gte: new Date(new Date().setHours(0,0,0,0)),
         lte: new Date(new Date().setHours(23,59,59,59))
       }
+    }
+  })
+
+  return res.status(200).json({ data }); 
+}
+
+
+export async function getUnconfirmedBookingCount(req: Request, res: Response) {
+  const { user } = req;
+  if (!user) {
+    return res.status(401).json({
+      message: "Unauthorized",
+    });
+  }
+
+  const { siteId } = req.query;
+
+  if (!siteId) {
+    return res.status(400).json({
+      message:
+        "Bad request - invalid parameters.  You must provide a siteId to which you have access.",
+    });
+  }
+
+  // parse the siteId
+  let parsedSiteId = -1
+  try {
+    parsedSiteId = parseInt(siteId as string);
+  } catch (err) {
+    return res.status(400).json({
+      message: "Bad request - invalid parameters.  You must provide a siteId to which you have access."
+    })
+  }
+
+  const data = await prisma.booking.count({
+    where: {
+      unit: {
+        unitType: {
+          siteId: parsedSiteId,
+        },
+      },
+      status: BOOKING_STATUSES.UNCONFIRMED
     }
   })
 
