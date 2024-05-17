@@ -135,3 +135,45 @@ export async function getTotalOnSiteTonight(req: Request, res: Response) {
 
   return res.status(200).json({ data: { totalOnSiteTonight } });
 }
+
+export async function getTotalPaymentsToday(req: Request, res: Response) {
+  const { user } = req;
+  if (!user) {
+    return res.status(401).json({
+      message: "Unauthorized",
+    });
+  }
+
+  const { siteId } = req.query;
+
+  if (!siteId) {
+    return res.status(400).json({
+      message:
+        "Bad request - invalid parameters.  You must provide a siteId to which you have access.",
+    });
+  }
+
+  // parse the siteId
+  let parsedSiteId = -1
+  try {
+    parsedSiteId = parseInt(siteId as string);
+  } catch (err) {
+    return res.status(400).json({
+      message: "Bad request - invalid parameters.  You must provide a siteId to which you have access."
+    })
+  }
+ 
+  const data = await prisma.payment.aggregate({
+    _sum: {
+      paymentAmount: true
+    },
+    where: {
+      paymentDate: {
+        gte: new Date(new Date().setHours(0,0,0,0)),
+        lte: new Date(new Date().setHours(23,59,59,59))
+      }
+    }
+  })
+
+  return res.status(200).json({data})
+}
