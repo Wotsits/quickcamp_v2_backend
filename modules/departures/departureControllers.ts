@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { prisma } from "../../index.js";
 import { raiseConsoleErrorWithListOfMissingData } from "../../utilities/commonHelpers/raiseErrorWithListOfMissingData.js";
+import { BOOKING_STATUSES } from "../../enums.js";
 
 export async function getDeparturesByDate(req: Request, res: Response) {
   if (!req.user) {
@@ -166,7 +167,7 @@ export async function checkOutGuest(req: Request, res: Response) {
   }
 
   // check that the booking is not cancelled
-  if (guest.booking.status !== "CONFIRMED") {
+  if (guest.booking.status !== BOOKING_STATUSES.CONFIRMED) {
     return res.status(400).json({
       message: "Bad request - booking cancelled",
     });

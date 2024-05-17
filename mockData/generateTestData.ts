@@ -22,6 +22,7 @@ import {
 } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { generateRandomTime, generateRandomUKRegistrationNumber, generateSequentialDates, readCsvFileToJson, readUsersCSVFileToJson } from "./helpers/helpers.js";
+import { BOOKING_STATUSES } from "../enums.js";
 
 // Instantiate Prisma instance
 
@@ -229,7 +230,7 @@ async function main() {
       unitId: randomUnitId,
       totalFee: 100,
       leadGuestId: randomGuestId,
-      status: "CONFIRMED",
+      status: BOOKING_STATUSES.CONFIRMED,
     };
 
     bookings.push(newBooking);

@@ -5,6 +5,7 @@ import { BookingGuest } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { BookingProcessGuest, BookingProcessPet, BookingProcessVehicle } from "../../types";
 import { bookingPaymentsTotal, calculateFee } from "./bookingsHelpers.js";
+import { BOOKING_STATUSES } from "../../enums.js";
 
 export async function bookingsBySite(req: Request, res: Response) {
     const { user } = req;
@@ -537,7 +538,7 @@ export async function bookingsBySite(req: Request, res: Response) {
             calendarEntries: {
               connect: calendarConnectArr,
             },
-            status: "CONFIRMED",
+            status: BOOKING_STATUSES.CONFIRMED,
           },
           include: {
             leadGuest: true,
@@ -604,7 +605,7 @@ export async function bookingsBySite(req: Request, res: Response) {
             calendarEntries: {
               connect: calendarConnectArr,
             },
-            status: "CONFIRMED",
+            status: BOOKING_STATUSES.CONFIRMED,
           },
           include: {
             leadGuest: true,

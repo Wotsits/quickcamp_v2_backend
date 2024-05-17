@@ -39,3 +39,9 @@ export const urls: { [key: string]: string } = {
   NEW_SITE: "/new-site",
   UPDATE_RATES: "/update-rates",
 };
+
+export const BOOKING_STATUSES = {
+  CONFIRMED: "CONFIRMED",
+  UNCONFIRMED: "UNCONFIRMED",
+  CANCELLED: "CANCELLED"
+}
