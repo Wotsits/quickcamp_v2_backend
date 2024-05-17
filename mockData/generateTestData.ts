@@ -294,12 +294,15 @@ async function main() {
   // build Payments
   const payments: Payment[] = [];
   bookings.forEach((booking, index) => {
+    const availablePaymentMethods = ["CASH", "CARD", "BANK TRANSFER"]
+    const randomIndex = Math.floor(Math.random() * availablePaymentMethods.length)
+    const paymentMethod = availablePaymentMethods[randomIndex]
     payments.push({
       id: index,
       paymentDate: new Date(),
       bookingId: booking.id,
       paymentAmount: 100,
-      paymentMethod: "CASH",
+      paymentMethod: paymentMethod,
     });
   });
 

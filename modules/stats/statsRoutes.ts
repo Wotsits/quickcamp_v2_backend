@@ -5,7 +5,7 @@ import {
 } from "../../utilities/middleware/userManagement/middleware.js";
 import { validateProvidedData } from "../../utilities/middleware/validation/middleware.js";
 import { app } from "../../index.js";
-import { getTotalOnSiteNow, getTotalOnSiteTonight, getTotalPaymentsToday } from "./statsControllers.js";
+import { getPaymentsBreakdownToday, getTotalOnSiteNow, getTotalOnSiteTonight, getTotalPaymentsToday } from "./statsControllers.js";
 
 export function registerStatsRoutes() {
   app.get(
@@ -28,5 +28,12 @@ export function registerStatsRoutes() {
     loggedIn,
     hasAccessToRequestedSite,
     getTotalPaymentsToday
+  );
+  app.get(
+    urls.STATS + urls.PAYMENTS_BREAKDOWN_TODAY,
+    validateProvidedData,
+    loggedIn,
+    hasAccessToRequestedSite,
+    getPaymentsBreakdownToday
   )
 }
