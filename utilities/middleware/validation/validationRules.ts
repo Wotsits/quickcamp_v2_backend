@@ -182,6 +182,11 @@ export const validationRulesMap: ValidationRules = {
   paymentDate: {
     type: "date",
   },
+  bookingGroupId: {
+    type: "number",
+    minLength: 0,
+    min: 0
+  },
   reverse: {
     type: "boolean",
   },

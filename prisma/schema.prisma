@@ -38,6 +38,7 @@ model Site {
   unitTypes       UnitType[]
   guestTypeGroups GuestTypeGroup[]
   equipmentTypes  EquipmentType[]
+  bookingGroups   BookingGroup[]
 }
 
 model User {
@@ -147,6 +148,13 @@ model ExtraType {
   ExtraFeesCalendarEntries  ExtraFeesCalendar[]
 }
 
+model BookingGroup {
+  id        Int         @id @default(autoincrement())
+  siteId    Int 
+  site      Site        @relation(fields: [siteId], references: [id])
+  bookings  Booking[]   
+}
+
 model Booking {
   id                Int               @id @default(autoincrement())
   start             DateTime         
@@ -162,6 +170,8 @@ model Booking {
   calendarEntries   Calendar[]
   status            String
   notes             Note[]
+  bookingGroupId    Int             
+  bookingGroup      BookingGroup      @relation(fields: [bookingGroupId], references: [id])
 }
 
 model Calendar {

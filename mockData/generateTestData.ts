@@ -19,6 +19,7 @@ import {
   GuestFeesCalendar,
   ExtraFeesCalendar,
   UnitTypeFeesCalendar,
+  BookingGroup,
 } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { generateRandomTime, generateRandomUKRegistrationNumber, generateSequentialDates, readCsvFileToJson, readUsersCSVFileToJson } from "./helpers/helpers.js";
@@ -197,8 +198,10 @@ async function main() {
 
   // build Bookings,
   const bookings: Booking[] = [];
+  const bookingGroups: BookingGroup[] = []
   let successfulBookingCount = 0;
   while (successfulBookingCount < bookingNo) {
+    // create and array of the units available for site 1
     const unitTypesForSite = unitTypes.filter(unitType => unitType.siteId === 1);
     const unitsForSite: Unit[]= [];
     unitTypesForSite.forEach(unitType => {
@@ -207,15 +210,15 @@ async function main() {
     })
 
     // make bookings
-    const randomGuestId = Math.ceil(Math.random() * leadGuests.length);
-    const randomUnitIndex = Math.floor(Math.random() * unitsForSite.length);
-    const randomUnitId = units[randomUnitIndex].id;
+    const randomGuestId = Math.ceil(Math.random() * leadGuests.length); // get a random guest
+    const randomUnitIndex = Math.floor(Math.random() * unitsForSite.length); // get a random unit
+    const randomUnitId = units[randomUnitIndex].id; 
     const unitsAvailableDates = calendarTable.filter(
       (entry) => entry.unitId === randomUnitId && !entry.bookingId
-    );
+    ); // get the available dates for that unit.
     const randomAvailableIndex = Math.floor(
       Math.random() * unitsAvailableDates.length
-    );
+    ); // get a random available date.
     const randomAvailableDate = unitsAvailableDates[randomAvailableIndex];
 
     // generate the new booking
@@ -239,8 +242,10 @@ async function main() {
       totalFee: 100,
       leadGuestId: randomGuestId,
       status: availableBookingStatuses[randomIndex],
+      bookingGroupId: newBookingId
     };
 
+    bookingGroups.push({id: newBookingId, siteId: 1})
     bookings.push(newBooking);
     randomAvailableDate.bookingId = newBookingId;
     successfulBookingCount++;
@@ -408,6 +413,11 @@ async function main() {
     });
   }
   console.log("Extra Fees created");
+  for await (let bookingGroup of bookingGroups) {
+    await prisma.bookingGroup.create({
+      data: bookingGroup
+    })
+  }
   for await (let booking of bookings) {
     await prisma.booking.create({
       data: booking,

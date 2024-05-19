@@ -307,6 +307,7 @@ export async function bookingsBySite(req: Request, res: Response) {
       paymentAmount,
       paymentMethod,
       paymentDate,
+      bookingGroupId
     } = req.body;
 
     if (
@@ -497,6 +498,37 @@ export async function bookingsBySite(req: Request, res: Response) {
       };
     });
 
+    // decide shape of bookingGroup object
+    let bookingGroupObject = {}
+
+    // if no bookingGroupId has been submitted, make one
+    if (!bookingGroupId) {
+      bookingGroupObject = {
+        create: {
+          siteId: parseInt(siteId)
+        }
+      }
+    }
+    // if a bookingGroupId has been submitted, check we have access to it and if so link this booking to it.
+    else {
+      const data = prisma.bookingGroup.findFirst({
+        where: {
+          id: parseInt(bookingGroupId),
+          siteId: parseInt(siteId)
+        }
+      })
+      if (!data) {
+        return res.status(401).json({
+          message: "The bookingGroupId submitted does not exist.",
+        });
+      }
+      bookingGroupObject = {
+        connect: {
+          id: parseInt(bookingGroupId)
+        }
+      }
+    }
+
     // the way that the booking is created depends on whether the leadGuestId has been provided
     try {
       if (path === "EXISTINGGUEST") {
@@ -539,6 +571,7 @@ export async function bookingsBySite(req: Request, res: Response) {
               connect: calendarConnectArr,
             },
             status: BOOKING_STATUSES.CONFIRMED,
+            bookingGroup: bookingGroupObject
           },
           include: {
             leadGuest: true,
@@ -606,6 +639,7 @@ export async function bookingsBySite(req: Request, res: Response) {
               connect: calendarConnectArr,
             },
             status: BOOKING_STATUSES.CONFIRMED,
+            bookingGroup: bookingGroupObject
           },
           include: {
             leadGuest: true,
