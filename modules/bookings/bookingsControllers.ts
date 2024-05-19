@@ -262,6 +262,11 @@ export async function bookingsBySite(req: Request, res: Response) {
             }
           },
         },
+        bookingGroup: {
+          include: {
+            bookings: true
+          }
+        },
         payments: true,
       },
     });

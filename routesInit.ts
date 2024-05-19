@@ -20,6 +20,7 @@ import { registerCheckOutRoutes, registerDeparturesRoutes } from "./modules/depa
 import { registerStatsRoutes } from "./modules/stats/statsRoutes.js";
 import { registerNoteRoutes } from "./modules/notes/notesRoutes.js";
 import { registerRatesRoutes } from "./modules/rates/ratesRoutes.js";
+import { registerBookingGroupRoutes } from "./modules/bookingGroups/bookingGroupRoutes.js";
 
 export function routesInit() {
   registerRegisterRoute();
@@ -34,6 +35,7 @@ export function routesInit() {
   registerUnitRoutes();
   registerExtraTypeRoutes();
   registerLeadGuestRoutes();
+  registerBookingGroupRoutes();
   registerBookingRoutes();
   registerArrivalsRoutes();
   registerCheckInRoutes();
