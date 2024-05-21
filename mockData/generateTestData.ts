@@ -320,9 +320,12 @@ async function main() {
     const availablePaymentMethods = ["CASH", "CARD", "BANK TRANSFER"]
     const randomIndex = Math.floor(Math.random() * availablePaymentMethods.length)
     const paymentMethod = availablePaymentMethods[randomIndex]
+    const randomPaymentOffset = Math.floor(Math.random() * 30)
+    const today = new Date()
+    const paymentDate = new Date(today.setDate(today.getDate() + randomPaymentOffset))
     payments.push({
       id: index,
-      paymentDate: new Date(),
+      paymentDate: paymentDate,
       bookingId: booking.id,
       paymentAmount: 100,
       paymentMethod: paymentMethod,
