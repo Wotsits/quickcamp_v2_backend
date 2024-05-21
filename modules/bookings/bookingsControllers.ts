@@ -15,7 +15,7 @@ export async function bookingsBySite(req: Request, res: Response) {
     });
   }
 
-  const { siteId, take, skip } = req.query;
+  const { siteId, take, skip, status } = req.query;
 
   // ----------------------------
   // VALIDATE THE SUPPLIED DATA
@@ -43,6 +43,7 @@ export async function bookingsBySite(req: Request, res: Response) {
           siteId: parsedSiteId,
         },
       },
+      status: status as string | undefined
     },
   });
 
@@ -53,6 +54,7 @@ export async function bookingsBySite(req: Request, res: Response) {
           siteId: parsedSiteId,
         },
       },
+      status: status as string | undefined
     },
     skip: parsedSkip,
     take: parsedTake,
@@ -110,7 +112,7 @@ export async function bookingsBySiteAndDateRange(req: Request, res: Response) {
     });
   }
 
-  const { start, end, siteId } = req.query;
+  const { start, end, siteId, status } = req.query;
 
   if (!siteId) {
     return res.status(400).json({
@@ -140,6 +142,7 @@ export async function bookingsBySiteAndDateRange(req: Request, res: Response) {
               siteId: parsedSiteId,
             },
           },
+          status: status as string | undefined
         },
         {
           OR: [

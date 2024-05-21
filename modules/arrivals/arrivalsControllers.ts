@@ -23,15 +23,12 @@ export async function getArrivalsByDate(req: Request, res: Response) {
   // return bookings here, paginated.
   const data = await prisma.booking.findMany({
     where: {
-      OR: [
-        {
-          guests: {
-            some: {
-              start: new Date(date as string),
-            },
-          },
+      guests: {
+        some: {
+          start: new Date(date as string),
         },
-      ],
+      },
+      status: BOOKING_STATUSES.CONFIRMED
     },
     orderBy: [
       {

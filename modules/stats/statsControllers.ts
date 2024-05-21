@@ -48,6 +48,7 @@ export async function getTotalOnSiteNow(req: Request, res: Response) {
               siteId: parsedSiteId,
             },
           },
+          status: BOOKING_STATUSES.CONFIRMED
         },
         guestType: {
           guestTypeGroup: {
@@ -123,6 +124,7 @@ export async function getTotalOnSiteTonight(req: Request, res: Response) {
               siteId: parsedSiteId,
             },
           },
+          status: BOOKING_STATUSES.CONFIRMED
         },
         guestType: {
           guestTypeGroup: {

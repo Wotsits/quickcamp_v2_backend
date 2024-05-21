@@ -38,15 +38,12 @@ export async function getDeparturesByDate(req: Request, res: Response) {
           siteId: parsedSiteId,
         },
       },
-      OR: [
-        {
-          guests: {
-            some: {
-              end: parsedDate,
-            },
-          },
+      guests: {
+        some: {
+          end: parsedDate,
         },
-      ],
+      },
+      status: BOOKING_STATUSES.CONFIRMED
     },
     orderBy: [
       {

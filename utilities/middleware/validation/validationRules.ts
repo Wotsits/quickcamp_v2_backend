@@ -1,3 +1,4 @@
+import { BOOKING_STATUSES } from "../../../enums.js";
 import { maxPageLength } from "../../../settings.js";
 
 export type ValidationRule = {
@@ -257,6 +258,10 @@ export const validationRulesMap: ValidationRules = {
     type: "string",
     minLength: 0,
     maxLength: 100,
+  },
+  status: {
+    type: "string",
+    validEnum: [BOOKING_STATUSES.CONFIRMED, BOOKING_STATUSES.UNCONFIRMED, BOOKING_STATUSES.CANCELLED],
   },
   latitude: {
     type: "number",
