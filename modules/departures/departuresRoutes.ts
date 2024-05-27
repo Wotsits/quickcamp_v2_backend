@@ -22,8 +22,8 @@ export function registerDeparturesRoutes() {
 }
 
 export function registerCheckOutRoutes() {
-  app.post(urls.CHECK_OUT_GUEST, validateProvidedData, loggedIn, checkOutGuest);
-  app.post(
+  app.put(urls.CHECK_OUT_GUEST, validateProvidedData, loggedIn, checkOutGuest);
+  app.put(
     urls.CHECK_OUT_MANY_GUESTS,
     validateProvidedData,
     loggedIn,

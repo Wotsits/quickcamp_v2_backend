@@ -22,14 +22,14 @@ export async function getBookings(req: Request, res: Response) {
 
   // unpack and parse any params into the correct data type using the parseData helper
   try {
-    const { 
-      id: localId, 
-      start: localStart, 
-      end: localEnd, 
-      unitId: localUnitId, 
-      totalFee: localTotalFee, 
-      leadGuestId: localLeadGuestId, 
-      status: localStatus, 
+    const {
+      id: localId,
+      start: localStart,
+      end: localEnd,
+      unitId: localUnitId,
+      totalFee: localTotalFee,
+      leadGuestId: localLeadGuestId,
+      status: localStatus,
       bookingGroupId: localBookingGroupId,
       siteId: localSiteId,
       AND: localAND,
@@ -40,7 +40,7 @@ export async function getBookings(req: Request, res: Response) {
       summariesOnly: localSummariesOnly,
       count: localCount,
     } = parseData(req.query, validationRulesMap)
-    
+
     id = localId
     start = localStart
     end = localEnd
@@ -55,11 +55,11 @@ export async function getBookings(req: Request, res: Response) {
     skip = localSkip
     take = localTake
     include = localInclude,
-    summariesOnly = localSummariesOnly,
-    count = localCount
+      summariesOnly = localSummariesOnly,
+      count = localCount
   }
-  catch(err) {
-    return res.status(400).json({message: "malformed query variables"})
+  catch (err) {
+    return res.status(400).json({ message: "malformed query variables" })
   }
 
   // siteId must be provided for getBookings requests
@@ -132,7 +132,7 @@ export async function getBookings(req: Request, res: Response) {
   }
 
   // handle count request
-  let countData 
+  let countData
   if (count) {
     countData = count && await prisma.booking.count({
       where: {
@@ -145,7 +145,7 @@ export async function getBookings(req: Request, res: Response) {
       },
     });
   }
-  
+
   return res.status(200).json({ data: summariesOnly ? bookingSummaries : data, count: countData })
 }
 
@@ -168,8 +168,8 @@ export async function bookingById(req: Request, res: Response) {
     const { id: localId } = parseData(req.params, validationRulesMap);
     id = localId;
   }
-  catch(err) {
-    return res.status(400).json({message: "malformed query variables"})
+  catch (err) {
+    return res.status(400).json({ message: "malformed query variables" })
   }
 
   // get the booking
@@ -610,8 +610,18 @@ export async function updateBookingLeadGuestExisting(req: Request, res: Response
     });
   }
 
-  // destructure the request body
-  const { bookingId, leadGuestId } = req.body;
+  // parse the request body
+  let bookingId, leadGuestId;
+
+  try {
+    const { id } = parseData(req.params, validationRulesMap);
+    bookingId = id;
+    const { leadGuestId: localLeadGuestId } = parseData(req.body, validationRulesMap);
+    leadGuestId = localLeadGuestId;
+  }
+  catch (err) {
+    return res.status(400).json({ message: "malformed query variables" })
+  }
 
   // ensure that we have all the required data
   if (!bookingId || !leadGuestId) {
@@ -620,14 +630,10 @@ export async function updateBookingLeadGuestExisting(req: Request, res: Response
     });
   }
 
-  // parse the supplied data
-  let parsedBookingId = parseInt(bookingId);
-  let parsedLeadGuestId = parseInt(leadGuestId);
-
   // ensure that the booking exists
   const booking = await prisma.booking.findUnique({
     where: {
-      id: parsedBookingId,
+      id: bookingId,
     },
     include: {
       leadGuest: true,
@@ -643,7 +649,7 @@ export async function updateBookingLeadGuestExisting(req: Request, res: Response
   // ensure that the leadGuest exists
   const leadGuest = await prisma.leadGuest.findUnique({
     where: {
-      id: parsedLeadGuestId,
+      id: leadGuestId,
     },
   });
 
@@ -670,12 +676,12 @@ export async function updateBookingLeadGuestExisting(req: Request, res: Response
   // update the booking
   const updatedBooking = await prisma.booking.update({
     where: {
-      id: parsedBookingId,
+      id: bookingId,
     },
     data: {
       leadGuest: {
         connect: {
-          id: parsedLeadGuestId,
+          id: leadGuestId,
         },
       },
     },
@@ -694,24 +700,43 @@ export async function updateBookingLeadGuestNew(req: Request, res: Response) {
     });
   }
 
-  // destructure the request body
-  const {
-    bookingId,
-    firstName,
-    lastName,
-    email,
-    tel,
-    address1,
-    address2,
-    townCity,
-    county,
-    postcode,
-    country,
-  } = req.body;
+  let id, firstName, lastName, email, tel, address1, address2, townCity, county, postcode, country
+
+  try {
+    const {
+      firstName: localFirstName,
+      lastName: localLastName,
+      email: localEmail,
+      tel: localTel,
+      address1: localAddress1,
+      address2: localAddress2,
+      townCity: localTownCity,
+      county: localCounty,
+      postcode: localPostcode,
+      country: localCountry,
+    } = parseData(req.body, validationRulesMap)
+
+    firstName = localFirstName
+    lastName = localLastName
+    email = localEmail
+    tel = localTel
+    address1 = localAddress1
+    address2 = localAddress2
+    townCity = localTownCity
+    county = localCounty
+    postcode = localPostcode
+    country = localCountry
+
+    const { id: localId } = parseData(req.params, validationRulesMap);
+    id = localId;
+  }
+  catch (err) {
+    return res.status(400).json({ message: "malformed query variables" })
+  }
 
   // ensure that we have all the required data
   if (
-    !bookingId ||
+    !id ||
     !firstName ||
     !lastName ||
     !email ||
@@ -724,20 +749,10 @@ export async function updateBookingLeadGuestNew(req: Request, res: Response) {
     });
   }
 
-  // ensure that the bookingId is a number
-  let parsedBookingId: number;
-  try {
-    parsedBookingId = parseInt(bookingId);
-  } catch {
-    return res.status(400).json({
-      message: "Bad request - invalid bookingId",
-    });
-  }
-
   // ensure that the booking exists
   const booking = await prisma.booking.findUnique({
     where: {
-      id: parsedBookingId,
+      id,
     },
     include: {
       leadGuest: true,
@@ -789,7 +804,7 @@ export async function updateBookingLeadGuestNew(req: Request, res: Response) {
   try {
     const updatedBooking = await prisma.booking.update({
       where: {
-        id: parsedBookingId,
+        id,
       },
       data: {
         leadGuest: {

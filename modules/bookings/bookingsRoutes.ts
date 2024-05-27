@@ -25,13 +25,13 @@ export function registerBookingRoutes() {
   );
   app.get(urls.BOOKING, validateProvidedData, loggedIn, getBookings)
   app.post(
-    urls.UPDATE_BOOKING_LEAD_GUEST_EXISTING,
+    `${urls.BOOKING}/:id/lead-guest`,
     validateProvidedData,
     loggedIn,
     updateBookingLeadGuestExisting
   );
   app.post(
-    urls.UPDATE_BOOKING_LEAD_GUEST_NEW,
+    `${urls.BOOKING}/:id/lead-guest/new`,
     validateProvidedData,
     loggedIn,
     updateBookingLeadGuestNew
