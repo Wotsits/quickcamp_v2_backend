@@ -7,29 +7,15 @@ import { validateProvidedData } from "../../utilities/middleware/validation/midd
 import { app } from "../../index.js";
 import {
   bookingById,
-  bookingsBySite,
-  bookingsBySiteAndDateRange,
   createBooking,
   generateFeeCalcs,
+  getBookings,
   updateBookingLeadGuestExisting,
   updateBookingLeadGuestNew,
 } from "./bookingsControllers.js";
 
 export function registerBookingRoutes() {
-  app.get(
-    urls.BOOKINGS_BY_SITE,
-    validateProvidedData,
-    loggedIn,
-    hasAccessToRequestedSite,
-    bookingsBySite
-  );
-  app.get(
-    urls.BOOKINGS_BY_SITE_AND_DATE_RANGE,
-    validateProvidedData,
-    loggedIn,
-    hasAccessToRequestedSite,
-    bookingsBySiteAndDateRange
-  );
+  app.get(urls.BOOKING, validateProvidedData, loggedIn, getBookings)
   app.get(`${urls.BOOKING_BY_ID}`, validateProvidedData, loggedIn, bookingById);
   app.post(
     urls.NEW_BOOKING,

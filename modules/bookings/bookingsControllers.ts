@@ -6,223 +6,147 @@ import bcrypt from "bcryptjs";
 import { BookingProcessGuest, BookingProcessPet, BookingProcessVehicle } from "../../types";
 import { bookingPaymentsTotal, calculateFee } from "./bookingsHelpers.js";
 import { BOOKING_STATUSES } from "../../enums.js";
+import { parseData } from "../../utilities/commonHelpers/parseData.js";
+import { validationRulesMap } from "../../utilities/middleware/validation/validationRules.js";
 
-export async function bookingsBySite(req: Request, res: Response) {
-  const { user } = req;
-  if (!user) {
-    return res.status(401).json({
-      message: "Unauthorized",
-    });
-  }
+export async function getBookings(req: Request, res: Response) {
 
-  const { siteId, take, skip, status } = req.query;
-
-  // ----------------------------
-  // VALIDATE THE SUPPLIED DATA
-  // ----------------------------
-
-  if (!siteId) {
-    return res.status(400).json({
-      message: "Bad request - no siteId",
-    });
-  }
-
-  const parsedSiteId = parseInt(siteId as string);
-  const parsedTake = parseInt(take as string);
-  const parsedSkip = parseInt(skip as string);
-
-  // ----------------------------
-  // GET THE BOOKINGS
-  // ----------------------------
-
-  // return bookings here, paginated.
-  const count = await prisma.booking.count({
-    where: {
-      unit: {
-        unitType: {
-          siteId: parsedSiteId,
-        },
-      },
-      status: status as string | undefined
-    },
-  });
-
-  const data = await prisma.booking.findMany({
-    where: {
-      unit: {
-        unitType: {
-          siteId: parsedSiteId,
-        },
-      },
-      status: status as string | undefined
-    },
-    skip: parsedSkip,
-    take: parsedTake,
-    orderBy: {
-      id: "desc",
-    },
-    include: {
-      unit: true,
-      leadGuest: true,
-      guests: {
-        include: {
-          guestType: {
-            include: {
-              guestTypeGroup: true,
-            },
-          },
-        },
-      },
-      payments: true,
-    },
-  });
-
-  // convert to summary for transmission
-  const bookingSummaries = data.map((booking) => ({
-    id: booking.id,
-    bookingName: booking.leadGuest.lastName,
-    guests: booking.guests.reduce(
-      (acc: { [key: string]: number }, guest) => {
-        if (acc[guest.guestType.name]) {
-          acc[guest.guestType.name] += 1;
-          return acc;
-        } else {
-          acc[guest.guestType.name] = 1;
-          return acc;
-        }
-      },
-      {}
-    ),
-    unit: booking.unitId,
-    start: booking.start.toString(),
-    end: booking.end.toString(),
-    paid: bookingPaymentsTotal(booking.payments) >= booking.totalFee,
-    guestsCheckedIn: booking.guests.filter((guest) => guest.checkedIn)
-      .length,
-  }));
-
-  // TODO return the booking summaries instead of the full booking
-  return res.status(200).json({ data, count });
-}
-
-export async function bookingsBySiteAndDateRange(req: Request, res: Response) {
+  // booking lists can only be got by users. 
   if (!req.user) {
     return res.status(401).json({
       message: "Unauthorized",
     });
   }
 
-  const { start, end, siteId, status } = req.query;
+  let id, start, end, unitId, totalFee, leadGuestId, status, bookingGroupId, siteId, skip, take, include, summariesOnly, count, AND, OR;
 
+  // unpack and parse any params into the correct data type using the parseData helper
+  try {
+    const { 
+      id: localId, 
+      start: localStart, 
+      end: localEnd, 
+      unitId: localUnitId, 
+      totalFee: localTotalFee, 
+      leadGuestId: localLeadGuestId, 
+      status: localStatus, 
+      bookingGroupId: localBookingGroupId,
+      siteId: localSiteId,
+      AND: localAND,
+      OR: localOR,
+      skip: localSkip,
+      take: localTake,
+      include: localInclude,
+      summariesOnly: localSummariesOnly,
+      count: localCount,
+    } = parseData(req.query, validationRulesMap)
+    
+    id = localId
+    start = localStart
+    end = localEnd
+    unitId = localUnitId
+    totalFee = localTotalFee
+    leadGuestId = localLeadGuestId
+    status = localStatus
+    bookingGroupId = localBookingGroupId
+    siteId = localSiteId
+    AND = localAND
+    OR = localOR
+    skip = localSkip
+    take = localTake
+    include = localInclude,
+    summariesOnly = localSummariesOnly,
+    count = localCount
+  }
+  catch(err) {
+    return res.status(400).json({message: "malformed query variables"})
+  }
+
+  // siteId must be provided for getBookings requests
+  // middleware has already checked that user has access to requested site.
   if (!siteId) {
     return res.status(400).json({
       message: "Bad request - no siteId",
     });
   }
 
-  if (!start || !end) {
-    return res.status(400).json({
-      message: "Bad request - no start or end date",
-    });
-  }
-
-
-  // parse the suppled data
-  const parsedSiteId = parseInt(siteId as string);
-  const parsedStart = new Date(start as string);
-  const parsedEnd = new Date(end as string);
-
-  // return bookings by date range here, paginated.
   const data = await prisma.booking.findMany({
     where: {
-      AND: [
-        {
-          unit: {
-            unitType: {
-              siteId: parsedSiteId,
-            },
-          },
-          status: status as string | undefined
-        },
-        {
-          OR: [
-            {
-              start: {
-                gte: parsedStart,
-                lt: parsedEnd,
-              },
-            },
-            {
-              end: {
-                gte: parsedStart,
-                lt: parsedEnd,
-              },
-            },
-            {
-              AND: [
-                {
-                  start: {
-                    lte: parsedStart,
-                  },
-                  end: {
-                    gt: parsedEnd,
-                  },
-                },
-              ],
-            },
-          ],
-        },
-      ],
+      id,
+      start,
+      end,
+      unitId,
+      totalFee,
+      leadGuestId,
+      status,
+      bookingGroupId,
+      unit: {
+        unitType: {
+          siteId: siteId
+        }
+      },
+      AND,
+      OR
     },
+    skip,
+    take,
     include: {
-      unit: true,
-      leadGuest: true,
-      guests: {
-        select: {
-          checkedIn: true,
-          guestType: {
-            include: {
-              guestTypeGroup: true,
-            },
+      leadGuest: include && include.leadGuest,
+      unit: include && include.unit,
+      payments: include && include.payments,
+      guests: include && include.guests,
+      extras: include && include.extras,
+      calendarEntries: include && include.calendarEntries,
+      notes: include && include.notes,
+      bookingGroup: include && include.bookingGroup
+    }
+  })
+
+  // handle summariesOnly request
+  let bookingSummaries
+  if (summariesOnly) {
+    bookingSummaries = data.map((booking) => ({
+      id: booking.id,
+      bookingName: booking.leadGuest.lastName,
+      guests: (booking.guests as any).reduce(
+        (acc: { [key: string]: number }, guest: any) => {
+          if (acc[guest.guestType.name]) {
+            acc[guest.guestType.name] += 1;
+            return acc;
+          } else {
+            acc[guest.guestType.name] = 1;
+            return acc;
+          }
+        },
+        {}
+      ),
+      unit: booking.unitId,
+      start: booking.start.toString(),
+      end: booking.end.toString(),
+      paid: bookingPaymentsTotal(booking.payments) >= booking.totalFee,
+      guestsCheckedIn: booking.guests.filter((guest) => guest.checkedIn)
+        .length,
+      bookingGroupId: booking.bookingGroup.id,
+      sizeOfGroup: (booking.bookingGroup as any).bookings.length
+    }));
+  }
+
+  // handle count request
+  let countData 
+  if (count) {
+    countData = count && await prisma.booking.count({
+      where: {
+        unit: {
+          unitType: {
+            siteId: siteId,
           },
         },
+        status: status as string | undefined
       },
-      bookingGroup: {
-        include: {
-          bookings: true
-        }
-      },
-      payments: true,
-    },
-  });
-
-  // convert to summary for transmission
-  const bookingSummaries = data.map((booking) => ({
-    id: booking.id,
-    bookingName: booking.leadGuest.lastName,
-    guests: booking.guests.reduce(
-      (acc: { [key: string]: number }, guest) => {
-        if (acc[guest.guestType.name]) {
-          acc[guest.guestType.name] += 1;
-          return acc;
-        } else {
-          acc[guest.guestType.name] = 1;
-          return acc;
-        }
-      },
-      {}
-    ),
-    unit: booking.unitId,
-    start: booking.start.toString(),
-    end: booking.end.toString(),
-    paid: bookingPaymentsTotal(booking.payments) >= booking.totalFee,
-    guestsCheckedIn: booking.guests.filter((guest) => guest.checkedIn)
-      .length,
-    bookingGroupId: booking.bookingGroup.id,
-    sizeOfGroup: booking.bookingGroup.bookings.length
-  }));
-
-  return res.status(200).json({ data: bookingSummaries });
+    });
+  }
+  
+  return res.status(200).json({ data: summariesOnly ? bookingSummaries : data, count: countData })
 }
 
 export async function bookingById(req: Request, res: Response) {

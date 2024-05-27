@@ -2,7 +2,7 @@ import { BOOKING_STATUSES } from "../../../enums.js";
 import { maxPageLength } from "../../../settings.js";
 
 export type ValidationRule = {
-  type: "number" | "string" | "boolean" | "date" | "array";
+  type: "int" | "float" | "string" | "boolean" | "date" | "array" | "any";
   min?: number;
   max?: number;
   minLength?: number;
@@ -16,8 +16,8 @@ export type ValidationRules = {
 
 export const validationRulesMap: ValidationRules = {
   siteId: {
-    type: "number",
-    min: 0,
+    type: "int",
+    min: 1,
   },
   siteName: {
     type: "string",
@@ -48,8 +48,8 @@ export const validationRulesMap: ValidationRules = {
     maxLength: 500,
   },
   tenantId: {
-    type: "number",
-    min: 0,
+    type: "int",
+    min: 1,
   },
   name: {
     type: "string",
@@ -84,24 +84,24 @@ export const validationRulesMap: ValidationRules = {
     type: "date",
   },
   equipmentTypeId: {
-    type: "number",
-    min: 0,
+    type: "int",
+    min: 1,
   },
   take: {
-    type: "number",
+    type: "int",
     min: 1,
     max: maxPageLength
   },
   skip: {
-    type: "number",
+    type: "int",
     min: 0,
   },
   id: {
-    type: "number",
+    type: "int",
     min: 0,
   },
   leadGuestId: {
-    type: "number",
+    type: "int",
     min: 0,
   },
   firstName: {
@@ -150,7 +150,7 @@ export const validationRulesMap: ValidationRules = {
     maxLength: 100,
   },
   unitId: {
-    type: "number",
+    type: "int",
     min: 0,
   },
   extras: {
@@ -171,7 +171,7 @@ export const validationRulesMap: ValidationRules = {
     minLength: 0,
   },
   paymentAmount: {
-    type: "number",
+    type: "int",
     minLength: 0,
   },
   paymentMethod: {
@@ -184,7 +184,7 @@ export const validationRulesMap: ValidationRules = {
     type: "date",
   },
   bookingGroupId: {
-    type: "number",
+    type: "int",
     minLength: 0,
     min: 0
   },
@@ -211,7 +211,7 @@ export const validationRulesMap: ValidationRules = {
     type: "boolean",
   },
   unitTypeId: {
-    type: "number",
+    type: "int",
     min: 0,
   },
   q: {
@@ -220,23 +220,23 @@ export const validationRulesMap: ValidationRules = {
     maxLength: 100,
   },
   bookingId: {
-    type: "number",
+    type: "int",
     min: 0,
   },
   paymentId: {
-    type: "number",
+    type: "int",
     min: 0,
   },
   bookingGuestId: {
-    type: "number",
+    type: "int",
     min: 0,
   },
   bookingPetId: {
-    type: "number",
+    type: "int",
     min: 0,
   },
   bookingVehicleId: {
-    type: "number",
+    type: "int",
     min: 0,
   },
   content: {
@@ -264,12 +264,12 @@ export const validationRulesMap: ValidationRules = {
     validEnum: [BOOKING_STATUSES.CONFIRMED, BOOKING_STATUSES.UNCONFIRMED, BOOKING_STATUSES.CANCELLED],
   },
   latitude: {
-    type: "number",
+    type: "int",
     min: -90,
     max: 90,
   },
   longitude: {
-    type: "number",
+    type: "int",
     min: -180,
     max: 180,
   },
@@ -280,4 +280,19 @@ export const validationRulesMap: ValidationRules = {
     type: "array",
     minLength: 1,
   },
+  include: {
+    type: "boolean"
+  },
+  summariesOnly: {
+    type: "boolean"
+  },
+  count: {
+    type: "boolean"
+  },
+  OR: {
+    type: "any"
+  },
+  AND: {
+    type: "any"
+  }
 };
