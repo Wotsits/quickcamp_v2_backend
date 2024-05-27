@@ -9,7 +9,6 @@ export const urls: { [key: string]: string } = {
   BOOKING: "/booking",
   BOOKING_GROUPS: '/booking-groups',
   BOOKING_BY_ID: "/booking-by-id",
-  NEW_BOOKING: "/new-booking",
   PAYMENTS: "/payments",
   EXTRATYPES: "/extra-types",
   ARRIVALS: "/arrivals",

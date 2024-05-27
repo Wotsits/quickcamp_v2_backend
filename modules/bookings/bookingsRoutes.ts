@@ -16,14 +16,14 @@ import {
 
 export function registerBookingRoutes() {
   app.get(`${urls.BOOKING}/:id`, validateProvidedData, loggedIn, bookingById);
-  app.get(urls.BOOKING, validateProvidedData, loggedIn, getBookings)
   app.post(
-    urls.NEW_BOOKING,
+    `${urls.BOOKING}/new`,
     validateProvidedData,
     loggedIn,
     hasAccessToRequestedSite,
     createBooking
   );
+  app.get(urls.BOOKING, validateProvidedData, loggedIn, getBookings)
   app.post(
     urls.UPDATE_BOOKING_LEAD_GUEST_EXISTING,
     validateProvidedData,
