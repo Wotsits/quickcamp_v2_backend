@@ -15,8 +15,8 @@ import {
 } from "./bookingsControllers.js";
 
 export function registerBookingRoutes() {
+  app.get(`${urls.BOOKING}/:id`, validateProvidedData, loggedIn, bookingById);
   app.get(urls.BOOKING, validateProvidedData, loggedIn, getBookings)
-  app.get(`${urls.BOOKING_BY_ID}`, validateProvidedData, loggedIn, bookingById);
   app.post(
     urls.NEW_BOOKING,
     validateProvidedData,

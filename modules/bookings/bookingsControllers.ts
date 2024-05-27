@@ -158,18 +158,24 @@ export async function bookingById(req: Request, res: Response) {
     });
   }
 
-  const { id: bookingId } = req.query;
-
   // get the user's tenancy
   const { tenantId } = user;
 
+  let id;
+
   // parse supplied data
-  const parsedBookingId = parseInt(bookingId as string);
+  try {
+    const { id: localId } = parseData(req.params, validationRulesMap);
+    id = localId;
+  }
+  catch(err) {
+    return res.status(400).json({message: "malformed query variables"})
+  }
 
   // get the booking
   const data = await prisma.booking.findUnique({
     where: {
-      id: parsedBookingId,
+      id
     },
     include: {
       unit: {
