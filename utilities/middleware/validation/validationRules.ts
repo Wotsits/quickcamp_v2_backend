@@ -327,15 +327,15 @@ export const validationRulesMap: ValidationRules = {
     type: "boolean"
   },
   OR: {
-    governChildren: true,
+    governChildren: false,
     type: "any"
   },
   AND: {
-    governChildren: true,
+    governChildren: false,
     type: "any"
   },
   some: {
-    governChildren: true,
+    governChildren: false,
     type: "any",
   },
   orderBy: {

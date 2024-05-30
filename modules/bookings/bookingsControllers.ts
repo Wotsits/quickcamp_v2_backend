@@ -6,7 +6,7 @@ import bcrypt from "bcryptjs";
 import { BookingProcessGuest, BookingProcessPet, BookingProcessVehicle } from "../../types";
 import { bookingPaymentsTotal, calculateFee } from "./bookingsHelpers.js";
 import { BOOKING_STATUSES } from "../../enums.js";
-import { parseData } from "../../utilities/commonHelpers/parseData.js";
+import { parseObj } from "../../utilities/commonHelpers/parseObj.js";
 import { validationRulesMap } from "../../utilities/middleware/validation/validationRules.js";
 
 export async function getBookings(req: Request, res: Response) {
@@ -18,9 +18,9 @@ export async function getBookings(req: Request, res: Response) {
     });
   }
 
-  let id, start, end, unitId, totalFee, leadGuestId, status, bookingGroupId, siteId, skip, take, include, summariesOnly, count, AND, OR;
+  let id, start, end, unitId, totalFee, leadGuestId, status, bookingGroupId, siteId, guests, skip, take, include, summariesOnly, count, AND, OR;
 
-  // unpack and parse any params into the correct data type using the parseData helper
+  // unpack and parse any params into the correct data type using the parseObj helper
   try {
     const {
       id: localId,
@@ -32,6 +32,7 @@ export async function getBookings(req: Request, res: Response) {
       status: localStatus,
       bookingGroupId: localBookingGroupId,
       siteId: localSiteId,
+      guests: localGuests,
       AND: localAND,
       OR: localOR,
       skip: localSkip,
@@ -39,7 +40,8 @@ export async function getBookings(req: Request, res: Response) {
       include: localInclude,
       summariesOnly: localSummariesOnly,
       count: localCount,
-    } = parseData(req.query, validationRulesMap)
+
+    } = parseObj(req.query, validationRulesMap)
 
     id = localId
     start = localStart
@@ -50,6 +52,7 @@ export async function getBookings(req: Request, res: Response) {
     status = localStatus
     bookingGroupId = localBookingGroupId
     siteId = localSiteId
+    guests = localGuests
     AND = localAND
     OR = localOR
     skip = localSkip
@@ -57,6 +60,7 @@ export async function getBookings(req: Request, res: Response) {
     include = localInclude,
       summariesOnly = localSummariesOnly,
       count = localCount
+
   }
   catch (err) {
     return res.status(400).json({ message: "malformed query variables" })
@@ -70,37 +74,49 @@ export async function getBookings(req: Request, res: Response) {
     });
   }
 
-  const data = await prisma.booking.findMany({
-    where: {
-      id,
-      start,
-      end,
-      unitId,
-      totalFee,
-      leadGuestId,
-      status,
-      bookingGroupId,
-      unit: {
-        unitType: {
-          siteId: siteId
-        }
+  let data;
+
+  try {
+    data = await prisma.booking.findMany({
+      where: {
+        id,
+        start,
+        end,
+        unitId,
+        totalFee,
+        leadGuestId,
+        status,
+        bookingGroupId,
+        guests,
+        unit: {
+          unitType: {
+            siteId: siteId
+          }
+        },
+        AND,
+        OR
       },
-      AND,
-      OR
-    },
-    skip,
-    take,
-    include: {
-      leadGuest: include && include.leadGuest,
-      unit: include && include.unit,
-      payments: include && include.payments,
-      guests: include && include.guests,
-      extras: include && include.extras,
-      calendarEntries: include && include.calendarEntries,
-      notes: include && include.notes,
-      bookingGroup: include && include.bookingGroup
-    }
-  })
+      skip,
+      take,
+      include: {
+        leadGuest: include && include.leadGuest,
+        unit: include && include.unit,
+        payments: include && include.payments,
+        guests: include && include.guests,
+        extras: include && include.extras,
+        calendarEntries: include && include.calendarEntries,
+        notes: include && include.notes,
+        bookingGroup: include && include.bookingGroup
+      }
+    })
+  }
+  catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message: "Internal server error",
+      error: error,
+    });
+  }
 
   // handle summariesOnly request
   let bookingSummaries
@@ -165,7 +181,7 @@ export async function bookingById(req: Request, res: Response) {
 
   // parse supplied data
   try {
-    const { id: localId } = parseData(req.params, validationRulesMap);
+    const { id: localId } = parseObj(req.params, validationRulesMap);
     id = localId;
   }
   catch (err) {
@@ -614,9 +630,9 @@ export async function updateBookingLeadGuestExisting(req: Request, res: Response
   let bookingId, leadGuestId;
 
   try {
-    const { id } = parseData(req.params, validationRulesMap);
+    const { id } = parseObj(req.params, validationRulesMap);
     bookingId = id;
-    const { leadGuestId: localLeadGuestId } = parseData(req.body, validationRulesMap);
+    const { leadGuestId: localLeadGuestId } = parseObj(req.body, validationRulesMap);
     leadGuestId = localLeadGuestId;
   }
   catch (err) {
@@ -714,7 +730,7 @@ export async function updateBookingLeadGuestNew(req: Request, res: Response) {
       county: localCounty,
       postcode: localPostcode,
       country: localCountry,
-    } = parseData(req.body, validationRulesMap)
+    } = parseObj(req.body, validationRulesMap)
 
     firstName = localFirstName
     lastName = localLastName
@@ -727,7 +743,7 @@ export async function updateBookingLeadGuestNew(req: Request, res: Response) {
     postcode = localPostcode
     country = localCountry
 
-    const { id: localId } = parseData(req.params, validationRulesMap);
+    const { id: localId } = parseObj(req.params, validationRulesMap);
     id = localId;
   }
   catch (err) {
