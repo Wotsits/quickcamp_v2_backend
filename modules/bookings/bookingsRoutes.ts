@@ -6,7 +6,7 @@ import {
 import { validateProvidedData } from "../../utilities/middleware/validation/middleware.js";
 import { app } from "../../index.js";
 import {
-  bookingById,
+  getBookingById,
   createBooking,
   generateFeeCalcs,
   getBookings,
@@ -15,7 +15,7 @@ import {
 } from "./bookingsControllers.js";
 
 export function registerBookingRoutes() {
-  app.get(`${urls.BOOKING}/:id`, validateProvidedData, loggedIn, bookingById);
+  app.get(`${urls.BOOKING}/:id`, validateProvidedData, loggedIn, getBookingById);
   app.post(
     `${urls.BOOKING}/new`,
     validateProvidedData,

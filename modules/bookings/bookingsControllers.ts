@@ -165,7 +165,7 @@ export async function getBookings(req: Request, res: Response) {
   return res.status(200).json({ data: summariesOnly ? bookingSummaries : data, count: countData })
 }
 
-export async function bookingById(req: Request, res: Response) {
+export async function getBookingById(req: Request, res: Response) {
   // ensure we have the user on the request
   const { user } = req;
   if (!user) {
@@ -189,42 +189,53 @@ export async function bookingById(req: Request, res: Response) {
   }
 
   // get the booking
-  const data = await prisma.booking.findUnique({
-    where: {
-      id
-    },
-    include: {
-      unit: {
-        include: {
-          unitType: {
-            include: {
-              site: {
-                include: {
-                  tenant: true,
+  let data;
+
+  try {
+    data = await prisma.booking.findUnique({
+      where: {
+        id
+      },
+      include: {
+        unit: {
+          include: {
+            unitType: {
+              include: {
+                site: {
+                  include: {
+                    tenant: true,
+                  },
                 },
               },
             },
           },
         },
-      },
-      leadGuest: true,
-      guests: {
-        include: {
-          guestType: {
-            include: {
-              guestTypeGroup: true,
-            },
+        leadGuest: true,
+        guests: {
+          include: {
+            guestType: {
+              include: {
+                guestTypeGroup: true,
+              },
+            }
+          },
+        },
+        bookingGroup: {
+          include: {
+            bookings: true
           }
         },
+        payments: true,
       },
-      bookingGroup: {
-        include: {
-          bookings: true
-        }
-      },
-      payments: true,
-    },
-  });
+    });
+  }
+  catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message: "Internal server error",
+      error: error,
+    });
+  }
 
   // ensure the booking exists
   if (!data) {
