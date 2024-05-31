@@ -24,8 +24,6 @@ export function validateProvidedData(
     results.push(validateObj(item, validationRulesMap))
   })
 
-  console.log("results in validateProvidedData: ", results)
-
   if (results.includes(false)) {
     return res.status(400).json({
       message: "Bad request - invalid data",

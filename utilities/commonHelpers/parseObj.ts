@@ -35,12 +35,13 @@ function parseValue(value: any, rule: ValidationRule): any {
       const governsChildren = ruleObj.governChildren;
   
       if (Array.isArray(value)) {
+        parsedData[key] = []
         for (const arrVal of value) {
           if (typeof arrVal !== 'object') {
-            parsedData[key] = parseValue(arrVal, ruleObj)
+            parsedData[key].push(parseValue(arrVal, ruleObj))
           }
           else {
-            parsedData[key] = parseObj(arrVal, governsChildren ? undefined : validationRules, governsChildren ? ruleObj : undefined)
+            parsedData[key].push(parseObj(arrVal, governsChildren ? undefined : validationRules, governsChildren ? ruleObj : undefined))
           }
         }
       }

@@ -38,8 +38,6 @@ function validateValue(value: any, rule: ValidationRule): boolean {
 
 export function validateObj(dataObj: any, validationRules?: ValidationRules, rule?: ValidationRule): any {
 
-  console.log("dataObj", dataObj)
-
   const results: boolean[] = [];
 
   for (const key in dataObj) {
