@@ -18,7 +18,7 @@ export async function getBookings(req: Request, res: Response) {
     });
   }
 
-  let id, start, end, unitId, totalFee, leadGuestId, status, bookingGroupId, siteId, guests, skip, take, include, summariesOnly, count, AND, OR;
+  let id, start, end, unitId, totalFee, leadGuestId, status, bookingGroupId, siteId, guests, skip, take, include, summariesOnly, count, AND, OR, orderBy;
 
   // unpack and parse any params into the correct data type using the parseObj helper
   try {
@@ -40,7 +40,7 @@ export async function getBookings(req: Request, res: Response) {
       include: localInclude,
       summariesOnly: localSummariesOnly,
       count: localCount,
-
+      orderBy: localOrderBy
     } = parseObj(req.query, validationRulesMap)
 
     id = localId
@@ -60,7 +60,7 @@ export async function getBookings(req: Request, res: Response) {
     include = localInclude,
       summariesOnly = localSummariesOnly,
       count = localCount
-
+    orderBy = localOrderBy
   }
   catch (err) {
     return res.status(400).json({ message: "malformed query variables" })
@@ -107,7 +107,8 @@ export async function getBookings(req: Request, res: Response) {
         calendarEntries: include && include.calendarEntries,
         notes: include && include.notes,
         bookingGroup: include && include.bookingGroup
-      }
+      },
+      orderBy
     })
   }
   catch (error) {
