@@ -1,5 +1,7 @@
 import { Request, Response } from "express";
 import { prisma } from "../../index.js";
+import { ParsedQs } from "qs";
+import { parseObj } from "../../utilities/commonHelpers/parseObj.js";
 
 export async function getBookingGroupById(req: Request, res: Response) {
     // ensure we have the user on the request
@@ -10,21 +12,27 @@ export async function getBookingGroupById(req: Request, res: Response) {
         });
     }
 
-    // get the tenantId of the user which is used later to validate permission to view.
-    const { tenantId } = user
+    // get the bookingGroupId and siteId from the request
+    let bookingGroupId, siteId;
 
-    // get the bookingGroupId
-    const { id: bookingGroupId } = req.query;
+    try {
+        const {id: localId, siteId: localSiteId} = parseObj(req.query)
 
-    // parse supplied data
-    const parsedBookingGroupId = parseInt(bookingGroupId as string);
+        bookingGroupId = localId;
+        siteId = localSiteId;
+    }
+    catch (error) {
+        return res.status(400).json({
+            message: "Bad request",
+        });
+    }
 
     // get the bookingGroup
     const data = await prisma.bookingGroup.findUnique({
         where: {
-            id: parsedBookingGroupId,
+            id: bookingGroupId,
             site: {
-                tenantId
+                id: siteId
             }
         },
         include: {
