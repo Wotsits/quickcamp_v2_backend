@@ -8,18 +8,7 @@ import { app } from "../../index.js";
 import {
   checkOutGuest,
   checkoutManyGuests,
-  getDeparturesByDate,
 } from "./departureControllers.js";
-
-export function registerDeparturesRoutes() {
-  app.get(
-    urls.DEPARTURES_BY_DATE,
-    validateProvidedData,
-    loggedIn,
-    hasAccessToRequestedSite,
-    getDeparturesByDate
-  );
-}
 
 export function registerCheckOutRoutes() {
   app.put(urls.CHECK_OUT_GUEST, validateProvidedData, loggedIn, checkOutGuest);
