@@ -4,63 +4,6 @@ import { raiseConsoleErrorWithListOfMissingData } from "../../utilities/commonHe
 import { isGuestDue } from "./arrivalsHelpers.js";
 import { BOOKING_STATUSES } from "../../enums.js";
 
-export async function getArrivalsByDate(req: Request, res: Response) {
-  if (!req.user) {
-    return res.status(401).json({
-      message: "Unauthorized",
-    });
-  }
-
-  const siteId = req.query.siteId;
-  const date = req.query.date;
-
-  if (!siteId) {
-    return res.status(400).json({
-      message: "Bad request - no siteId",
-    });
-  }
-
-  // return bookings here, paginated.
-  const data = await prisma.booking.findMany({
-    where: {
-      guests: {
-        some: {
-          start: new Date(date as string),
-        },
-      },
-      status: BOOKING_STATUSES.CONFIRMED
-    },
-    orderBy: [
-      {
-        leadGuest: {
-          lastName: "asc",
-        },
-      },
-      {
-        leadGuest: {
-          firstName: "asc",
-        },
-      },
-    ],
-    include: {
-      unit: true,
-      leadGuest: true,
-      guests: {
-        include: {
-          guestType: {
-            include: {
-              guestTypeGroup: true,
-            },
-          },
-        },
-      },
-      payments: true,
-    },
-  });
-
-  return res.status(200).json({ data });
-}
-
 export async function checkInGuest(req: Request, res: Response) {
   // check that the user is logged in
   const { user } = req;

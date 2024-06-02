@@ -8,18 +8,7 @@ import { app } from "../../index.js";
 import {
   checkInGuest,
   checkInManyGuests,
-  getArrivalsByDate,
 } from "./arrivalsControllers.js";
-
-export function registerArrivalsRoutes() {
-  app.get(
-    urls.ARRIVALS,
-    validateProvidedData,
-    loggedIn,
-    hasAccessToRequestedSite,
-    getArrivalsByDate
-  );
-}
 
 export function registerCheckInRoutes() {
   app.put(urls.CHECK_IN_GUEST, validateProvidedData, loggedIn, checkInGuest);

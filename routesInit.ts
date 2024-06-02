@@ -12,7 +12,7 @@ import { registerLeadGuestRoutes } from "./modules/leadGuests/leadGuestsRoutes.j
 import { registerBookingRoutes } from "./modules/bookings/bookingsRoutes.js";
 import { registerPaymentRoutes } from "./modules/payments/paymentsRoutes.js";
 import { registerExtraTypeRoutes } from "./modules/extraTypes/extraTypesRoutes.js";
-import { registerArrivalsRoutes, registerCheckInRoutes } from "./modules/arrivals/arrivalsRoutes.js";
+import { registerCheckInRoutes } from "./modules/arrivals/arrivalsRoutes.js";
 import { registerGuestTypeRoutes } from "./modules/guestTypes/guestTypesRoutes.js";
 import { registerEquipmentTypeRoutes } from "./modules/equipmentTypes/equipmentTypesRoutes.js";
 import { registerUserRoutes } from "./modules/users/usersRoutes.js";
@@ -37,7 +37,6 @@ export function routesInit() {
   registerLeadGuestRoutes();
   registerBookingGroupRoutes();
   registerBookingRoutes();
-  registerArrivalsRoutes();
   registerCheckInRoutes();
   registerDeparturesRoutes();
   registerCheckOutRoutes();
