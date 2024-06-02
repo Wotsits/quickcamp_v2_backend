@@ -110,6 +110,11 @@ export function hasAccessToRequestedSite(req: Request, res: Response, next: Next
     return res.status(401).json({ message: errorMessages.NOT_AUTHORIZED });
   }
 
+  // check that the user has provided a siteId.  The route is protected by this middleware, so the user must provide a siteId
+  if (!querySiteId && !paramsSiteId && !bodySiteId) {
+    return res.status(401).json({ message: errorMessages.NOT_AUTHORIZED });
+  }
+
   // check the user sites object for the siteId
   if (querySiteId) {
     const targetSite = user.sites.find((site: any) => site.id === parseInt(querySiteId as string));

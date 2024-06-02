@@ -11,11 +11,12 @@ import {
 } from "./departureControllers.js";
 
 export function registerCheckOutRoutes() {
-  app.put(urls.CHECK_OUT_GUEST, validateProvidedData, loggedIn, checkOutGuest);
+  app.put(urls.CHECK_OUT_GUEST, validateProvidedData, loggedIn, hasAccessToRequestedSite, checkOutGuest);
   app.put(
     urls.CHECK_OUT_MANY_GUESTS,
     validateProvidedData,
     loggedIn,
+    hasAccessToRequestedSite,
     checkoutManyGuests
   );
 }

@@ -11,11 +11,12 @@ import {
 } from "./arrivalsControllers.js";
 
 export function registerCheckInRoutes() {
-  app.put(urls.CHECK_IN_GUEST, validateProvidedData, loggedIn, checkInGuest);
+  app.put(urls.CHECK_IN_GUEST, validateProvidedData, loggedIn, hasAccessToRequestedSite, checkInGuest);
   app.put(
     urls.CHECK_IN_MANY_GUESTS,
     validateProvidedData,
     loggedIn,
+    hasAccessToRequestedSite,
     checkInManyGuests
   );
 }
