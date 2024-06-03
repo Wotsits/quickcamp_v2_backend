@@ -88,6 +88,14 @@ export const validationRulesMap: ValidationRules = {
     governChildren: true,
     type: "date",
   },
+  startDate: {
+    governChildren: true,
+    type: "date",
+  },
+  endDate: {
+    governChildren: true,
+    type: "date",
+  },
   date: {
     governChildren: true,
     type: "date",
@@ -111,7 +119,7 @@ export const validationRulesMap: ValidationRules = {
   id: {
     governChildren: true,
     type: "int",
-    min: 0,
+    min: -1,
   },
   leadGuestId: {
     governChildren: true,
@@ -178,8 +186,8 @@ export const validationRulesMap: ValidationRules = {
     min: 0,
   },
   extras: {
-    governChildren: false,
-    type: "array",
+    governChildren: true,
+    type: "int",
     minLength: 0,
     maxLength: 5000,
   },
@@ -239,6 +247,11 @@ export const validationRulesMap: ValidationRules = {
     type: "boolean",
   },
   unitTypeId: {
+    governChildren: true,
+    type: "int",
+    min: 0,
+  },
+  guestTypeId: {
     governChildren: true,
     type: "int",
     min: 0,

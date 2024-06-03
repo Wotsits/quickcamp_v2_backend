@@ -56,7 +56,9 @@ export function validateObj(dataObj: any, validationRules?: ValidationRules, rul
     if (Array.isArray(value)) {
       for (const arrVal of value) {
         if (typeof arrVal !== 'object') {
-          results.push(validateValue(arrVal, ruleObj))
+          const isValid = validateValue(arrVal, ruleObj)
+          if (!isValid) console.log(`Invalid value: ${arrVal} for key: ${key}`)
+          results.push(isValid)
         }
         else {
           results.push(validateObj(arrVal, governsChildren ? undefined : validationRules, governsChildren ? ruleObj : undefined))
@@ -64,7 +66,9 @@ export function validateObj(dataObj: any, validationRules?: ValidationRules, rul
       }
     }
     else if (typeof value !== 'object') {
-      results.push(validateValue(value, ruleObj))
+      const isValid = validateValue(value, ruleObj)
+      if (!isValid) console.log(`Invalid value: ${value} for key: ${key}`)
+      results.push(isValid)
     }
     else {
       results.push(validateObj(value, governsChildren ? undefined : validationRules, governsChildren ? ruleObj : undefined))

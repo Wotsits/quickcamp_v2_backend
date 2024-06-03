@@ -25,6 +25,7 @@ export function validateProvidedData(
   })
 
   if (results.includes(false)) {
+    console.log("Error: Bad request - invalid data")
     return res.status(400).json({
       message: "Bad request - invalid data",
     });
