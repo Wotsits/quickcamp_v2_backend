@@ -58,8 +58,8 @@ export async function getBookings(req: Request, res: Response) {
     skip = localSkip
     take = localTake
     include = localInclude,
-      summariesOnly = localSummariesOnly,
-      count = localCount
+    summariesOnly = localSummariesOnly,
+    count = localCount,
     orderBy = localOrderBy
   }
   catch (err) {
