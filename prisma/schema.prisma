@@ -172,6 +172,8 @@ model Booking {
   notes             Note[]
   bookingGroupId    Int             
   bookingGroup      BookingGroup      @relation(fields: [bookingGroupId], references: [id])
+  createdAt         DateTime          @default(now())     
+  updatedAt         DateTime          @default(now())
 }
 
 model Calendar {

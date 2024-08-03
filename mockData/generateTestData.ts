@@ -244,6 +244,8 @@ async function main() {
     else if (randomNumber < 9) randomIndex = 1
     else randomIndex = 2
     
+    const createdDate = new Date()
+
     const newBooking = {
       id: newBookingId,
       start: startDate,
@@ -252,7 +254,9 @@ async function main() {
       totalFee: 100,
       leadGuestId: randomGuestId,
       status: availableBookingStatuses[randomIndex],
-      bookingGroupId: randomBookingGroup.id
+      bookingGroupId: randomBookingGroup.id,
+      createdAt: createdDate,
+      updatedAt: createdDate
     };
 
     bookings.push(newBooking);
