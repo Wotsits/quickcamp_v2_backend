@@ -52,9 +52,11 @@ export function adminAuth(req: Request, res: Response, next: NextFunction) {
   if (token) {
     jwt.verify(token, jwtSecret, (err: any, decodedToken: any) => {
       if (err) {
+        console.log("JWT VERIFICATION FAILED - INVALID JWT TOKEN");
         return res.status(401).json({ message: errorMessages.NOT_AUTHORIZED });
       } else {
         if (decodedToken.role !== "ADMIN") {
+          console.log("JWT VERIFICATION FAILED - INVALID JWT TOKEN");
           return res
             .status(401)
             .json({ message: errorMessages.NOT_AUTHORIZED });
@@ -64,6 +66,7 @@ export function adminAuth(req: Request, res: Response, next: NextFunction) {
       }
     });
   } else {
+    console.log("JWT VERIFICATION FAILED - NO JWT TOKEN IN PAYLOAD");
     return res
       .status(401)
       .json({ message: errorMessages.NOT_AUTHORIZED_TOKEN_NOT_AVAILABLE });
@@ -78,9 +81,11 @@ export function userAuth(req: Request, res: Response, next: NextFunction) {
   if (token) {
     jwt.verify(token, jwtSecret, (err: any, decodedToken: any) => {
       if (err) {
+        console.log("JWT VERIFICATION FAILED - INVALID JWT TOKEN");
         return res.status(401).json({ message: errorMessages.NOT_AUTHORIZED });
       } else {
         if (decodedToken.role !== "BASIC") {
+          console.log("JWT VERIFICATION FAILED - INVALID JWT TOKEN");
           return res
             .status(401)
             .json({ message: errorMessages.NOT_AUTHORIZED });
@@ -90,6 +95,7 @@ export function userAuth(req: Request, res: Response, next: NextFunction) {
       }
     });
   } else {
+    console.log("JWT VERIFICATION FAILED - NO JWT TOKEN IN PAYLOAD");
     return res
       .status(401)
       .json({ message: errorMessages.NOT_AUTHORIZED_TOKEN_NOT_AVAILABLE });
@@ -107,11 +113,13 @@ export function hasAccessToRequestedSite(req: Request, res: Response, next: Next
   // get the user from the request
   const {user} = req;
   if (!user) {
+    console.log("JWT VERIFICATION FAILED - NO USER IN PAYLOAD");
     return res.status(401).json({ message: errorMessages.NOT_AUTHORIZED });
   }
 
   // check that the user has provided a siteId.  The route is protected by this middleware, so the user must provide a siteId
   if (!querySiteId && !paramsSiteId && !bodySiteId) {
+    console.log("JWT VERIFICATION FAILED - NO SITEID PROVIDED");
     return res.status(401).json({ message: errorMessages.NOT_AUTHORIZED });
   }
 
@@ -119,18 +127,21 @@ export function hasAccessToRequestedSite(req: Request, res: Response, next: Next
   if (querySiteId) {
     const targetSite = user.sites.find((site: any) => site.id === parseInt(querySiteId as string));
     if (!targetSite) {
+      console.log("JWT VERIFICATION FAILED - USER DOES NOT HAVE ACCESS TO SITE");
       return res.status(401).json({ message: errorMessages.NOT_AUTHORIZED });
     }
   }
   if (paramsSiteId) {
     const targetSite = user.sites.find((site: any) => site.id === parseInt(paramsSiteId as string));
     if (!targetSite) {
+      console.log("JWT VERIFICATION FAILED - USER DOES NOT HAVE ACCESS TO SITE");
       return res.status(401).json({ message: errorMessages.NOT_AUTHORIZED });
     }
   }
   if (bodySiteId) {
     const targetSite = user.sites.find((site: any) => site.id === parseInt(bodySiteId as string));
     if (!targetSite) {
+      console.log("JWT VERIFICATION FAILED - USER DOES NOT HAVE ACCESS TO SITE");
       return res.status(401).json({ message: errorMessages.NOT_AUTHORIZED });
     }
   }

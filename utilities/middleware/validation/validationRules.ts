@@ -304,6 +304,7 @@ export const validationRulesMap: ValidationRules = {
   status: {
     governChildren: true,
     type: "string",
+    minLength: 0,
     validEnum: [BOOKING_STATUSES.CONFIRMED, BOOKING_STATUSES.UNCONFIRMED, BOOKING_STATUSES.CANCELLED],
   },
   latitude: {
@@ -323,7 +324,7 @@ export const validationRulesMap: ValidationRules = {
     type: "boolean",
   },
   changedItems: {
-    governChildren: true,
+    governChildren: false,
     type: "array",
     minLength: 1,
   },

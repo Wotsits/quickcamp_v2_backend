@@ -57,7 +57,7 @@ export function validateObj(dataObj: any, validationRules?: ValidationRules, rul
       for (const arrVal of value) {
         if (typeof arrVal !== 'object') {
           const isValid = validateValue(arrVal, ruleObj)
-          if (!isValid) console.log(`Invalid value: ${arrVal} for key: ${key}`)
+          if (!isValid) console.log(`Invalid value: ${arrVal} for key: ${key}. Failed inside isArray block.`)
           results.push(isValid)
         }
         else {
@@ -67,7 +67,7 @@ export function validateObj(dataObj: any, validationRules?: ValidationRules, rul
     }
     else if (typeof value !== 'object') {
       const isValid = validateValue(value, ruleObj)
-      if (!isValid) console.log(`Invalid value: ${value} for key: ${key}`)
+      if (!isValid) console.log(`Invalid value: ${value} for key: ${key}.  Failed inside elseif block.`)
       results.push(isValid)
     }
     else {
