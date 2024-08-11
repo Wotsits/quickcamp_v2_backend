@@ -211,6 +211,7 @@ export async function getBookingById(req: Request, res: Response) {
             },
           },
         },
+        equipmentType: true,
         leadGuest: true,
         guests: {
           include: {
@@ -508,6 +509,11 @@ export async function createBooking(req: Request, res: Response) {
         data: {
           start: new Date(startDate),
           end: new Date(endDate),
+          equipmentType: {
+            connect: {
+              id: parseInt(equipmentTypeId),
+            },
+          },
           unit: {
             connect: {
               id: parseInt(unitId),
@@ -565,6 +571,11 @@ export async function createBooking(req: Request, res: Response) {
         data: {
           start: new Date(startDate),
           end: new Date(endDate),
+          equipmentType: {
+            connect: {
+              id: parseInt(equipmentTypeId as string),
+            },
+          },
           unit: {
             connect: {
               id: parseInt(unitId as string),

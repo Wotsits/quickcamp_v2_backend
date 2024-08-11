@@ -136,6 +136,7 @@ model EquipmentType {
   siteId          Int 
   site            Site      @relation(fields: [siteId], references: [id])
   unitTypes       UnitType[]
+  bookings        Booking[]
 }
 
 model ExtraType {
@@ -161,6 +162,8 @@ model Booking {
   end               DateTime 
   unit              Unit              @relation(fields: [unitId], references: [id])      
   unitId            Int          
+  equipmentType     EquipmentType     @relation(fields: [equipmentTypeId], references: [id])
+  equipmentTypeId   Int
   totalFee          Float  
   leadGuest         LeadGuest         @relation(fields: [leadGuestId], references: [id])
   leadGuestId       Int

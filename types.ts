@@ -130,6 +130,8 @@ export type Booking = {
   end: Date;
   unitId: number;
   unit: Unit;
+  equipmentTypeId: number;
+  equipmentType?: EquipmentType;
   totalFee: number;
   leadGuestId: number;
   leadGuest: LeadGuest;

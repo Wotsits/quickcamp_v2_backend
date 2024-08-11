@@ -250,6 +250,7 @@ async function main() {
       id: newBookingId,
       start: startDate,
       end: endDate,
+      equipmentTypeId: 1,
       unitId: randomUnitId,
       totalFee: 100,
       leadGuestId: randomGuestId,
