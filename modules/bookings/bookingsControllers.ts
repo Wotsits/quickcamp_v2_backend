@@ -58,9 +58,9 @@ export async function getBookings(req: Request, res: Response) {
     skip = localSkip
     take = localTake
     include = localInclude,
-    summariesOnly = localSummariesOnly,
-    count = localCount,
-    orderBy = localOrderBy
+      summariesOnly = localSummariesOnly,
+      count = localCount,
+      orderBy = localOrderBy
   }
   catch (err) {
     return res.status(400).json({ message: "malformed query variables" })
@@ -891,3 +891,93 @@ export async function generateFeeCalcs(req: Request, res: Response) {
 
   return res.json({ data: { status: "SUCCESS", message: "Fee calculated", totalFee: totalFee } });
 };
+
+export async function updateBooking(req: Request, res: Response) {
+  // ensure that the user is logged in
+  if (!req.user) {
+    return res.status(401).json({
+      message: "Unauthorized",
+    });
+  }
+
+  // get the booking id from the request
+  let id = req.params.id;
+
+  // parse the request body
+  let start: Date | undefined, end: Date | undefined, unitId: number | undefined, totalFee: number | undefined, leadGuestId: number | undefined, status: string | undefined, bookingGroupId: number | undefined;
+
+  try {
+    const {
+      start: localStart,
+      end: localEnd,
+      unitId: localUnitId,
+      totalFee: localTotalFee,
+      leadGuestId: localLeadGuestId,
+      status: localStatus,
+      bookingGroupId: localBookingGroupId
+    } = parseObj(req.body.changedItems, validationRulesMap)
+
+    start = localStart
+    end = localEnd
+    unitId = localUnitId
+    totalFee = localTotalFee
+    leadGuestId = localLeadGuestId
+    status = localStatus
+    bookingGroupId = localBookingGroupId
+  }
+  catch (err) {
+    return res.status(400).json({ message: "malformed query variables" })
+  }
+
+  // get the booking and ensure that the user has access to it
+  const booking = await prisma.booking.findUnique({
+    where: {
+      id: parseInt(id),
+      unit: {
+        unitType: {
+          site: {
+            tenantId: req.user.tenantId,
+          },
+        },
+      },
+    },
+  });
+
+  if (!booking) {
+    return res.status(404).json({
+      message: "Booking not found",
+    });
+  }
+
+  // TODO : if start, end or unitId are being updated, check that the new values have availability
+
+  // update the booking
+  let data;
+  
+  try {
+    data = await prisma.booking.update({
+      where: {
+        id: parseInt(id),
+      },
+      data: {
+        start,
+        end,
+        unitId,
+        totalFee,
+        leadGuestId,
+        status,
+        bookingGroupId
+      },
+    });
+  }
+  catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message: "Internal server error",
+      error: error,
+    });
+  }
+
+  return res.status(200).json({ data: data });
+
+}

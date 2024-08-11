@@ -12,10 +12,15 @@ import {
   getBookings,
   updateBookingLeadGuestExisting,
   updateBookingLeadGuestNew,
+  updateBooking,
 } from "./bookingsControllers.js";
 
 export function registerBookingRoutes() {
+  // GET
   app.get(`${urls.BOOKING}/:id`, validateProvidedData, loggedIn, getBookingById);
+  app.get(urls.BOOKING, validateProvidedData, loggedIn, getBookings)
+  app.get(urls.FEECALCS, validateProvidedData, loggedIn, generateFeeCalcs);
+  // POST
   app.post(
     `${urls.BOOKING}/new`,
     validateProvidedData,
@@ -23,7 +28,6 @@ export function registerBookingRoutes() {
     hasAccessToRequestedSite,
     createBooking
   );
-  app.get(urls.BOOKING, validateProvidedData, loggedIn, getBookings)
   app.post(
     `${urls.BOOKING}/:id/lead-guest`,
     validateProvidedData,
@@ -36,5 +40,6 @@ export function registerBookingRoutes() {
     loggedIn,
     updateBookingLeadGuestNew
   );
-  app.get(urls.FEECALCS, validateProvidedData, loggedIn, generateFeeCalcs);
+  // PUT
+  app.put(`${urls.BOOKING}/:id`, validateProvidedData, loggedIn, updateBooking);
 }
