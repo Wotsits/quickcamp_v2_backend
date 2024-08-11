@@ -950,6 +950,7 @@ export async function updateBooking(req: Request, res: Response) {
   }
 
   // TODO : if start, end or unitId are being updated, check that the new values have availability
+  // TODO : if the status is going from cancelled to confirmed, check that the unit is available
 
   // update the booking
   let data;
