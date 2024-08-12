@@ -162,3 +162,26 @@ export async function calculateFee(
   // return the calculated rate
   return total;
 }
+
+export async function confirmRequestedDatesAreAvailableForUnit(
+  prisma: PrismaClient,
+  unitId: number,
+  startDate: Date,
+  endDate: Date,
+): Promise<{ applicableCalendarEntries: any[], areAllDatesAvailable: boolean }> {
+  const applicableCalendarEntries = await prisma.calendar.findMany({
+    where: {
+      unitId: unitId,
+      date: {
+        gte: new Date(startDate),
+        lt: new Date(endDate),
+      },
+    },
+  });
+
+  const areAllDatesAvailable = applicableCalendarEntries.every(
+    (entry) => entry.bookingId === null
+  );
+
+  return { applicableCalendarEntries, areAllDatesAvailable };
+}

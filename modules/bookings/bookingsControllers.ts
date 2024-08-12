@@ -4,7 +4,7 @@ import { raiseConsoleErrorWithListOfMissingData } from "../../utilities/commonHe
 import { BookingGuest } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { BookingProcessGuest, BookingProcessPet, BookingProcessVehicle } from "../../types";
-import { bookingPaymentsTotal, calculateFee } from "./bookingsHelpers.js";
+import { bookingPaymentsTotal, calculateFee, confirmRequestedDatesAreAvailableForUnit } from "./bookingsHelpers.js";
 import { BOOKING_STATUSES } from "../../enums.js";
 import { parseObj } from "../../utilities/commonHelpers/parseObj.js";
 import { validationRulesMap } from "../../utilities/middleware/validation/validationRules.js";
@@ -448,15 +448,14 @@ export async function createBooking(req: Request, res: Response) {
     };
   });
 
-  const applicableCalendarEntries = await prisma.calendar.findMany({
-    where: {
-      unitId: parseInt(unitId as string),
-      date: {
-        gte: new Date(startDate),
-        lt: new Date(endDate),
-      },
-    },
-  });
+  // check that the dates are available
+  const {applicableCalendarEntries, areAllDatesAvailable} = await confirmRequestedDatesAreAvailableForUnit(prisma, unitId, startDate, endDate);
+
+  if (!areAllDatesAvailable) {
+    return res.status(400).json({
+      message: "Bad request - some dates are not available",
+    });
+  }
 
   if (applicableCalendarEntries.length === 0) {
     return res.status(400).json({
@@ -952,6 +951,9 @@ export async function updateBooking(req: Request, res: Response) {
         },
       },
     },
+    include: {
+      calendarEntries: true,
+    },
   });
 
   if (!booking) {
@@ -960,8 +962,52 @@ export async function updateBooking(req: Request, res: Response) {
     });
   }
 
-  // TODO : if start, end or unitId are being updated, check that the new values have availability
-  // TODO : if the status is going from cancelled to confirmed, check that the unit is available
+  let calendarConnectArr: {id: any}[] = [];
+  let calendarDisconnectArr: {id: any}[] = [];
+
+  // if start, end or unitId are being updated, check that the new values have availability
+  if (start || end || unitId || status === BOOKING_STATUSES.CONFIRMED) {
+    // check that the dates are available
+    const {applicableCalendarEntries, areAllDatesAvailable} = await confirmRequestedDatesAreAvailableForUnit(prisma, unitId || booking.unitId, start || booking.start, end || booking.end);
+
+    if (!areAllDatesAvailable) {
+      return res.status(400).json({
+        message: "Bad request - some dates are not available",
+      });
+    }
+
+    if (applicableCalendarEntries.length === 0) {
+      return res.status(400).json({
+        message:
+          "Bad request - no calendar entries found for this unit and date range.  Something is wrong with the setup.",
+      });
+    }
+
+    // FUTURE_EFFICENCY: when moving from PENDING to CONFIRMED, there is no need to do this. 
+    calendarConnectArr = applicableCalendarEntries.map((entry) => {
+      return {
+        id: entry.id,
+      };
+    });
+
+    calendarDisconnectArr = booking.calendarEntries.map((entry) => {
+      return {
+        id: entry.id,
+      };
+    }
+    );
+  }
+
+  // if cancelling a booking, disconnect all calendar entries
+  if (status === BOOKING_STATUSES.CANCELLED) {
+    calendarDisconnectArr = booking.calendarEntries.map((entry) => {
+      return {
+        id: entry.id,
+      };
+    });
+  }
+
+  // TODO : if start, end or unitID have been updated, recalculate the totalFee
 
   // update the booking
   let data;
@@ -978,7 +1024,11 @@ export async function updateBooking(req: Request, res: Response) {
         totalFee,
         leadGuestId,
         status,
-        bookingGroupId
+        bookingGroupId,
+        calendarEntries: {
+          connect: calendarConnectArr,
+          disconnect: calendarDisconnectArr
+        }
       },
     });
   }
